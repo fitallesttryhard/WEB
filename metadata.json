@@ -1,0 +1,6 @@
+{
+  "name": "Xây Dựng Sbuild",
+  "description": "Website trang chủ công ty vật liệu, phụ kiện xây dựng chuyên nghiệp",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
