@@ -109,6 +109,11 @@ export default function Navbar() {
             </div>
           </div>
           
+          <a href="#projects" className="hover:text-red-600 transition-colors py-2 relative group">
+            Dự án
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+
           <a href="#blog" className="hover:text-red-600 transition-colors py-2 relative group">
             Tin tức
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
@@ -126,7 +131,7 @@ export default function Navbar() {
           <button 
             onClick={openDrawer}
             className="relative p-2.5 text-slate-700 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-            title="Giỏ hàng"
+            title="Danh sách nhận báo giá"
           >
             <ShoppingBag size={22} className="stroke-[2]" />
             {cartCount > 0 && (

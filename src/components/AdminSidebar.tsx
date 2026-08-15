@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   LayoutDashboard, ShoppingCart, Package, Tags, 
-  FileText, Image as ImageIcon, Files, 
+  FileText, Image as ImageIcon, Files, Building2,
   MonitorPlay, Settings, HardHat, Layers, LogOut, ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,7 +21,7 @@ const menuGroups = [
   {
     label: 'QUẢN LÝ BÁN HÀNG',
     items: [
-      { id: 'orders', label: 'Đơn hàng', icon: ShoppingCart },
+      { id: 'orders', label: 'Yêu cầu Báo giá', icon: ShoppingCart },
       { id: 'products', label: 'Sản phẩm', icon: Package },
       { id: 'categories', label: 'Danh mục', icon: Tags }
     ]
@@ -29,6 +29,7 @@ const menuGroups = [
   {
     label: 'QUẢN LÝ NỘI DUNG',
     items: [
+      { id: 'projects', label: 'Dự án đã thi công', icon: Building2 },
       { id: 'posts', label: 'Bài viết', icon: FileText },
       { id: 'post_categories', label: 'Chuyên mục', icon: Tags },
       { id: 'media', label: 'Thư viện Media', icon: ImageIcon },

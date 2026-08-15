@@ -243,7 +243,7 @@ export default function ProductDetail() {
                   })}
                   className="flex-1 h-12 px-6 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-full transition-colors text-sm lg:text-base whitespace-nowrap"
                 >
-                  Thêm vào giỏ
+                  Thêm vào danh sách báo giá
                 </button>
                 <a 
                   href="#contact"

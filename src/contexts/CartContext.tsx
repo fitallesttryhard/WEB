@@ -17,6 +17,7 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
   removeFromCart: (id: string | number) => void;
   updateQuantity: (id: string | number, delta: number) => void;
+  clearCart: () => void;
   cartTotal: number;
   cartCount: number;
 }
@@ -29,6 +30,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const openDrawer = () => setIsDrawerOpen(true);
   const closeDrawer = () => setIsDrawerOpen(false);
+
+  const clearCart = () => setItems([]);
 
   const addToCart = (newItem: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setItems(currentItems => {
@@ -75,6 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addToCart,
       removeFromCart,
       updateQuantity,
+      clearCart,
       cartTotal,
       cartCount
     }}>

@@ -17,6 +17,10 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
     subheading: '',
     cta_text: '',
     cta_link: '',
+    layout_type: 'standard',
+    prop_1: 'Chuẩn CO/CQ Kiểm Định',
+    prop_2: 'Giao Hàng Công Trình 24/7',
+    prop_3: 'Bảo Hành Chính Hãng',
     status: true,
   });
   
@@ -26,11 +30,15 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
     if (initialData) {
       setFormData({
         id: initialData.id,
-        image_url: initialData.image_url || '',
+        image_url: initialData.image_url || initialData.image || '',
         heading: initialData.heading || '',
         subheading: initialData.subheading || '',
         cta_text: initialData.cta_text || '',
         cta_link: initialData.cta_link || '',
+        layout_type: initialData.layout_type || 'standard',
+        prop_1: initialData.prop_1 || 'Chuẩn CO/CQ Kiểm Định',
+        prop_2: initialData.prop_2 || 'Giao Hàng Công Trình 24/7',
+        prop_3: initialData.prop_3 || 'Bảo Hành Chính Hãng',
         status: initialData.status !== undefined ? initialData.status : true,
       });
     } else {
@@ -41,6 +49,10 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
         subheading: '',
         cta_text: '',
         cta_link: '',
+        layout_type: 'standard',
+        prop_1: 'Chuẩn CO/CQ Kiểm Định',
+        prop_2: 'Giao Hàng Công Trình 24/7',
+        prop_3: 'Bảo Hành Chính Hãng',
         status: true,
       });
     }
@@ -158,18 +170,79 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Đường dẫn (URL Link)</label>
-                    <input
-                      type="text"
-                      name="cta_link"
-                      value={formData.cta_link}
-                      onChange={handleChange}
-                      placeholder="/du-an"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
-                    />
+                </div>
+
+                {/* Chọn Kiểu Giao Diện (Layout Style) */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Kiểu giao diện Slide (Layout Style)</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, layout_type: 'standard' })}
+                      className={`p-3 rounded-xl border text-xs font-bold transition-all text-left flex flex-col justify-between ${
+                        formData.layout_type === 'standard' ? 'border-red-600 bg-red-50/60 text-red-600 shadow-sm ring-1 ring-red-600' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="font-extrabold uppercase text-[11px]">1. Đầy đủ</span>
+                      <span className="text-[10px] font-normal opacity-80 mt-1">Tiêu đề + 3 Thẻ cam kết chân slide</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, layout_type: 'minimal' })}
+                      className={`p-3 rounded-xl border text-xs font-bold transition-all text-left flex flex-col justify-between ${
+                        formData.layout_type === 'minimal' ? 'border-red-600 bg-red-50/60 text-red-600 shadow-sm ring-1 ring-red-600' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="font-extrabold uppercase text-[11px]">2. Tối giản</span>
+                      <span className="text-[10px] font-normal opacity-80 mt-1">Chỉ Tiêu đề + Mô tả + Nút bấm</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, layout_type: 'badge_pills' })}
+                      className={`p-3 rounded-xl border text-xs font-bold transition-all text-left flex flex-col justify-between ${
+                        formData.layout_type === 'badge_pills' ? 'border-red-600 bg-red-50/60 text-red-600 shadow-sm ring-1 ring-red-600' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="font-extrabold uppercase text-[11px]">3. Huy hiệu</span>
+                      <span className="text-[10px] font-normal opacity-80 mt-1">Badges nhỏ nằm trên Tiêu đề</span>
+                    </button>
                   </div>
                 </div>
+
+                {/* Nhập nội dung 3 Cam kết / Huy hiệu nếu kiểu giao diện yêu cầu */}
+                {formData.layout_type !== 'minimal' && (
+                  <div className="p-4 border border-gray-100 rounded-xl bg-slate-50/50 space-y-3">
+                    <p className="text-xs font-bold text-gray-800 uppercase tracking-wider">Tùy chỉnh 3 câu Cam kết / Huy hiệu</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <input
+                        type="text"
+                        name="prop_1"
+                        value={formData.prop_1}
+                        onChange={handleChange}
+                        placeholder="Cam kết 1"
+                        className="px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium focus:outline-none focus:border-red-500"
+                      />
+                      <input
+                        type="text"
+                        name="prop_2"
+                        value={formData.prop_2}
+                        onChange={handleChange}
+                        placeholder="Cam kết 2"
+                        className="px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium focus:outline-none focus:border-red-500"
+                      />
+                      <input
+                        type="text"
+                        name="prop_3"
+                        value={formData.prop_3}
+                        onChange={handleChange}
+                        placeholder="Cam kết 3"
+                        className="px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium focus:outline-none focus:border-red-500"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Trạng thái */}
                 <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50/50">

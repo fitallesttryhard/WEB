@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, ArrowRight, Calendar, User, Loader2, ArrowLeftRight, X, Check, Eye } from 'lucide-react';
+import { ShoppingCart, ShoppingBag, ArrowRight, Calendar, User, Loader2, ArrowLeftRight, X, Check, Eye } from 'lucide-react';
 import { getProducts } from '../productServices';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
@@ -93,10 +93,10 @@ export default function StorefrontSections() {
           {/* Section Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
             <div>
-              <span className="text-red-600 font-extrabold text-xs uppercase tracking-widest block mb-2">
+              <span className="text-red-600 font-bold text-xs uppercase tracking-widest block mb-1.5">
                 SẢN PHẨM BÁN CHẠY
               </span>
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight uppercase">
                 Vật Tư & Phụ Kiện Tiêu Biểu
               </h2>
             </div>
@@ -120,71 +120,67 @@ export default function StorefrontSections() {
                 const img = product.thumbnail_url || product.image_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop';
                 const catName = product.categories?.name || 'Vật tư xây dựng';
                 const price = product.original_price || product.price || 0;
+                const isCompared = compareList.some((p) => p.id === product.id);
 
                 return (
                   <div
                     key={product.id}
-                    className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 relative"
+                    className="group flex flex-col bg-white rounded-2xl border border-slate-100 p-3.5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative"
                   >
-                    {/* HOT Badge */}
-                    {product.is_hot && (
-                      <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-red-600 to-amber-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                        Nổi bật
-                      </div>
-                    )}
-
-                    {/* Compare Button */}
-                    <button
-                      onClick={(e) => handleToggleCompare(e, { ...product, image: img, price })}
-                      className={`absolute top-4 left-4 z-20 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold transition-all shadow-sm backdrop-blur-md ${
-                        compareList.find((p) => p.id === product.id)
-                          ? 'bg-red-600 text-white'
-                          : 'bg-white/90 text-slate-700 hover:bg-slate-900 hover:text-white'
-                      }`}
-                      title="So sánh"
-                    >
-                      <ArrowLeftRight size={14} />
-                      <span className="hidden sm:inline">
-                        {compareList.find((p) => p.id === product.id) ? 'Đã chọn' : 'So sánh'}
-                      </span>
-                    </button>
-
                     {/* Image Container */}
-                    <a href={`#product?id=${product.id}`} className="aspect-[4/3] w-full overflow-hidden bg-slate-100 flex items-center justify-center p-4 relative block">
-                      <img
-                        src={img}
-                        alt={product.name}
-                        className="w-full h-full object-cover rounded-xl transition-transform duration-700 ease-out group-hover:scale-105"
-                      />
-                    </a>
+                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-50 mb-3 group/img">
+                      <a href={`#product?id=${product.id}`} className="w-full h-full block">
+                        <img
+                          src={img}
+                          alt={product.name}
+                          className="w-full h-full object-cover rounded-xl transition-transform duration-500 ease-out group-hover/img:scale-105"
+                        />
+                      </a>
 
-                    {/* Content */}
-                    <div className="p-5 flex flex-col flex-grow">
-                      <span className="text-[11px] text-red-600 font-extrabold uppercase tracking-widest mb-1.5">
+                      {/* HOT Badge */}
+                      {product.is_hot && (
+                        <span className="absolute top-2.5 right-2.5 z-10 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs pointer-events-none">
+                          Nổi bật
+                        </span>
+                      )}
+
+                      {/* Compare Icon-Only Button */}
+                      <button
+                        onClick={(e) => handleToggleCompare(e, { ...product, image: img, price })}
+                        className={`absolute top-2.5 left-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-xs backdrop-blur-md cursor-pointer ${
+                          isCompared
+                            ? 'bg-red-600 text-white'
+                            : 'bg-white/90 text-slate-600 hover:bg-slate-900 hover:text-white'
+                        }`}
+                        title={isCompared ? 'Bỏ so sánh' : 'Thêm vào so sánh'}
+                      >
+                        <ArrowLeftRight size={13} />
+                      </button>
+                    </div>
+
+                    {/* Card Content */}
+                    <div className="flex flex-col flex-grow">
+                      <span className="text-[10px] text-red-600 font-extrabold uppercase tracking-widest mb-1 line-clamp-1">
                         {catName}
                       </span>
-                      <a href={`#product?id=${product.id}`} className="text-base font-bold text-slate-900 mb-3 line-clamp-2 leading-snug flex-grow group-hover:text-red-600 transition-colors">
+                      <a 
+                        href={`#product?id=${product.id}`} 
+                        className="text-sm font-bold text-slate-900 line-clamp-2 leading-snug h-10 mb-2 group-hover:text-red-600 transition-colors"
+                      >
                         {product.name}
                       </a>
 
-                      <div className="mt-auto flex flex-col gap-3.5 pt-3 border-t border-slate-100">
-                        <span className="text-red-600 font-black text-xl">
+                      <div className="mt-auto pt-2 border-t border-slate-100 flex flex-col gap-2.5">
+                        <span className="text-slate-900 font-black text-base">
                           {formatPrice(price)}
                         </span>
-                        <div className="grid grid-cols-2 gap-2">
-                          <a
-                            href={`#product?id=${product.id}`}
-                            className="bg-slate-100 hover:bg-slate-200 text-slate-800 py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
-                          >
-                            <Eye size={15} /> Xem chi tiết
-                          </a>
-                          <button
-                            onClick={(e) => handleAddToCart(e, product)}
-                            className="bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                          >
-                            <ShoppingCart size={15} /> Thêm giỏ
-                          </button>
-                        </div>
+
+                        <button
+                          onClick={(e) => handleAddToCart(e, product)}
+                          className="w-full py-2.5 bg-slate-900 hover:bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
+                        >
+                          <ShoppingBag size={14} /> Nhận báo giá
+                        </button>
                       </div>
                     </div>
                   </div>

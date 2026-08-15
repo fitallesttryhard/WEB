@@ -26,8 +26,10 @@ export default function Footer() {
 
   const footerBlocks = settings.footerBlocks || [];
 
+  const footerBg = settings.brandColor || '#dc2626';
+
   return (
-    <footer className="bg-red-700 text-white pt-16 pb-12 shrink-0">
+    <footer style={{ backgroundColor: footerBg }} className="text-white pt-16 pb-12 shrink-0 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12">
           
@@ -125,7 +127,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-red-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] font-medium opacity-70">
+        <div className="border-t border-white/20 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] font-medium opacity-70">
           <p>&copy; {new Date().getFullYear()} {settings.companyName || 'Xây Dựng Sbuild'}. Tất cả quyền được bảo lưu.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:underline transition-all">Điều khoản dịch vụ</a>

@@ -18,6 +18,9 @@ import ContactUs from './components/ContactUs';
 import Products from './components/Products';
 import BlogList from './components/BlogList';
 import ArticleDetail from './components/ArticleDetail';
+import ProjectsShowcase from './components/ProjectsShowcase';
+import FloatingWidgets from './components/FloatingWidgets';
+import CatalogDownloadModal from './components/CatalogDownloadModal';
 import { CartProvider } from './contexts/CartContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -33,6 +36,7 @@ function AdminArea() {
 
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -43,6 +47,7 @@ export default function App() {
       else if (hash === '#products') setCurrentView('products');
       else if (hash === '#blog') setCurrentView('blog');
       else if (hash === '#article') setCurrentView('article');
+      else if (hash === '#projects') setCurrentView('projects');
       else setCurrentView('home');
     };
     handleHashChange(); // check on initial load
@@ -87,6 +92,11 @@ export default function App() {
               {children}
               <Footer />
               <CartDrawer />
+              <FloatingWidgets onOpenCatalogModal={() => setIsCatalogModalOpen(true)} />
+              <CatalogDownloadModal 
+                isOpen={isCatalogModalOpen} 
+                onClose={() => setIsCatalogModalOpen(false)} 
+              />
             </div>
           </CartProvider>
         </AuthProvider>
@@ -134,6 +144,16 @@ export default function App() {
     );
   }
 
+  if (currentView === 'projects') {
+    return (
+      <PageLayout title="Dự án tiêu biểu | Sbuild" description="Danh sách các công trình dự án lớn đã sử dụng giải pháp nẹp và vật tư Sbuild.">
+        <div className="pt-20">
+          <ProjectsShowcase />
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout
       title="Sbuild - Giải Pháp Vật Tư Xây Dựng Toàn Diện"
@@ -144,6 +164,7 @@ export default function App() {
         <Hero />
         <Categories />
         <StorefrontSections />
+        <ProjectsShowcase />
         <AboutUs />
       </main>
     </PageLayout>

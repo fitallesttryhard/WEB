@@ -14,6 +14,7 @@ import ProductFormModal from './ProductFormModal';
 import PostFormModal from './PostFormModal';
 import PageFormModal from './PageFormModal';
 import BannerFormModal from './BannerFormModal';
+import ProjectFormModal from './ProjectFormModal';
 import AdminSidebar from './AdminSidebar';
 import OrderDetailModal from './OrderDetailModal';
 import { useSettings } from '../contexts/SettingsContext';
@@ -120,6 +121,41 @@ export default function AdminDashboard() {
   const [orderFilter, setOrderFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+
+  // Projects State
+  const [adminProjects, setAdminProjects] = useState<any[]>([
+    {
+      id: 1,
+      title: 'Tổ Hợp Tòa Nhà Cao Tầng S-Sky Tower',
+      category: 'Chung cư cao cấp',
+      location: 'Quận 2, TP. Hồ Chí Minh',
+      scale: '38 Tầng - 1,200 Căn hộ',
+      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop',
+      materials: ['Nẹp nhôm nẹp góc âm/dương T20', 'Băng cản nước PVC V200', 'Phụ kiện giàn giáo khoá giáo xoay'],
+      description: 'Cung cấp toàn bộ giải pháp nẹp chỉ trang trí nhôm cao cấp Mạ Anode chống oxy hóa cho 38 tầng căn hộ hạng sang.'
+    },
+    {
+      id: 2,
+      title: 'Trung Tâm Thương Mại & Văn Phòng Central Plaza',
+      category: 'Trung tâm thương mại',
+      location: 'Quận Cầu Giấy, Hà Nội',
+      scale: '5 Tầng hầm - 28 Tầng nổi',
+      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
+      materials: ['Nẹp Inox 304 mạ PVD vàng mờ', 'Nẹp thảm gạch đá', 'Ty ren & Bát chuồn D12/D16'],
+      description: 'Giải pháp nẹp mạ PVD vàng mờ sang trọng tạo điểm nhấn kiến trúc cho sảnh chính và hệ thang máy.'
+    }
+  ]);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [projectForm, setProjectForm] = useState({
+    id: null as any,
+    title: '',
+    category: 'Chung cư cao cấp',
+    location: '',
+    scale: '',
+    image: '',
+    materials: '',
+    description: ''
+  });
 
   // Settings & Appearance State
   const [appearanceForm, setAppearanceForm] = useState({ 
@@ -349,6 +385,31 @@ export default function AdminDashboard() {
       if (settingsData && !settingsError) {
         const config = settingsData.config || {};
         const theme = config.theme || {};
+        const fc = settingsData.footer_config || {};
+        const blocks = Array.isArray(fc) ? fc : (fc.blocks || []);
+        const soc = settingsData.socials || [];
+
+        const defaultFooterBlocks = [
+          {
+            id: 'block-default-1',
+            type: 'links',
+            title: 'Liên kết nhanh',
+            items: [
+              { id: '1', label: 'Trang chủ', url: '#' },
+              { id: '2', label: 'Giới thiệu công ty', url: '#about' },
+              { id: '3', label: 'Danh mục sản phẩm', url: '#products' },
+              { id: '4', label: 'Tin tức & Sự kiện', url: '#blog' },
+              { id: '5', label: 'Liên hệ', url: '#contact' },
+            ]
+          },
+          {
+            id: 'block-default-2',
+            type: 'text',
+            title: 'Chính sách chất lượng',
+            content: 'SBUILD cam kết cung cấp giải pháp vật tư, phụ kiện giàn giáo và dụng cụ thi công chất lượng chuẩn CO/CQ với chi phí tối ưu nhất.'
+          }
+        ];
+
         setAppearanceForm(prev => ({
           primary_color: settingsData.brand_color || theme.primary_color || prev.primary_color,
           secondary_color: theme.secondary_color || prev.secondary_color,
@@ -358,11 +419,14 @@ export default function AdminDashboard() {
           body_font: theme.body_font || prev.body_font,
         }));
         setSettingsForm(prev => ({
-          companyName: settingsData.company_name || prev.companyName,
-          hotline: settingsData.hotline || prev.hotline,
-          address: settingsData.address || prev.address,
-          socialLinks: config.socialLinks || prev.socialLinks,
-          footerBlocks: config.footerBlocks || prev.footerBlocks
+          companyName: settingsData.company_name || fc.companyName || prev.companyName,
+          hotline: settingsData.hotline || fc.hotline || prev.hotline,
+          address: settingsData.address || fc.address || prev.address,
+          email: settingsData.email || fc.email || prev.email,
+          logoUrl: settingsData.logo_url || prev.logoUrl,
+          brandColor: settingsData.brand_color || prev.brandColor,
+          socialLinks: Array.isArray(soc) ? soc : (soc.links || prev.socialLinks || []),
+          footerBlocks: blocks.length > 0 ? blocks : defaultFooterBlocks
         }));
       }
 
@@ -457,18 +521,21 @@ export default function AdminDashboard() {
     try {
       await updateSettings(settingsForm); // Synchronously updates React Context for Navbar, Footer, ContactUs, etc.
 
-      const { data: existing } = await supabase.from('tenant_settings').select('id').limit(1).maybeSingle();
+      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
+      const existingFc = existing?.footer_config || {};
 
       const payload = {
         brand_color: settingsForm.brandColor || '#dc2626',
         logo_url: settingsForm.logoUrl || '',
         socials: settingsForm.socialLinks || [],
         footer_config: {
+          ...existingFc,
           companyName: settingsForm.companyName,
           hotline: settingsForm.hotline,
           address: settingsForm.address,
           email: settingsForm.email,
           blocks: settingsForm.footerBlocks || [],
+          banners: banners || existingFc.banners || [],
         },
       };
 
@@ -1966,7 +2033,123 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'media', 'appearance', 'settings'].includes(activeMenu) && (
+            {activeMenu === 'projects' && (
+              <div className="animate-in fade-in duration-300">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900">Quản lý Dự án thi công</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách các công trình tiêu biểu đã cung ứng vật tư SBUILD.</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setProjectForm({ id: null, title: '', category: 'Chung cư cao cấp', location: '', scale: '', image: '', materials: '', description: '' });
+                      setIsProjectModalOpen(true);
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 cursor-pointer"
+                  >
+                    <Plus size={18} />
+                    Thêm Dự án mới
+                  </button>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
+                        <th className="px-6 py-4 w-16">STT</th>
+                        <th className="px-6 py-4">Tên Dự án</th>
+                        <th className="px-6 py-4">Loại hình</th>
+                        <th className="px-6 py-4">Vị trí & Quy mô</th>
+                        <th className="px-6 py-4">Vật tư cung ứng</th>
+                        <th className="px-6 py-4 text-right">Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {adminProjects.map((proj, idx) => (
+                        <tr key={proj.id || idx} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-6 py-4 font-bold text-sm text-gray-400">{idx + 1}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <img 
+                                src={proj.image || proj.image_url || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop'} 
+                                alt={proj.title} 
+                                className="w-16 h-12 rounded-lg object-cover border border-gray-100 shadow-xs shrink-0"
+                              />
+                              <div>
+                                <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{proj.title}</h4>
+                                <p className="text-[11px] text-gray-400 font-medium line-clamp-1">{proj.description}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="bg-red-50 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-100 whitespace-nowrap">
+                              {proj.category}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-xs font-medium text-gray-600">
+                            <p className="font-bold text-gray-900">{proj.location}</p>
+                            <p className="text-gray-400 mt-0.5">{proj.scale}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-wrap gap-1 max-w-[250px]">
+                              {(Array.isArray(proj.materials) ? proj.materials : String(proj.materials || '').split(',')).map((m: any, i: number) => (
+                                <span key={i} className="text-[10px] font-semibold bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+                                  {m.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <button 
+                                onClick={() => {
+                                  setProjectForm({
+                                    id: proj.id,
+                                    title: proj.title,
+                                    category: proj.category,
+                                    location: proj.location,
+                                    scale: proj.scale,
+                                    image: proj.image || proj.image_url,
+                                    materials: Array.isArray(proj.materials) ? proj.materials.join(', ') : proj.materials,
+                                    description: proj.description
+                                  });
+                                  setIsProjectModalOpen(true);
+                                }}
+                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Chỉnh sửa"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  if (confirm(`Bạn có chắc muốn xóa dự án "${proj.title}"?`)) {
+                                    setAdminProjects(prev => prev.filter(p => p.id !== proj.id));
+                                    showToast('Đã xóa dự án thành công.');
+                                  }
+                                }}
+                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Xóa"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {adminProjects.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-8 text-center text-gray-500 font-medium">
+                            Chưa có dự án nào. Bấm "Thêm Dự án mới" để bắt đầu.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'projects', 'media', 'appearance', 'settings'].includes(activeMenu) && (
               <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-2 capitalize">{activeMenu}</h1>
                 <p className="text-sm text-gray-500 font-medium mb-8">Phân hệ quản lý {activeMenu}.</p>
@@ -2199,9 +2382,16 @@ export default function AdminDashboard() {
                     <div key={banner.id} className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-4 flex items-center gap-6 group hover:border-red-200 transition-colors">
                       
                       {/* Image Thumbnail */}
-                      <div className="w-48 h-28 rounded-xl overflow-hidden bg-gray-100 shrink-0 relative">
-                        {banner.image_url ? (
-                          <img src={banner.image_url} alt="Banner thumbnail" className="w-full h-full object-cover" />
+                      <div className="w-48 h-28 rounded-xl overflow-hidden bg-gray-100 shrink-0 relative flex items-center justify-center">
+                        {(banner.image_url || banner.image) ? (
+                          <img 
+                            src={banner.image_url || banner.image} 
+                            alt="Banner thumbnail" 
+                            className="w-full h-full object-cover" 
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <ImageIcon className="text-gray-400" size={24} />
@@ -2460,41 +2650,98 @@ export default function AdminDashboard() {
 
                       {/* Live Preview */}
                       <div className="mt-8 pt-6 border-t border-gray-200">
-                        <h4 className="text-sm font-bold text-gray-700 mb-4">Xem trước Footer (Live Preview)</h4>
-                        <div className="bg-gray-900 text-white p-8 rounded-xl flex flex-wrap md:flex-nowrap gap-8">
-                          {settingsForm.footerBlocks.map((block) => (
-                            <div key={`preview-${block.id}`} className="flex-1 min-w-[200px]">
-                              {block.type !== 'image' && block.type !== 'social' && block.title && (
-                                <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">{block.title}</h3>
-                              )}
-                              
-                              {block.type === 'text' && (
-                                <p className="text-sm text-gray-300 whitespace-pre-line leading-relaxed">{block.content}</p>
-                              )}
-                              
-                              {block.type === 'links' && (
-                                <ul className="space-y-2 text-sm text-gray-300">
-                                  {block.items?.map((item: any) => (
-                                    <li key={item.id} className="hover:text-white cursor-pointer transition-colors">{item.label || 'Tên liên kết'}</li>
-                                  ))}
-                                </ul>
-                              )}
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-sm font-bold text-gray-700">Xem trước Footer trên Website (Live Preview)</h4>
+                          <span className="text-xs text-gray-500 font-medium italic">* Bản xem trước giống 100% giao diện thực tế khách nhìn thấy</span>
+                        </div>
+                        <div 
+                          style={{ backgroundColor: settingsForm.brandColor || appearanceForm.primary_color || '#dc2626' }}
+                          className="text-white p-8 sm:p-10 rounded-2xl shadow-xl space-y-10 transition-colors duration-300"
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
+                            {/* Col 1: Thông tin công ty & Logo */}
+                            <div className="lg:col-span-4">
+                              <div className="flex flex-col gap-2 mb-4">
+                                {(settingsForm.logoUrl || appearanceForm.logo_url) ? (
+                                  <img src={settingsForm.logoUrl || appearanceForm.logo_url} alt="Logo" className="h-10 w-auto object-contain self-start bg-white/10 p-1 rounded" />
+                                ) : null}
+                                <span className="text-sm font-black uppercase tracking-widest text-white">
+                                  {settingsForm.companyName || 'Công ty TNHH Đầu tư Xây dựng Sbuild'}
+                                </span>
+                              </div>
+                              <p className="text-[12px] opacity-80 leading-relaxed mb-6 font-medium">
+                                Nhà cung cấp chuyên nghiệp các giải pháp vật tư, phụ kiện và dụng cụ thi công xây dựng với chất lượng hàng đầu tại Việt Nam.
+                              </p>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {(settingsForm.socialLinks || []).map((link: any, idx: number) => (
+                                  <div key={`preview-soc-${idx}`} className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center text-white">
+                                    {getSocialIcon(link.platform)}
+                                  </div>
+                                ))}
+                                {(!settingsForm.socialLinks || settingsForm.socialLinks.length === 0) && (
+                                  <span className="text-xs opacity-60 italic">(Chưa có liên kết MXH)</span>
+                                )}
+                              </div>
+                            </div>
 
-                              {block.type === 'image' && block.url && (
-                                <img src={block.url} alt="Footer" style={{ width: `${block.width}px` }} className="mb-4" />
-                              )}
-
-                              {block.type === 'social' && (
-                                <div className="flex gap-3">
-                                  {settingsForm.socialLinks.map((link) => (
-                                    <div key={`preview-social-${link.id}`} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
-                                      {getSocialIcon(link.platform)}
-                                    </div>
-                                  ))}
+                            {/* Dynamic Blocks */}
+                            <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              {settingsForm.footerBlocks.map((block: any, index: number) => (
+                                <div key={`preview-block-${block.id || index}`}>
+                                  <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-4">
+                                    {block.title || 'Block tiêu đề'}
+                                  </h3>
+                                  {block.type === 'links' && (
+                                    <ul className="flex flex-col gap-2 font-medium text-[12px] opacity-90">
+                                      {block.items?.map((item: any, i: number) => (
+                                        <li key={i}>{item.label || item.title || 'Tên liên kết'}</li>
+                                      ))}
+                                      {(!block.items || block.items.length === 0) && <li className="italic opacity-60">(Trống)</li>}
+                                    </ul>
+                                  )}
+                                  {block.type === 'text' && (
+                                    <p className="text-[12px] opacity-80 leading-relaxed font-medium whitespace-pre-line">
+                                      {block.content || 'Nội dung văn bản...'}
+                                    </p>
+                                  )}
+                                  {block.type === 'image' && block.url && (
+                                    <img src={block.url} alt="Block img" style={{ width: `${block.width || 100}px` }} className="rounded" />
+                                  )}
                                 </div>
+                              ))}
+                              {settingsForm.footerBlocks.length === 0 && (
+                                <div className="text-xs opacity-60 italic">Bấm "Thêm Block" ở trên để bổ sung cột nội dung.</div>
                               )}
                             </div>
-                          ))}
+
+                            {/* Col Contact */}
+                            <div className="lg:col-span-4">
+                              <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-4">Thông tin liên hệ</h3>
+                              <ul className="flex flex-col gap-3 text-[12px] font-medium opacity-90">
+                                <li className="flex items-start gap-2.5">
+                                  <span className="shrink-0 mt-0.5">📍</span>
+                                  <span>{settingsForm.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP.HCM'}</span>
+                                </li>
+                                <li className="flex items-center gap-2.5">
+                                  <span className="shrink-0">📞</span>
+                                  <span>{settingsForm.hotline || '0901 234 567'}</span>
+                                </li>
+                                <li className="flex items-center gap-2.5">
+                                  <span className="shrink-0">✉️</span>
+                                  <span>{settingsForm.email || 'contact@sbuild.vn'}</span>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+
+                          {/* Bottom Bar */}
+                          <div className="border-t border-white/20 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-medium opacity-75">
+                            <p>&copy; {new Date().getFullYear()} {settingsForm.companyName || 'SBUILD'}. Tất cả quyền được bảo lưu.</p>
+                            <div className="flex gap-4">
+                              <span>Điều khoản dịch vụ</span>
+                              <span>Hỗ trợ khách hàng</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2748,6 +2995,23 @@ export default function AdminDashboard() {
             setSelectedOrder({ ...selectedOrder, status });
           }
           showToast(`Đã cập nhật trạng thái đơn ${id}`);
+        }}
+      />
+
+      {/* Project Form Modal */}
+      <ProjectFormModal 
+        isOpen={isProjectModalOpen}
+        onClose={() => setIsProjectModalOpen(false)}
+        initialData={projectForm}
+        onSubmit={(data) => {
+          if (projectForm.id) {
+            setAdminProjects(prev => prev.map(p => p.id === data.id ? data : p));
+            showToast('Đã cập nhật dự án thành công.');
+          } else {
+            setAdminProjects(prev => [data, ...prev]);
+            showToast('Đã thêm dự án mới thành công.');
+          }
+          setIsProjectModalOpen(false);
         }}
       />
     </div>

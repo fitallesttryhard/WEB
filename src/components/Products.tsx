@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Filter, Search, Check, Loader2 } from 'lucide-react';
+import { ShoppingCart, ShoppingBag, Filter, Search, Check, Loader2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
 import { getProducts } from '../productServices';
@@ -110,8 +110,8 @@ export default function ProductsPage() {
         
         {/* Page Header */}
         <div className="mb-10 text-center">
-          <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight uppercase">Sản phẩm</h1>
-          <div className="w-16 h-1.5 bg-red-600 mx-auto mt-6 rounded-full"></div>
+          <h1 className="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight uppercase">Sản Phẩm</h1>
+          <div className="w-12 h-1 bg-red-600 mx-auto mt-4 rounded-full"></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
@@ -228,41 +228,47 @@ export default function ProductsPage() {
                 {filteredProducts.map((product) => (
                   <div 
                     key={product.id}
-                    className="group flex flex-col bg-white rounded-lg border border-gray-100 overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 relative"
+                    className="group flex flex-col bg-white rounded-2xl border border-slate-100 p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative"
                   >
-                    {/* HOT Badge */}
-                    {product.is_hot && (
-                      <div className="absolute top-4 right-4 z-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                        Hot
-                      </div>
-                    )}
-
                     {/* Image Container */}
-                    <a href="#product" className="aspect-[4/3] w-full overflow-hidden bg-gray-50 flex items-center justify-center p-4 block relative">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-full h-full object-cover rounded-md transition-transform duration-500 ease-in-out group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </a>
+                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-50 mb-3 group/img">
+                      <a href={`#product?id=${product.id}`} className="w-full h-full block">
+                        <img 
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-full h-full object-cover rounded-xl transition-transform duration-500 ease-out group-hover/img:scale-105"
+                        />
+                      </a>
+
+                      {/* HOT Badge */}
+                      {product.is_hot && (
+                        <span className="absolute top-2.5 right-2.5 z-10 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs pointer-events-none">
+                          Nổi bật
+                        </span>
+                      )}
+                    </div>
 
                     {/* Content */}
-                    <div className="p-5 flex flex-col flex-grow">
-                      <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest mb-1.5">{product.category}</span>
-                      <a href="#product" className="text-base font-bold text-gray-900 mb-3 line-clamp-2 leading-tight flex-grow hover:text-red-600 transition-colors">
+                    <div className="flex flex-col flex-grow">
+                      <span className="text-[10px] text-red-600 font-extrabold uppercase tracking-widest mb-1 line-clamp-1">
+                        {product.category}
+                      </span>
+                      <a 
+                        href={`#product?id=${product.id}`} 
+                        className="text-sm font-bold text-slate-900 line-clamp-2 leading-snug h-10 mb-2 group-hover:text-red-600 transition-colors"
+                      >
                         {product.name}
                       </a>
                       
-                      <div className="mt-auto flex flex-col gap-4">
-                        <span className="text-red-600 font-black text-lg">
+                      <div className="mt-auto pt-2 border-t border-slate-100 flex flex-col gap-2.5">
+                        <span className="text-slate-900 font-black text-base">
                           {formatPrice(product.price)}
                         </span>
                         <button 
                           onClick={() => addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, quantity: 1 })}
-                          className="w-full bg-white border border-gray-200 hover:border-red-600 hover:bg-red-600 hover:text-white text-gray-900 py-2.5 rounded-md text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2"
+                          className="w-full py-2.5 bg-slate-900 hover:bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
                         >
-                          Thêm vào giỏ <ShoppingCart size={16} />
+                          <ShoppingBag size={14} /> Nhận báo giá
                         </button>
                       </div>
                     </div>

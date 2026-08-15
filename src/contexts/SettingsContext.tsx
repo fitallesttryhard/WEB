@@ -11,6 +11,7 @@ export interface TenantSettings {
   brandColor?: string;
   socialLinks?: Array<{ platform: string; url: string }>;
   footerBlocks?: Array<{ title: string; links: Array<{ label: string; url: string }> }>;
+  banners?: Array<any>;
   [key: string]: any;
 }
 
@@ -29,6 +30,7 @@ const defaultSettings: TenantSettings = {
   brandColor: '#dc2626',
   socialLinks: [],
   footerBlocks: [],
+  banners: [],
 };
 
 const SettingsContext = createContext<SettingsContextType>({
@@ -63,6 +65,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             email: data.email || fc.email || prev.email,
             socialLinks: Array.isArray(soc) ? soc : (soc.links || prev.socialLinks),
             footerBlocks: Array.isArray(fc) ? fc : (fc.blocks || prev.footerBlocks),
+            banners: fc.banners || prev.banners || [],
           }));
         }
       } catch (err) {
@@ -83,7 +86,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
       (async () => {
         try {
           // Lấy tenant đầu tiên hoặc tạo record cấu hình
-          const { data: existing } = await supabase.from('tenant_settings').select('id').limit(1).maybeSingle();
+          const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
+          const existingFc = existing?.footer_config || {};
 
           const dbPayload = {
             company_name: updated.companyName,
@@ -93,7 +97,15 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             logo_url: updated.logoUrl,
             brand_color: updated.brandColor,
             socials: updated.socialLinks,
-            footer_config: updated.footerBlocks,
+            footer_config: {
+              ...existingFc,
+              companyName: updated.companyName,
+              hotline: updated.hotline,
+              address: updated.address,
+              email: updated.email,
+              blocks: updated.footerBlocks || existingFc.blocks || [],
+              banners: updated.banners || existingFc.banners || [],
+            },
           };
 
           if (existing?.id) {

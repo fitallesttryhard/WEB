@@ -242,16 +242,16 @@ export default function OrderDetailModal({ isOpen, onClose, order, onUpdateStatu
                 </div>
               </div>
 
-              {/* Payment Info */}
+              {/* Payment / Order Type Info */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 print:border-none print:shadow-none print:p-0">
                 <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <CreditCard size={18} className="text-gray-400" />
-                  Thanh toán
+                  Hình thức mua hàng
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Phương thức:</span>
-                    <span className="font-bold text-gray-900">{order.paymentMethod || 'Chuyển khoản / COD'}</span>
+                    <span className="font-bold text-gray-900">{order.paymentMethod || 'Yêu cầu Báo giá'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Ngày đặt:</span>
