@@ -2188,117 +2188,122 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                        <th className="px-6 py-4 w-12">
-                          <input 
-                            type="checkbox" 
-                            checked={posts.length > 0 && selectedPosts.length === posts.length}
-                            onChange={handleSelectAllPosts}
-                            className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
-                          />
-                        </th>
-                        <th className="px-6 py-4 w-16">STT</th>
-                        <th className="px-6 py-4 w-1/3">Bài viết</th>
-                        <th className="px-6 py-4">Chuyên mục</th>
-                        <th className="px-6 py-4 text-center">Trạng thái</th>
-                        <th className="px-6 py-4 text-right">Lượt xem</th>
-                        <th className="px-6 py-4 text-right sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)] whitespace-nowrap min-w-[210px] w-[210px]">Hành động</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {posts
-                        .filter(p => (postCatFilter === 'all' || p.category === postCatFilter) && p.title.toLowerCase().includes(postSearch.toLowerCase()))
-                        .map((post, index) => (
-                        <tr key={post.id} className={`group transition-colors ${selectedPosts.includes(post.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
-                          <td className="px-6 py-4">
-                            <input 
-                              type="checkbox" 
-                              checked={selectedPosts.includes(post.id)}
-                              onChange={() => handleSelectPost(post.id)}
-                              className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
-                            />
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-bold text-gray-400">{index + 1}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-4">
-                              <img 
-                                src={post.image} 
-                                alt={post.title} 
-                                className="w-16 h-12 rounded-lg object-cover border border-gray-100 shadow-sm shrink-0"
+                    <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[900px]">
+                        <thead>
+                          <tr className="bg-gray-50/80 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
+                            <th className="px-4 py-3.5 w-12 text-center">
+                              <input 
+                                type="checkbox" 
+                                checked={posts.length > 0 && selectedPosts.length === posts.length}
+                                onChange={handleSelectAllPosts}
+                                className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                               />
-                              <div className="flex flex-col min-w-0">
-                                <span className="font-bold text-sm text-gray-900 line-clamp-1 truncate">{post.title}</span>
-                                <span className="text-[11px] font-medium text-gray-400 truncate mt-0.5">{post.slug || 'chua-cap-nhat-slug'}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-medium text-gray-600">{post.category}</span>
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <div className="flex flex-col items-center gap-1.5">
-                              <button
-                                onClick={() => handleTogglePostStatus(post.id, post.status)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${post.status === 'published' ? 'bg-red-600' : 'bg-gray-200'}`}
-                              >
-                                <span
-                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm ${post.status === 'published' ? 'translate-x-6' : 'translate-x-1'}`}
+                            </th>
+                            <th className="px-3 py-3.5 w-12 text-center">STT</th>
+                            <th className="px-4 py-3.5">Bài viết</th>
+                            <th className="px-4 py-3.5 w-36 whitespace-nowrap">Chuyên mục</th>
+                            <th className="px-4 py-3.5 w-28 text-center whitespace-nowrap">Trạng thái</th>
+                            <th className="px-4 py-3.5 w-24 text-center whitespace-nowrap">Lượt xem</th>
+                            <th className="px-4 py-3.5 w-56 min-w-[220px] text-right whitespace-nowrap">Hành động</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {posts
+                            .filter(p => (postCatFilter === 'all' || p.category === postCatFilter) && p.title.toLowerCase().includes(postSearch.toLowerCase()))
+                            .map((post, index) => (
+                            <tr key={post.id} className={`group transition-colors ${selectedPosts.includes(post.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
+                              <td className="px-4 py-3.5 text-center">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedPosts.includes(post.id)}
+                                  onChange={() => handleSelectPost(post.id)}
+                                  className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                                 />
-                              </button>
-                              <span className={`text-[10px] font-bold uppercase tracking-wider ${post.status === 'published' ? 'text-red-600' : 'text-gray-400'}`}>
-                                {post.status === 'published' ? 'Xuất bản' : 'Bản nháp'}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <span className="text-sm font-bold text-gray-500">{post.views?.toLocaleString() || 0}</span>
-                          </td>
-                          <td className="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-gray-50/90 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)] whitespace-nowrap min-w-[210px] w-[210px]">
-                            <div className="flex items-center justify-end gap-1.5 shrink-0">
-                              <button 
-                                onClick={() => window.open(`#article?id=${post.id}`, '_blank')}
-                                className="p-2 text-emerald-600 hover:text-emerald-800 bg-emerald-50/80 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
-                                title="Xem trước bài viết"
-                              >
-                                <Eye size={16} />
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  const articleUrl = `${window.location.origin}/#blog?article=${post.id}`;
-                                  if (navigator.clipboard) {
-                                    navigator.clipboard.writeText(articleUrl);
-                                  }
-                                  const gscInspectionUrl = `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(window.location.origin + '/')}`;
-                                  window.open(gscInspectionUrl, '_blank');
-                                  showToast('🚀 Đã sao chép URL bài viết! Hãy dán vào ô kiểm tra trên Google Search Console vừa mở và bấm "Yêu cầu lập chỉ mục"!');
-                                }}
-                                className="p-1.5 px-2 text-indigo-600 hover:text-indigo-800 bg-indigo-50/80 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold border border-indigo-200 shrink-0"
-                                title="Khai báo Index Google Siêu Tốc (1-Click)"
-                              >
-                                <Globe size={14} />
-                                <span className="hidden xl:inline whitespace-nowrap">Index Google</span>
-                              </button>
-                              <button 
-                                onClick={() => handleEditPost(post)}
-                                className="p-2 text-blue-600 hover:text-blue-800 bg-blue-50/80 hover:bg-blue-100 rounded-lg transition-colors shrink-0" 
-                                title="Chỉnh sửa bài viết"
-                              >
-                                <Edit size={16} />
-                              </button>
-                              <button 
-                                onClick={() => handleDeletePost(post.id)}
-                                className="p-2 text-red-600 hover:text-red-800 bg-red-50/80 hover:bg-red-100 rounded-lg transition-colors shrink-0"
-                                title="Xóa bài viết"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </td>
+                              </td>
+                              <td className="px-3 py-3.5 text-center">
+                                <span className="text-xs font-bold text-gray-400">{index + 1}</span>
+                              </td>
+                              <td className="px-4 py-3.5">
+                                <div className="flex items-center gap-3 min-w-[260px]">
+                                  <img 
+                                    src={post.image} 
+                                    alt={post.title} 
+                                    className="w-14 h-11 rounded-lg object-cover border border-gray-100 shadow-2xs shrink-0"
+                                  />
+                                  <div className="flex flex-col min-w-0">
+                                    <span className="font-bold text-sm text-gray-900 line-clamp-1 truncate">{post.title}</span>
+                                    <span className="text-[11px] font-medium text-gray-400 truncate mt-0.5">{post.slug || 'chua-cap-nhat-slug'}</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3.5 w-36 whitespace-nowrap">
+                                <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">
+                                  {post.category}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3.5 w-28 text-center whitespace-nowrap">
+                                <div className="flex flex-col items-center gap-1">
+                                  <button
+                                    onClick={() => handleTogglePostStatus(post.id, post.status)}
+                                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${post.status === 'published' ? 'bg-red-600' : 'bg-gray-200'}`}
+                                  >
+                                    <span
+                                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform shadow-xs ${post.status === 'published' ? 'translate-x-5' : 'translate-x-1'}`}
+                                    />
+                                  </button>
+                                  <span className={`text-[9px] font-bold uppercase tracking-wider ${post.status === 'published' ? 'text-red-600' : 'text-gray-400'}`}>
+                                    {post.status === 'published' ? 'Xuất bản' : 'Bản nháp'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3.5 w-24 text-center whitespace-nowrap">
+                                <span className="text-xs font-bold text-gray-500">{(post.views || 0).toLocaleString()}</span>
+                              </td>
+                              <td className="px-4 py-3.5 w-56 min-w-[220px] text-right whitespace-nowrap">
+                                <div className="flex items-center justify-end gap-1.5 shrink-0">
+                                  <button 
+                                    onClick={() => {
+                                      sessionStorage.setItem('active_article_id', String(post.id));
+                                      window.open(`${window.location.origin}/#blog?article=${post.id}`, '_blank');
+                                    }}
+                                    className="p-1.5 text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
+                                    title="Xem trước bài viết thực tế"
+                                  >
+                                    <Eye size={16} />
+                                  </button>
+                                  <button 
+                                    onClick={() => {
+                                      const articleUrl = `${window.location.origin}/#blog?article=${post.id}`;
+                                      if (navigator.clipboard) {
+                                        navigator.clipboard.writeText(articleUrl);
+                                      }
+                                      const gscInspectionUrl = `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(window.location.origin + '/')}`;
+                                      window.open(gscInspectionUrl, '_blank');
+                                      showToast('🚀 Đã sao chép URL bài viết! Hãy dán vào ô kiểm tra trên Google Search Console vừa mở và bấm "Yêu cầu lập chỉ mục"!');
+                                    }}
+                                    className="p-1.5 px-2 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold border border-indigo-200 shrink-0"
+                                    title="Khai báo Index Google Siêu Tốc (1-Click)"
+                                  >
+                                    <Globe size={14} />
+                                    <span className="whitespace-nowrap">Index Google</span>
+                                  </button>
+                                  <button 
+                                    onClick={() => handleEditPost(post)}
+                                    className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0" 
+                                    title="Chỉnh sửa bài viết"
+                                  >
+                                    <Edit size={16} />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeletePost(post.id)}
+                                    className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0"
+                                    title="Xóa bài viết"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
                         </tr>
                       ))}
                       {posts.length === 0 && (

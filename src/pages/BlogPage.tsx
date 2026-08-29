@@ -155,10 +155,11 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
   };
 
   const loadPosts = async () => {
+    let currentPosts = posts;
     try {
       const { data: dbPosts } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
       if (dbPosts && dbPosts.length > 0) {
-        const mapped = dbPosts.map((p: any) => ({
+        currentPosts = dbPosts.map((p: any) => ({
           id: p.id,
           title: p.title || 'Bài viết công nghệ mới',
           category: p.category || 'Thiết kế Web',
@@ -171,19 +172,43 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
           views: p.views || 150,
           featured: p.is_featured || false
         }));
-        setPosts(mapped);
+        setPosts(currentPosts);
       }
     } catch (e) {
       console.warn('Lỗi nạp bài viết:', e);
     }
 
-    // Auto-open target article if user clicked an article from HomePage
-    const targetArticleId = sessionStorage.getItem('active_article_id');
+    // Auto-open target article if user clicked an article preview from Admin or HomePage
+    const hash = window.location.hash || '';
+    const searchStr = hash.includes('?') ? hash.split('?')[1] : window.location.search.replace('?', '');
+    const params = new URLSearchParams(searchStr);
+    const targetArticleId = params.get('article') || params.get('id') || sessionStorage.getItem('active_article_id');
+
     if (targetArticleId) {
       sessionStorage.removeItem('active_article_id');
-      const match = posts.find(p => String(p.id) === String(targetArticleId));
+      const match = currentPosts.find(p => String(p.id) === String(targetArticleId));
       if (match) {
         openArticleModal(match);
+      } else {
+        try {
+          const { data: single } = await supabase.from('posts').select('*').eq('id', targetArticleId).maybeSingle();
+          if (single) {
+            const fetched = {
+              id: single.id,
+              title: single.title || 'Bài viết công nghệ mới',
+              category: single.category || 'Thiết kế Web',
+              slug: single.slug,
+              image: single.cover_image || single.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
+              excerpt: single.excerpt || 'Bài viết phân tích chuyên sâu.',
+              content: single.html_content || single.content || single.excerpt || '',
+              author: single.author || 'Ban Biên Tập Fitallest',
+              date: formatDate(single.created_at || single.date),
+              views: single.views || 150,
+              featured: single.is_featured || false
+            };
+            openArticleModal(fetched);
+          }
+        } catch (err) {}
       }
     }
   };
