@@ -67,10 +67,16 @@ function recordPageVisit(tabName: string) {
 
 export default function App() {
   useEffect(() => {
-    // Auto-clear old cached SBUILD keys from browser localStorage
+    // Auto-clear old cached SBUILD keys and mock projects from browser localStorage
     ['admin_local_products', 'admin_local_categories', 'sbuild_user', 'sbuild_site_custom_settings', 'admin_local_media_gallery'].forEach(key => {
       localStorage.removeItem(key);
     });
+    try {
+      const stored = localStorage.getItem('fitallest_admin_projects');
+      if (stored && (stored.includes('Luxury Central') || stored.includes('Fintech Portal') || stored.includes('S-Sky Tower'))) {
+        localStorage.removeItem('fitallest_admin_projects');
+      }
+    } catch (e) {}
   }, []);
 
   const [currentTab, setCurrentTab] = useState('home');

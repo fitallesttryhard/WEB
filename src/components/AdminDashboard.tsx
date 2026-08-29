@@ -830,51 +830,158 @@ export default function AdminDashboard() {
 
       // 4. Projects
       const storedProjects = localStorage.getItem('fitallest_admin_projects');
+      const REAL_12_PROJECTS = [
+        {
+          id: 1,
+          title: "Website Kiến Trúc Phong Thủy Kỳ Nam",
+          category: "Xây dựng",
+          location: "TP. Hồ Chí Minh",
+          scale: "Portfolio 50+ Công trình",
+          image: "/assets/images/da/ptkn.webp",
+          materials: ["Website độc bản", "Thước Lỗ Ban 3D", "Chuẩn SEO"],
+          description: "Portfolio 50+ dự án hoàn thành, công cụ thước lỗ ban, blog chia sẻ xu hướng kiến trúc và kiến thức phong thủy.",
+          link: "#"
+        },
+        {
+          id: 2,
+          title: "Website Tập Đoàn Máy Làm Đá Viên Việt An",
+          category: "Thương mại điện tử",
+          location: "Toàn quốc & Quốc tế",
+          scale: "4 Ngôn ngữ, ERP ISO",
+          image: "/assets/images/da/va.png",
+          materials: ["Đa ngôn ngữ", "Thanh toán VNPay", "Tích hợp ERP"],
+          description: "Website thương mại điện tử với 4 ngôn ngữ siêu chuẩn, Tích hợp thanh toán VNPAY, tối ưu SEO Local, tích hợp Google Analytics, Tích hợp ERP quản lý đơn hàng và thi công.",
+          link: "#"
+        },
+        {
+          id: 3,
+          title: "Website Công Ty Xây Dựng Happy House",
+          category: "Xây dựng",
+          location: "Bình Dương",
+          scale: "Biệt thự & Nhà phố",
+          image: "/assets/images/da/hph.webp",
+          materials: ["Dự toán tự động", "Portfolio 3D", "UX/UI Độc bản"],
+          description: "Portfolio 50+ dự án hoàn thành, công cụ ước tính chi phí thi công, blog chia sẻ xu hướng kiến trúc.",
+          link: "#"
+        },
+        {
+          id: 4,
+          title: "Website BS. Tuấn - Giám Đốc BV Phương Nam",
+          category: "Y tế",
+          location: "TP. Hồ Chí Minh",
+          scale: "Cổng y tế & Đặt lịch",
+          image: "/assets/images/da/bst.png",
+          materials: ["Đặt lịch Online", "Bảo mật Y Khoa", "SMS Notification"],
+          description: "Website giới thiệu chuyên khoa, đặt lịch khám online, tra cứu bác sĩ. Tích hợp thanh toán VNPAY, tối ưu SEO Local, tích hợp Google Analytics.",
+          link: "#"
+        },
+        {
+          id: 5,
+          title: "Website BS. Hiếu - Trưởng Khoa BV Quân Y 7A",
+          category: "Y tế",
+          location: "TP. Hồ Chí Minh",
+          scale: "Top 3 Google (15 từ khóa)",
+          image: "/assets/images/da/bsh.webp",
+          materials: ["SEO Top Google", "PageSpeed 95/100", "Schema Y tế"],
+          description: "Website giới thiệu chuyên khoa, đặt lịch khám online, theo dõi tiến độ. Tối ưu SEO Local, tích hợp Google Analytics. Tối ưu SEO đạt top 3 Google với 15 từ khóa chính, tốc độ tải 95/100 PageSpeed.",
+          link: "#"
+        },
+        {
+          id: 6,
+          title: "Website Sơn Thương Hiệu Haky & Alpes - Trường Thịnh",
+          category: "Xây dựng",
+          location: "Toàn Quốc",
+          scale: "Hệ thống nhà phân phối",
+          image: "/assets/images/da/sonth.png",
+          materials: ["Thử màu AI", "Bảng màu 3D", "Tính lượng sơn"],
+          description: "Giới thiệu thương hiệu Haky, Alpes, Maslai, tích hợp sơn thử bằng trí tuệ nhân tạo, bảng màu, công cụ ước tính lượng sơn cần dùng.",
+          link: "#"
+        },
+        {
+          id: 7,
+          title: "Website Nguyên Liệu Pha Chế Thành Huy",
+          category: "Thương mại điện tử",
+          location: "TP. Hồ Chí Minh",
+          scale: "Kênh TMĐT Chính Chủ 0%",
+          image: "/assets/images/da/nlth.png",
+          materials: ["TMĐT Chính Chủ", "1000+ Sản phẩm", "Quản lý đơn hàng"],
+          description: "Kênh thương mại chính chủ không mất phí qua trung gian như Shopee, Lazada, Amazon. Đảm bảo lợi nhuận và thương hiệu Thành Huy",
+          link: "#"
+        },
+        {
+          id: 8,
+          title: "Website Công Ty Cổ Phần Thiết Bị Xây Dựng HD",
+          category: "Thiết bị & Máy móc",
+          location: "Hà Nội & TP.HCM",
+          scale: "Catalog Công Nghiệp",
+          image: "/assets/images/da/tbhd.png",
+          materials: ["Tốc độ < 2s", "Catalog PDF", "Báo giá cấp tốc"],
+          description: "Trang website giới thiệu sản phẩm, tối ưu lazy loading. Tốc độ tải < 2 giây.",
+          link: "#"
+        },
+        {
+          id: 9,
+          title: "Website Công Ty Giấy Cúng An Thành Phát",
+          category: "Thương mại điện tử",
+          location: "Toàn Quốc",
+          scale: "Top Google Ngành Hàng",
+          image: "/assets/images/da/atp.webp",
+          materials: ["SEO Local", "SEO Ngành Hàng", "Sỉ & Lẻ"],
+          description: "Trang website giới thiệu sản phẩm, Sở hữu nhiều từ khóa top từ khu vực cho đến toàn quốc, tìm là ra, tối ưu lazy loading.",
+          link: "#"
+        },
+        {
+          id: 10,
+          title: "Website Công Ty Cơ Khí Chính Xác DHT",
+          category: "Cơ Khí",
+          location: "Bình Dương & Đồng Nai",
+          scale: "Hồ Sơ Năng Lực CNC",
+          image: "/assets/images/da/dht.png",
+          materials: ["Hồ sơ năng lực", "Đối tác CNC", "Tiêu chuẩn ISO"],
+          description: "Website giới thiệu Hồ sơ năng lực, tìm kiếm nhà đầu tư, đối tác sản xuất trong lĩnh vực CNC.",
+          link: "#"
+        },
+        {
+          id: 11,
+          title: "Website Nội Thất Cũ Xưa Tịnh Quang",
+          category: "Nội thất",
+          location: "TP. Hồ Chí Minh",
+          scale: "Showroom Ảo 360°",
+          image: "/assets/images/da/chu-tinh.webp",
+          materials: ["Showroom 360°", "Phối cảnh 3D", "Tích hợp ERP"],
+          description: "Showroom ảo 360°, công cụ thiết kế phòng 3D, tư vấn phong thủy. Tích hợp ERP quản lý đơn hàng và thi công.",
+          link: "#"
+        },
+        {
+          id: 12,
+          title: "Website Đại Long Bình Phước",
+          category: "Giới thiệu việc làm",
+          location: "Bình Phước",
+          scale: "Dịch vụ Xe nâng & HR",
+          image: "/assets/images/da/dlbp.webp",
+          materials: ["Thuê Xe Nâng", "Cổng Việc Làm", "Bình Phước"],
+          description: "Website giới thiệu việc làm và cho thuê xe nâng của anh Long - Công an tỉnh Bình Phước cũ.",
+          link: "#"
+        }
+      ];
+
       if (storedProjects) {
         try {
           const parsedProj = JSON.parse(storedProjects);
-          if (Array.isArray(parsedProj) && parsedProj.length > 0) {
+          const isMock = Array.isArray(parsedProj) && parsedProj.some((p: any) => p.title?.includes('Luxury Central') || p.title?.includes('Fintech Portal') || p.title?.includes('S-Sky Tower'));
+          if (Array.isArray(parsedProj) && parsedProj.length > 0 && !isMock) {
             setAdminProjects(parsedProj);
+          } else {
+            localStorage.setItem('fitallest_admin_projects', JSON.stringify(REAL_12_PROJECTS));
+            setAdminProjects(REAL_12_PROJECTS);
           }
-        } catch (e) {}
+        } catch (e) {
+          localStorage.setItem('fitallest_admin_projects', JSON.stringify(REAL_12_PROJECTS));
+          setAdminProjects(REAL_12_PROJECTS);
+        }
       } else {
-        const initialProjects = [
-          {
-            id: 1,
-            title: 'Nền Tảng Thương Mại Điện Tử & SaaS Luxury Central',
-            category: 'E-Commerce & SaaS',
-            location: 'Toàn quốc & Quốc tế',
-            scale: 'Hơn 50,000 người dùng hàng ngày',
-            image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
-            materials: ['Next.js 15', 'TypeScript', 'Supabase Realtime', 'Stripe & VNPAY'],
-            description: 'Hệ sinh thái bán hàng và quản trị đa kênh với tốc độ tải trang 0.4s và bảo mật chuẩn ngân hàng.',
-            link: 'https://demo.fitallest.com'
-          },
-          {
-            id: 2,
-            title: 'Hệ Thống Web App Quản Trị & Báo Cáo Doanh Nghiệp',
-            category: 'Enterprise Web App',
-            location: 'TP. Hồ Chí Minh',
-            scale: 'Doanh nghiệp 500+ nhân sự',
-            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
-            materials: ['React 19', 'Tailwind CSS', 'Node.js', 'PostgreSQL'],
-            description: 'Giải pháp ERP & CRM tùy chỉnh tự động hóa 90% quy trình xử lý đơn hàng và báo cáo tài chính.',
-            link: 'https://demo.fitallest.com'
-          },
-          {
-            id: 3,
-            title: 'Cổng Thông Tin & Dịch Vụ Tài Chính Quốc Tế',
-            category: 'Fintech Portal',
-            location: 'Singapore & Việt Nam',
-            scale: 'Giao dịch bảo mật 256-bit',
-            image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop',
-            materials: ['Next.js', 'Cloudflare Enterprise', 'ISO 27001 Security'],
-            description: 'Cổng giao dịch tài chính tốc độ cao, xác thực 2 lớp 2FA và bảo mật đa tầng.',
-            link: 'https://demo.fitallest.com'
-          }
-        ];
-        localStorage.setItem('fitallest_admin_projects', JSON.stringify(initialProjects));
-        setAdminProjects(initialProjects);
+        localStorage.setItem('fitallest_admin_projects', JSON.stringify(REAL_12_PROJECTS));
+        setAdminProjects(REAL_12_PROJECTS);
       }
     } catch (err) {
       console.error('Error fetching data:', err);

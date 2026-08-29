@@ -24,7 +24,8 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
       const stored = localStorage.getItem('fitallest_admin_projects');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        const isMock = Array.isArray(parsed) && parsed.some((p: any) => p.title?.includes('Luxury Central') || p.title?.includes('Fintech Portal') || p.title?.includes('S-Sky Tower'));
+        if (Array.isArray(parsed) && parsed.length > 0 && !isMock) return parsed;
       }
     } catch (e) {}
     return projectsData;
@@ -36,8 +37,11 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
         const stored = localStorage.getItem('fitallest_admin_projects');
         if (stored) {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          const isMock = Array.isArray(parsed) && parsed.some((p: any) => p.title?.includes('Luxury Central') || p.title?.includes('Fintech Portal') || p.title?.includes('S-Sky Tower'));
+          if (Array.isArray(parsed) && parsed.length > 0 && !isMock) {
             setProjects(parsed);
+          } else {
+            setProjects(projectsData);
           }
         }
       } catch (e) {}
