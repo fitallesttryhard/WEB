@@ -3673,12 +3673,384 @@ export default function AdminDashboard() {
                     <button 
                       type="submit"
                       disabled={isSavingSettings}
-                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
                     >
                       {isSavingSettings ? <Loader2 size={16} className="animate-spin" /> : null}
-                      Lưu cài đặt
+                      Lưu thay đổi Giao diện
                     </button>
                   </div>
+                </form>
+              </div>
+            )}
+
+            {/* ───── 2. THÔNG TIN DOANH NGHIỆP & CÀI ĐẶT HỆ THỐNG (SETTINGS / COMPANY INFO) ───── */}
+            {(activeMenu === 'settings' || activeMenu === 'company_info') && (
+              <div className="animate-in fade-in duration-300 max-w-4xl space-y-8">
+                <div className="mb-8">
+                  <h1 className="text-2xl font-black text-gray-900">Thông Tin Doanh Nghiệp & Cài Đặt Hệ Thống</h1>
+                  <p className="text-sm text-gray-500 mt-1 font-medium">Cấu hình thông tin doanh nghiệp, bản đồ Google Maps, mã Google Analytics & Search Console.</p>
+                </div>
+                
+                <form onSubmit={handleSaveSettings} className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-8 space-y-10">
+                  {/* Thông tin Doanh nghiệp */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-bold text-gray-700 mb-1.5">Tên công ty</label>
+                      <input 
+                        type="text" 
+                        value={settingsForm.companyName}
+                        onChange={(e) => setSettingsForm({...settingsForm, companyName: e.target.value})}
+                        placeholder="Công ty TNHH Fi.tallest"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-bold text-gray-700 mb-1.5">Địa chỉ trụ sở</label>
+                      <input 
+                        type="text" 
+                        value={settingsForm.address}
+                        onChange={(e) => setSettingsForm({...settingsForm, address: e.target.value})}
+                        placeholder="123 Đường ABC..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-bold text-gray-700 mb-1.5">Email liên hệ chính</label>
+                      <input 
+                        type="email" 
+                        value={settingsForm.email || ''}
+                        onChange={(e) => setSettingsForm({...settingsForm, email: e.target.value})}
+                        placeholder="contact@company.com"
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-bold text-gray-700 mb-1.5">Mô tả ngắn ở Footer (Chân trang)</label>
+                      <textarea 
+                        value={settingsForm.companyDescription || ''}
+                        onChange={(e) => setSettingsForm({...settingsForm, companyDescription: e.target.value})}
+                        placeholder="Nhập mô tả ngắn về công ty hiển thị dưới chân trang..."
+                        rows={3}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium resize-none"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-bold text-gray-700 mb-1.5">Google Maps Embed URL (Link nhúng bản đồ)</label>
+                      <input 
+                        type="text" 
+                        value={settingsForm.mapUrl || ''}
+                        onChange={(e) => setSettingsForm({...settingsForm, mapUrl: e.target.value})}
+                        placeholder="https://www.google.com/maps/embed?pb=..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium font-mono"
+                      />
+                      <p className="text-xs text-gray-400 mt-1.5 font-medium">
+                        💡 Cách lấy link: Vào Google Maps ➔ Tìm địa chỉ công ty ➔ Bấm "Chia sẻ" ➔ Chọn tab "Nhúng bản đồ" ➔ Sao chép liên kết trong thuộc tính <code className="bg-gray-100 px-1 py-0.5 rounded text-red-600 font-bold">src="..."</code>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <hr className="border-gray-100" />
+
+                  {/* Quản lý Kênh Liên Hệ & Mạng Xã Hội Hợp Nhất */}
+                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center border border-indigo-500/20">
+                          <PhoneCall size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-900">Quản Lý Kênh Liên Hệ & Mạng Xã Hội Hợp Nhất</h3>
+                          <p className="text-xs text-slate-500 font-medium">Nhập thông tin 1 lần duy nhất và linh hoạt chọn vị trí hiển thị (Header, Nút trượt cạnh bên, Footer)</p>
+                        </div>
+                      </div>
+
+                      {/* Master Switch */}
+                      <label className="flex items-center gap-2.5 cursor-pointer select-none bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+                        <span className="text-xs font-bold text-slate-700">Hiển thị nút trượt nổi</span>
+                        <input 
+                          type="checkbox"
+                          checked={settingsForm.enableFloatingWidgets !== false}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, enableFloatingWidgets: e.target.checked })}
+                          className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="space-y-5 pt-2">
+                      {/* Nút Hotline */}
+                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                            <span className="text-sm font-bold text-slate-900">Hotline / Số điện thoại</span>
+                          </div>
+                          <input 
+                            type="text"
+                            value={settingsForm.hotline || ''}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, hotline: e.target.value })}
+                            placeholder="Ví dụ: 0909 876 817"
+                            className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                          />
+                        </div>
+                        <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                          <span className="text-slate-400">Vị trí hiển thị:</span>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableHotlineHeader !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineHeader: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-indigo-600"
+                            />
+                            <span>Header (Thanh trên)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableHotlineWidget !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineWidget: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-indigo-600"
+                            />
+                            <span>Cạnh bên (Nút trượt)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableHotlineFooter !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineFooter: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-indigo-600"
+                            />
+                            <span>Footer (Chân trang)</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Nút Zalo */}
+                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                            <span className="text-sm font-bold text-slate-900">Kênh Zalo Chat & Báo Giá</span>
+                          </div>
+                          <input 
+                            type="text"
+                            value={settingsForm.zaloUrl || ''}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, zaloUrl: e.target.value })}
+                            placeholder="Link Zalo (ví dụ: https://zalo.me/0909876817)"
+                            className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                          />
+                        </div>
+                        <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                          <span className="text-slate-400">Vị trí hiển thị:</span>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableZaloHeader !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloHeader: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-blue-600"
+                            />
+                            <span>Header (Thanh trên)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableZaloWidget !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloWidget: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-blue-600"
+                            />
+                            <span>Cạnh bên (Nút trượt)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableZaloFooter !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloFooter: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-blue-600"
+                            />
+                            <span>Footer (Chân trang)</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Nút Messenger */}
+                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span>
+                            <span className="text-sm font-bold text-slate-900">Facebook Messenger</span>
+                          </div>
+                          <input 
+                            type="text"
+                            value={settingsForm.messengerUrl || ''}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, messengerUrl: e.target.value })}
+                            placeholder="Link Messenger (ví dụ: https://m.me/fitallest.tech)"
+                            className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                          />
+                        </div>
+                        <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                          <span className="text-slate-400">Vị trí hiển thị:</span>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableMessengerHeader !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerHeader: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-indigo-600"
+                            />
+                            <span>Header (Thanh trên)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableMessengerWidget !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerWidget: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-indigo-600"
+                            />
+                            <span>Cạnh bên (Nút trượt)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableMessengerFooter !== false}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerFooter: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-indigo-600"
+                            />
+                            <span>Footer (Chân trang)</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Nút Telegram */}
+                      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full bg-sky-400 inline-block"></span>
+                            <span className="text-sm font-bold text-slate-900">Kênh Telegram</span>
+                          </div>
+                          <input 
+                            type="text"
+                            value={settingsForm.telegramUrl || ''}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, telegramUrl: e.target.value })}
+                            placeholder="Link Telegram (ví dụ: https://t.me/fitallest)"
+                            className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                          />
+                        </div>
+                        <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                          <span className="text-slate-400">Vị trí hiển thị:</span>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-sky-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableTelegramHeader === true}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramHeader: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-sky-500"
+                            />
+                            <span>Header (Thanh trên)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-sky-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableTelegramWidget === true}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramWidget: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-sky-500"
+                            />
+                            <span>Cạnh bên (Nút trượt)</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer hover:text-sky-600">
+                            <input 
+                              type="checkbox"
+                              checked={settingsForm.enableTelegramFooter === true}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramFooter: e.target.checked })}
+                              className="w-3.5 h-3.5 accent-sky-500"
+                            />
+                            <span>Footer (Chân trang)</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr className="border-gray-100" />
+
+                    {/* Cấu hình Google Analytics & Search Console */}
+                    <div>
+                      <div className="mb-4">
+                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                          <Globe size={20} className="text-blue-600" />
+                          <span>Tích hợp Google & SEO (GA4 & Google Search Console)</span>
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Cấu hình mã đo lường lượt đọc bài viết và mã xác minh cho từng website độc lập.
+                        </p>
+                      </div>
+
+                      <div className="space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200/80">
+                        {/* GA4 */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-800 mb-1.5 flex items-center justify-between">
+                            <span>Mã Google Analytics 4 (GA4 Measurement ID)</span>
+                            <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Ví dụ: G-1234567890</span>
+                          </label>
+                          <input 
+                            type="text" 
+                            value={settingsForm.gaMeasurementId || ''}
+                            onChange={(e) => setSettingsForm({...settingsForm, gaMeasurementId: e.target.value})}
+                            placeholder="G-XXXXXXXXXX"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-mono bg-white"
+                          />
+                          <p className="text-xs text-gray-500 mt-1.5 font-medium">
+                            📊 Mã đo lường lượt truy cập và xem bài viết từ tài khoản Google Analytics 4.
+                          </p>
+                        </div>
+
+                        {/* GSC */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-800 mb-1.5 flex items-center justify-between">
+                            <span>Mã xác minh Google Search Console (GSC)</span>
+                            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Xác minh quyền quản trị</span>
+                          </label>
+                          <input 
+                            type="text" 
+                            value={settingsForm.gscVerificationCode || ''}
+                            onChange={(e) => setSettingsForm({...settingsForm, gscVerificationCode: e.target.value})}
+                            placeholder='Dán mã verification token hoặc toàn bộ thẻ: <meta name="google-site-verification" content="..." />'
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-mono bg-white"
+                          />
+                          <p className="text-xs text-gray-500 mt-1.5 font-medium">
+                            🔍 Dùng để xác minh website với Google Search Console, giúp đẩy bài viết lên tìm kiếm Google nhanh hơn.
+                          </p>
+                        </div>
+
+                        {/* Custom Scripts */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-800 mb-1.5">
+                            Mã nhúng Script tùy chỉnh cho thẻ &lt;head&gt; (Tùy chọn)
+                          </label>
+                          <textarea 
+                            value={settingsForm.customHeaderScripts || ''}
+                            onChange={(e) => setSettingsForm({...settingsForm, customHeaderScripts: e.target.value})}
+                            placeholder='Chèn thêm mã Facebook Pixel, Zalo Chat widget, Tawk.to, v.v.'
+                            rows={3}
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm font-mono bg-white resize-none"
+                          />
+                          <p className="text-xs text-gray-500 mt-1.5 font-medium">
+                            ⚙️ Mã nhúng này sẽ được tự động chèn vào thẻ &lt;head&gt; của trang web độc lập cho từng tên miền.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
+                      <button 
+                        type="submit"
+                        disabled={isSavingSettings}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                      >
+                        {isSavingSettings ? <Loader2 size={16} className="animate-spin" /> : null}
+                        Lưu thông tin cài đặt
+                      </button>
+                    </div>
                 </form>
               </div>
             )}
