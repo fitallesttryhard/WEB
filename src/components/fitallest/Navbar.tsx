@@ -112,12 +112,19 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
             {!logoFailed ? (
-              <img 
-                src={settings.logoUrl || '/assets/images/logo.png'} 
-                alt={companyName} 
-                className="h-10 max-w-[220px] object-contain group-hover:scale-105 transition-transform duration-300"
-                onError={() => setLogoFailed(true)}
-              />
+              <div className="relative group/logo px-3 py-1.5 rounded-2xl bg-gradient-to-r from-cyan-500/10 via-indigo-500/10 to-purple-500/10 border border-cyan-500/30 backdrop-blur-xl shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_35px_rgba(6,182,212,0.5)] hover:border-cyan-400/60 transition-all duration-500">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-indigo-500 to-pink-500 opacity-20 blur-md group-hover/logo:opacity-40 transition-opacity duration-500 rounded-2xl" />
+                <img 
+                  src={settings.logoUrl || '/assets/images/logo.png'} 
+                  alt={companyName} 
+                  className="h-9 max-w-[200px] object-contain relative z-10 group-hover/logo:scale-105 transition-transform duration-300"
+                  onError={() => setLogoFailed(true)}
+                />
+                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 z-20">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
+                </span>
+              </div>
             ) : (
               <>
                 <div className="relative">
