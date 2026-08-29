@@ -114,7 +114,32 @@ const formatDate = (dateStr?: string) => {
 };
 
 export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
-  const [posts, setPosts] = useState<PostItem[]>(defaultPosts);
+  // Synchronously initialize posts state to prevent double-load flicker
+  const [posts, setPosts] = useState<PostItem[]>(() => {
+    try {
+      const stored = localStorage.getItem('fitallest_admin_posts');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((p: any) => ({
+            id: p.id,
+            title: p.title || 'Bài viết công nghệ mới',
+            category: p.category || 'Thiết kế Web',
+            slug: p.slug,
+            image: p.image || p.cover_image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
+            excerpt: p.excerpt || 'Bài viết phân tích chuyên sâu về giải pháp công nghệ.',
+            content: p.content || p.html_content || p.excerpt || '',
+            author: p.author || 'Ban Biên Tập Fitallest',
+            date: formatDate(p.created_at || p.date),
+            views: p.views || 150,
+            featured: p.is_featured || false
+          }));
+        }
+      }
+    } catch (e) {}
+    return defaultPosts;
+  });
+
   const [selectedCategory, setSelectedCategory] = useState<string>('Tất cả');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeArticle, setActiveArticle] = useState<PostItem | null>(null);
@@ -130,16 +155,13 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
   };
 
   const loadPosts = async () => {
-    let currentPosts: PostItem[] = defaultPosts;
-    
-    // 1. Try Supabase first
     try {
       const { data: dbPosts } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
       if (dbPosts && dbPosts.length > 0) {
-        currentPosts = dbPosts.map((p: any) => ({
+        const mapped = dbPosts.map((p: any) => ({
           id: p.id,
           title: p.title || 'Bài viết công nghệ mới',
-          category: p.category || 'Công nghệ',
+          category: p.category || 'Thiết kế Web',
           slug: p.slug,
           image: p.cover_image || p.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
           excerpt: p.excerpt || 'Bài viết phân tích chuyên sâu về giải pháp công nghệ và phần mềm.',
@@ -149,38 +171,17 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
           views: p.views || 150,
           featured: p.is_featured || false
         }));
-      } else {
-        const stored = localStorage.getItem('fitallest_admin_posts');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            currentPosts = parsed.map((p: any) => ({
-              id: p.id || String(Date.now()),
-              title: p.title || 'Bài viết công nghệ mới',
-              category: p.category || 'Công nghệ',
-              slug: p.slug,
-              image: p.image || p.image_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
-              excerpt: p.excerpt || 'Bài viết phân tích chuyên sâu về giải pháp công nghệ và phần mềm.',
-              content: p.content || p.excerpt || 'Nội dung chi tiết bài viết đang được cập nhật.',
-              author: p.author || 'Ban Biên Tập Fitallest',
-              date: formatDate(p.created_at || p.date),
-              views: p.views || 150,
-              featured: false
-            }));
-          }
-        }
+        setPosts(mapped);
       }
     } catch (e) {
       console.warn('Lỗi nạp bài viết:', e);
     }
-    
-    setPosts(currentPosts);
 
     // Auto-open target article if user clicked an article from HomePage
     const targetArticleId = sessionStorage.getItem('active_article_id');
     if (targetArticleId) {
       sessionStorage.removeItem('active_article_id');
-      const match = currentPosts.find(p => String(p.id) === String(targetArticleId));
+      const match = posts.find(p => String(p.id) === String(targetArticleId));
       if (match) {
         openArticleModal(match);
       }
@@ -197,7 +198,29 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
     };
   }, []);
 
-  const categories = ['Tất cả', ...Array.from(new Set(posts.map(p => p.category)))];
+  // Build dynamic categories list merging admin post categories and unique post categories
+  const categories = (() => {
+    let adminCatNames: string[] = [];
+    try {
+      const stored = localStorage.getItem('fitallest_admin_post_categories');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          adminCatNames = parsed.map((c: any) => c.name).filter(Boolean);
+        }
+      }
+    } catch (e) {}
+    
+    return Array.from(new Set([
+      'Tất cả',
+      ...adminCatNames,
+      'Thiết kế Web',
+      'SEO Google',
+      'Hạ tầng Cloud',
+      'Trí tuệ Nhân tạo AI',
+      ...posts.map(p => p.category).filter(Boolean)
+    ]));
+  })();
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = selectedCategory === 'Tất cả' || post.category === selectedCategory;

@@ -161,10 +161,22 @@ export default function AdminDashboard() {
   const [editingPost, setEditingPost] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [postCategories, setPostCategories] = useState<any[]>([
-    { id: '1', name: 'Tin tức chung' },
-    { id: '2', name: 'Kiến thức xây dựng' }
-  ]);
+  const [postCategories, setPostCategories] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem('fitallest_admin_post_categories');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [
+      { id: '1', name: 'Thiết kế Web', slug: 'thiet-ke-web' },
+      { id: '2', name: 'SEO Google', slug: 'seo-google' },
+      { id: '3', name: 'Hạ tầng Cloud', slug: 'ha-tang-cloud' },
+      { id: '4', name: 'Trí tuệ Nhân tạo AI', slug: 'tri-tue-nhan-tao-ai' },
+      { id: '5', name: 'Tin tức chung', slug: 'tin-tuc-chung' }
+    ];
+  });
   const [posts, setPosts] = useState<any[]>([
     { id: 1, title: 'Hướng dẫn thi công giàn giáo', category: 'Kiến thức xây dựng', categoryId: '2', status: 'published', image: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=150&auto=format&fit=crop', views: 125, slug: 'huong-dan-thi-cong' }
   ]);
@@ -803,7 +815,7 @@ export default function AdminDashboard() {
             id: p.id,
             title: p.title,
             slug: p.slug,
-            category: 'Tin tức chung',
+            category: p.category || (p.title?.includes('SEO') ? 'SEO Google' : p.title?.includes('Cloud') ? 'Hạ tầng Cloud' : p.title?.includes('AI') ? 'Trí tuệ Nhân tạo AI' : 'Thiết kế Web'),
             categoryId: '1',
             status: p.is_published ? 'published' : 'draft',
             image: p.cover_image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=150&auto=format&fit=crop',
@@ -1696,8 +1708,9 @@ export default function AdminDashboard() {
       return;
     }
     
+    let nextCats = [];
     if (postCategoryForm.id) {
-      setPostCategories(postCategories.map(c => c.id === postCategoryForm.id ? { ...postCategoryForm, count: c.count || 0 } : c));
+      nextCats = postCategories.map(c => c.id === postCategoryForm.id ? { ...postCategoryForm, count: c.count || 0 } : c);
       showToast('Đã cập nhật chuyên mục!');
     } else {
       const newCategory = {
@@ -1705,9 +1718,14 @@ export default function AdminDashboard() {
         id: Date.now().toString(),
         count: 0
       };
-      setPostCategories([newCategory, ...postCategories]);
+      nextCats = [newCategory, ...postCategories];
       showToast('Đã thêm chuyên mục mới!');
     }
+    setPostCategories(nextCats);
+    try {
+      localStorage.setItem('fitallest_admin_post_categories', JSON.stringify(nextCats));
+      window.dispatchEvent(new Event('fitallest_posts_updated'));
+    } catch (err) {}
     setPostCategoryForm({ id: null, name: '', slug: '', description: '' });
     setIsPostCategorySlugEdited(false);
   };
@@ -1724,7 +1742,12 @@ export default function AdminDashboard() {
 
   const handleDeletePostCategory = (id: any) => {
     if (!confirm("Bạn có chắc muốn xóa chuyên mục này?")) return;
-    setPostCategories(postCategories.filter(c => c.id !== id));
+    const nextCats = postCategories.filter(c => c.id !== id);
+    setPostCategories(nextCats);
+    try {
+      localStorage.setItem('fitallest_admin_post_categories', JSON.stringify(nextCats));
+      window.dispatchEvent(new Event('fitallest_posts_updated'));
+    } catch (err) {}
     showToast('Đã xóa chuyên mục!');
   };
 
@@ -1740,7 +1763,12 @@ export default function AdminDashboard() {
 
   const handleBulkDeletePostCategories = () => {
     if (!confirm(`Xóa ${selectedPostCategories.length} chuyên mục?`)) return;
-    setPostCategories(postCategories.filter(c => !selectedPostCategories.includes(c.id)));
+    const nextCats = postCategories.filter(c => !selectedPostCategories.includes(c.id));
+    setPostCategories(nextCats);
+    try {
+      localStorage.setItem('fitallest_admin_post_categories', JSON.stringify(nextCats));
+      window.dispatchEvent(new Event('fitallest_posts_updated'));
+    } catch (err) {}
     setSelectedPostCategories([]);
     showToast(`Đã xóa ${selectedPostCategories.length} chuyên mục!`);
   };
