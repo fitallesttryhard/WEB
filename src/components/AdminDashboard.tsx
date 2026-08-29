@@ -2209,14 +2209,14 @@ export default function AdminDashboard() {
                         <th className="px-6 py-4">Chuyên mục</th>
                         <th className="px-6 py-4 text-center">Trạng thái</th>
                         <th className="px-6 py-4 text-right">Lượt xem</th>
-                        <th className="px-6 py-4 text-right">Hành động</th>
+                        <th className="px-6 py-4 text-right sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {posts
                         .filter(p => (postCatFilter === 'all' || p.category === postCatFilter) && p.title.toLowerCase().includes(postSearch.toLowerCase()))
                         .map((post, index) => (
-                        <tr key={post.id} className={`transition-colors ${selectedPosts.includes(post.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
+                        <tr key={post.id} className={`group transition-colors ${selectedPosts.includes(post.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
                           <td className="px-6 py-4">
                             <input 
                               type="checkbox" 
@@ -2262,7 +2262,7 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 text-right">
                             <span className="text-sm font-bold text-gray-500">{post.views?.toLocaleString() || 0}</span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-gray-50/90 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">
                             <div className="flex items-center justify-end gap-2">
                               <button 
                                 onClick={() => window.open(`#article?id=${post.id}`, '_blank')}
@@ -2792,12 +2792,12 @@ export default function AdminDashboard() {
                         <th className="px-6 py-4">Loại hình</th>
                         <th className="px-6 py-4">Vị trí & Quy mô</th>
                         <th className="px-6 py-4">Vật tư cung ứng</th>
-                        <th className="px-6 py-4 text-right">Hành động</th>
+                        <th className="px-6 py-4 text-right sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {adminProjects.map((proj, idx) => (
-                        <tr key={proj.id || idx} className="hover:bg-gray-50/50 transition-colors">
+                        <tr key={proj.id || idx} className="group hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4 font-bold text-sm text-gray-400">{idx + 1}</td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -2830,7 +2830,7 @@ export default function AdminDashboard() {
                               ))}
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-gray-50/90 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">
                             <div className="flex items-center justify-end gap-2">
                               <button 
                                 onClick={() => {
