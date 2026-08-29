@@ -6,7 +6,7 @@ import {
   CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
   UploadCloud, Copy, Image as ImageIcon, Loader2, Save, Sparkles,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
-  Menu, X, Search, FileText, ShoppingCart
+  Menu, X, Search, FileText, ShoppingCart, PhoneCall
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -302,6 +302,14 @@ export default function AdminDashboard() {
         email: 'contact@fitallest.com',
         brandColor: '#6366f1',
         fontFamily: 'Inter, sans-serif',
+        enableFloatingWidgets: settings.enableFloatingWidgets !== false,
+        enableHotlineWidget: settings.enableHotlineWidget !== false,
+        enableZaloWidget: settings.enableZaloWidget !== false,
+        enableMessengerWidget: settings.enableMessengerWidget !== false,
+        enableTelegramWidget: settings.enableTelegramWidget === true,
+        zaloUrl: settings.zaloUrl || 'https://zalo.me/0909876817',
+        messengerUrl: settings.messengerUrl || 'https://m.me/fitallest.tech',
+        telegramUrl: settings.telegramUrl || 'https://t.me/fitallest',
         ...settings,
         socialLinks: Array.isArray(settings.socialLinks) ? settings.socialLinks : [],
         footerBlocks: Array.isArray(settings.footerBlocks) ? settings.footerBlocks : []
@@ -803,6 +811,14 @@ export default function AdminDashboard() {
           gaMeasurementId: settingsForm.gaMeasurementId || '',
           gscVerificationCode: settingsForm.gscVerificationCode || '',
           customHeaderScripts: settingsForm.customHeaderScripts || '',
+          enableFloatingWidgets: settingsForm.enableFloatingWidgets !== false,
+          enableHotlineWidget: settingsForm.enableHotlineWidget !== false,
+          enableZaloWidget: settingsForm.enableZaloWidget !== false,
+          enableMessengerWidget: settingsForm.enableMessengerWidget !== false,
+          enableTelegramWidget: settingsForm.enableTelegramWidget === true,
+          zaloUrl: settingsForm.zaloUrl || '',
+          messengerUrl: settingsForm.messengerUrl || '',
+          telegramUrl: settingsForm.telegramUrl || '',
           blocks: settingsForm.footerBlocks || [],
           banners: banners || existingFc.banners || [],
         },
@@ -2684,7 +2700,7 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'projects', 'media', 'appearance', 'settings'].includes(activeMenu) && (
+            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'projects', 'media', 'appearance', 'settings', 'company_info'].includes(activeMenu) && (
               <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-2 capitalize">{activeMenu}</h1>
                 <p className="text-sm text-gray-500 font-medium mb-8">Phân hệ quản lý {activeMenu}.</p>
@@ -3128,11 +3144,11 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {activeMenu === 'settings' && (
+            {(activeMenu === 'settings' || activeMenu === 'company_info') && (
               <div className="animate-in fade-in duration-300 max-w-4xl">
                 <div className="mb-8">
-                  <h1 className="text-2xl font-black text-gray-900">Cài đặt chung (Settings)</h1>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Thông tin công ty và các liên kết mạng xã hội.</p>
+                  <h1 className="text-2xl font-black text-gray-900">Thông Tin Doanh Nghiệp & Cài Đặt Hệ Thống</h1>
+                  <p className="text-sm text-gray-500 mt-1 font-medium">Cấu hình hotline, thông tin liên hệ, màu sắc thương hiệu và bộ nút liên hệ nổi trượt màn hình.</p>
                 </div>
                 
                 <form onSubmit={handleSaveSettings} className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-8">
@@ -3288,6 +3304,130 @@ export default function AdminDashboard() {
                           💡 Cách lấy link: Vào Google Maps ➔ Tìm địa chỉ công ty ➔ Bấm "Chia sẻ" ➔ Chọn tab "Nhúng bản đồ" ➔ Sao chép liên kết trong thuộc tính <code className="bg-gray-100 px-1 py-0.5 rounded text-red-600 font-bold">src="..."</code>.
                         </p>
                       </div>
+                    </div>
+
+                    <hr className="border-gray-100" />
+
+                    {/* Quản lý Bộ Nút Liên Hệ & MXH Trượt Màn Hình */}
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center border border-indigo-500/20">
+                            <PhoneCall size={20} />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-slate-900">Nút Liên Hệ & Mạng Xã Hội Trượt Màn Hình (Floating Widgets)</h3>
+                            <p className="text-xs text-slate-500 font-medium">Bật/Tắt và điền thông tin đường dẫn các nút trượt bên góc màn hình (Hotline, Zalo, Messenger, Telegram...)</p>
+                          </div>
+                        </div>
+
+                        {/* Master Switch */}
+                        <label className="flex items-center gap-2.5 cursor-pointer select-none bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+                          <span className="text-xs font-bold text-slate-700">Hiển thị nút nổi</span>
+                          <input 
+                            type="checkbox"
+                            checked={settingsForm.enableFloatingWidgets !== false}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, enableFloatingWidgets: e.target.checked })}
+                            className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                          />
+                        </label>
+                      </div>
+
+                      {settingsForm.enableFloatingWidgets !== false && (
+                        <div className="space-y-4 pt-2">
+                          {/* Nút Hotline */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <div className="flex items-center gap-3">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableHotlineWidget !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineWidget: e.target.checked })}
+                                className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                              />
+                              <div>
+                                <span className="text-sm font-bold text-slate-800 block">Nút Gọi Hotline Nhanh</span>
+                                <span className="text-[11px] text-slate-400">Nút gọi trực tiếp tới số Hotline</span>
+                              </div>
+                            </div>
+                            <input 
+                              type="text"
+                              value={settingsForm.hotline || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, hotline: e.target.value })}
+                              placeholder="Số hotline (ví dụ: 0909 876 817)"
+                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                            />
+                          </div>
+
+                          {/* Nút Zalo */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <div className="flex items-center gap-3">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableZaloWidget !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloWidget: e.target.checked })}
+                                className="w-4 h-4 accent-blue-600 cursor-pointer"
+                              />
+                              <div>
+                                <span className="text-sm font-bold text-slate-800 block">Nút Chat Zalo</span>
+                                <span className="text-[11px] text-slate-400">Nút nhấp chat Zalo báo giá</span>
+                              </div>
+                            </div>
+                            <input 
+                              type="text"
+                              value={settingsForm.zaloUrl || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, zaloUrl: e.target.value })}
+                              placeholder="Link Zalo (ví dụ: https://zalo.me/0909876817)"
+                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                            />
+                          </div>
+
+                          {/* Nút Messenger */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <div className="flex items-center gap-3">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableMessengerWidget !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerWidget: e.target.checked })}
+                                className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                              />
+                              <div>
+                                <span className="text-sm font-bold text-slate-800 block">Nút Chat Messenger (Facebook)</span>
+                                <span className="text-[11px] text-slate-400">Nút chat Fanpage Facebook</span>
+                              </div>
+                            </div>
+                            <input 
+                              type="text"
+                              value={settingsForm.messengerUrl || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, messengerUrl: e.target.value })}
+                              placeholder="Link Messenger (ví dụ: https://m.me/fitallest.tech)"
+                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                            />
+                          </div>
+
+                          {/* Nút Telegram */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <div className="flex items-center gap-3">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableTelegramWidget === true}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramWidget: e.target.checked })}
+                                className="w-4 h-4 accent-sky-500 cursor-pointer"
+                              />
+                              <div>
+                                <span className="text-sm font-bold text-slate-800 block">Nút Chat Telegram</span>
+                                <span className="text-[11px] text-slate-400">Nút chat hỗ trợ qua Telegram</span>
+                              </div>
+                            </div>
+                            <input 
+                              type="text"
+                              value={settingsForm.telegramUrl || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, telegramUrl: e.target.value })}
+                              placeholder="Link Telegram (ví dụ: https://t.me/fitallest)"
+                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <hr className="border-gray-100" />
