@@ -1978,6 +1978,22 @@ export default function AdminDashboard() {
                                 <Eye size={16} />
                               </button>
                               <button 
+                                onClick={() => {
+                                  const articleUrl = `${window.location.origin}/#blog?article=${post.id}`;
+                                  if (navigator.clipboard) {
+                                    navigator.clipboard.writeText(articleUrl);
+                                  }
+                                  const gscInspectionUrl = `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(window.location.origin + '/')}`;
+                                  window.open(gscInspectionUrl, '_blank');
+                                  showToast('🚀 Đã sao chép URL bài viết! Hãy dán vào ô kiểm tra trên Google Search Console vừa mở và bấm "Yêu cầu lập chỉ mục"!');
+                                }}
+                                className="p-1.5 px-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold border border-indigo-100"
+                                title="Khai báo Index Google Siêu Tốc (1-Click)"
+                              >
+                                <Globe size={14} />
+                                <span className="hidden xl:inline">Index Google</span>
+                              </button>
+                              <button 
                                 onClick={() => handleEditPost(post)}
                                 className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
                               >
