@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port=3001 --host=0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:reseed": "node scripts/reseed.js"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
