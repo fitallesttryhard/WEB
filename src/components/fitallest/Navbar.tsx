@@ -29,6 +29,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   const hotline = settings.hotline || '0356 105 315';
   const companyName = settings.companyName || 'Fi.tallest';
@@ -110,11 +111,12 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             onClick={() => navigate('home')} 
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
-            {settings.logoUrl ? (
+            {!logoFailed ? (
               <img 
-                src={settings.logoUrl} 
+                src={settings.logoUrl || '/assets/images/logo.png'} 
                 alt={companyName} 
-                className="h-9 max-w-[200px] object-contain group-hover:scale-105 transition-transform duration-300" 
+                className="h-10 max-w-[220px] object-contain group-hover:scale-105 transition-transform duration-300"
+                onError={() => setLogoFailed(true)}
               />
             ) : (
               <>
