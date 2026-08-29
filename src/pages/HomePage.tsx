@@ -371,12 +371,12 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                 <span className="text-slate-600">•</span>
                 <span className="text-[11px] font-bold text-slate-300">REALTIME AI CORE</span>
               </div>
-              <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black leading-[1.04] tracking-tight text-white">
-                BIẾN DỮ LIỆU & Ý TƯỞNG THÀNH<br />
+              <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black leading-[1.04] tracking-tight text-white text-balance">
+                BIẾN DỮ LIỆU & Ý&nbsp;TƯỞNG THÀNH<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 drop-shadow-[0_0_35px_rgba(6,182,212,0.4)]">
-                  LỢI THẾ CẠNH TRANH
+                  LỢI THẾ CẠNH&nbsp;TRANH
                 </span><br />
-                ĐỘT PHÁ
+                ĐỘT&nbsp;PHÁ
               </h1>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-[54ch] font-normal">
                 Fi.tallest xây dựng hạ tầng số cao cấp — thiết kế website độc bản, ứng dụng di động chuẩn UX/UI và chiến lược SEO Top 1 Google giúp doanh nghiệp bứt phá doanh số.
