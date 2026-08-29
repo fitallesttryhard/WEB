@@ -43,8 +43,12 @@ export const FitallestFooter: React.FC<FooterProps> = ({ setCurrentTab }) => {
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
               <Sparkles className="w-3.5 h-3.5" /> Khởi Tạo Dự Án Ngay
             </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              Sẵn sàng tạo bứt phá doanh số với <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">Website đẳng cấp?</span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug">
+              Sẵn sàng tạo bứt phá <span className="whitespace-nowrap">doanh số</span> với{' '}
+              <br className="hidden sm:inline" />
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
+                Website đẳng cấp?
+              </span>
             </h2>
             <p className="text-slate-300 text-sm sm:text-base">
               Liên hệ với chuyên gia Fi.tallest để nhận bản tư vấn miễn phí & giải pháp phù hợp nhất cho doanh nghiệp của bạn.
