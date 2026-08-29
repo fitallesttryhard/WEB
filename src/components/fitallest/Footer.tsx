@@ -55,17 +55,17 @@ export const FitallestFooter: React.FC<FooterProps> = ({ setCurrentTab }) => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto shrink-0">
             <button 
               onClick={() => navigate('quote')}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold shadow-lg shadow-indigo-600/30 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto whitespace-nowrap shrink-0 px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold shadow-lg shadow-indigo-600/30 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
             >
-              <span>Nhận Dự Toán Tự Động</span>
-              <ArrowUpRight className="w-5 h-5" />
+              <span className="whitespace-nowrap">Nhận Dự Toán Tự Động</span>
+              <ArrowUpRight className="w-5 h-5 shrink-0" />
             </button>
             <a 
               href={`tel:${hotline.replace(/\s+/g, '')}`}
-              className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-semibold text-center transition-all"
+              className="w-full sm:w-auto whitespace-nowrap shrink-0 px-7 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-semibold text-center transition-all"
             >
               Hotline: {hotline}
             </a>
