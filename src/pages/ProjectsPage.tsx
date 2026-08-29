@@ -30,7 +30,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
     return projectsData;
   });
 
-  const categories = ['Tất cả', 'E-commerce', 'Doanh nghiệp', 'Ứng dụng Web', 'Landing Page'];
+  const categories = ['Tất cả', ...Array.from(new Set(projects.map(p => p.category).filter(Boolean)))];
 
   const filteredProjects = projects.filter((project) => {
     const matchesCategory = selectedCategory === 'Tất cả' || project.category === selectedCategory;

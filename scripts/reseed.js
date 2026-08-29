@@ -120,19 +120,99 @@ const FITALLEST_POSTS = [
     is_published: true
   },
   {
-    title: 'Tối Ưu Tốc Độ Tải Trang Với Hạ Tầng Cloud Server NVMe',
-    slug: 'toi-uu-toc-do-cloud-server-nvme',
-    cover_image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1000&auto=format&fit=crop',
-    excerpt: 'Tại sao tốc độ tải trang ảnh hưởng trực tiếp đến 70% quyết định mua hàng và cách nâng cấp hạ tầng lưu trữ đám mây cho doanh nghiệp.',
-    html_content: 'Khảo sát từ Google chỉ ra rằng hơn 53% người dùng sẽ rời bỏ website nếu trang tải chậm quá 3 giây...',
+    title: 'Dự Án Thực Tế: Website Kiến Trúc Phong Thủy Kỳ Nam',
+    slug: 'du-an-website-kien-truc-phong-thuy-ky-nam',
+    cover_image: '/assets/images/da/ptkn.webp',
+    excerpt: 'Hệ thống website thương hiệu kiến trúc phong thủy tích hợp công cụ tra cứu Thước Lỗ Ban 3D, blog kinh nghiệm xây dựng và portfolio 50+ công trình hoàn thiện.',
+    html_content: '<h3>Tổng quan dự án Kiến Trúc Phong Thủy Kỳ Nam</h3><p>Fi.tallest thiết kế giao diện độc bản sang trọng theo tông màu phong thủy mệnh chủ. Tích hợp bộ công cụ tự động tính kích thước Thước Lỗ Ban âm trạch và dương trạch, chuẩn UX/UI giúp tăng 180% lượt đăng ký tư vấn phong thủy trực tuyến.</p><p>📌 Link vận hành thực tế: <a href="https://kientrucphongthuykynam.vn" target="_blank">kientrucphongthuykynam.vn</a></p>',
     is_published: true
   },
   {
-    title: 'Ứng Dụng Trí Tuệ Nhân Tạo (AI) Trong Tự Động Hóa Giao Diện Website',
-    slug: 'ung-dung-ai-tu-dong-hoa-giao-dien',
-    cover_image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1000&auto=format&fit=crop',
-    excerpt: 'Công nghệ AI Design giúp tạo mẫu trang landing page tự động, cá nhân hóa nội dung cho từng phân khúc khách hàng tiềm năng.',
-    html_content: 'Trí tuệ nhân tạo đang tái định nghĩa cách chúng ta xây dựng phần mềm và trang web...',
+    title: 'Dự Án Thực Tế: Website Tập Đoàn Máy Làm Đá Viên Việt An',
+    slug: 'du-an-website-tap-doan-may-lam-da-vien-viet-an',
+    cover_image: '/assets/images/da/va.png',
+    excerpt: 'Hệ thống thương mại điện tử đa ngôn ngữ (Việt - Anh - Trung - Pháp), tích hợp cổng thanh toán VNPay và hệ thống ERP quản lý tiến độ thi công nhà máy.',
+    html_content: '<h3>Tổng quan dự án Tập Đoàn Việt An</h3><p>Hệ thống cổng thông tin và thương mại điện tử công nghiệp đạt chuẩn ISO, tích hợp catalogue sản phẩm 3D, thanh toán trực tuyến VNPay và tự động kết nối hệ thống ERP quản lý quy trình lắp đặt máy làm đá công nghiệp trên toàn quốc.</p><p>📌 Link vận hành thực tế: <a href="https://maylamdavien.vn" target="_blank">maylamdavien.vn</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Công Ty Xây Dựng Happy House',
+    slug: 'du-an-website-xay-dung-happy-house',
+    cover_image: '/assets/images/da/hph.webp',
+    excerpt: 'Giải pháp website doanh nghiệp xây dựng cao cấp tích hợp bộ tính dự toán chi phí thi công biệt thự, nhà phố theo m2 tự động trong 5 giây.',
+    html_content: '<h3>Tổng quan dự án Xây Dựng Happy House</h3><p>Giao diện hiện đại thể hiện trọn vẹn 50+ case study công trình thi công thực tế. Tích hợp tính năng nhận dự toán ngân sách tự động theo diện tích giúp khách hàng dễ dàng đưa ra quyết định giao thầu.</p><p>📌 Link vận hành thực tế: <a href="https://xaydunghappyhouse.vn" target="_blank">xaydunghappyhouse.vn</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Chuyên Khoa BS. Tuấn - BV Phương Nam',
+    slug: 'du-an-website-bs-tuan-bv-phuong-nam',
+    cover_image: '/assets/images/da/bst.png',
+    excerpt: 'Website tư vấn y tế chuẩn Y Khoa, tích hợp hệ thống đặt lịch khám trực tuyến, đặt lịch tư vấn từ xa và tự động nhắc lịch qua Zalo/SMS.',
+    html_content: '<h3>Tổng quan dự án Bác Sĩ Tuấn</h3><p>Website thương hiệu cá nhân chuyên gia y tế được tối ưu chuẩn bảo mật dữ liệu y khoa, tốc độ phản hồi nhanh <1 giây và giao diện thân thiện với bệnh nhân trên thiết bị di động.</p><p>📌 Link vận hành thực tế: <a href="http://bsnguyenhoangtuan.com/" target="_blank">bsnguyenhoangtuan.com</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website BS. Hiếu - Trưởng Khoa BV Quân Y 7A',
+    slug: 'du-an-website-bs-hieu-bv-quan-y-7a',
+    cover_image: '/assets/images/da/bsh.webp',
+    excerpt: 'Chiến dịch thiết kế website & SEO Google đột phá: Đạt Top 3 Google với 15 từ khóa cốt lõi ngành Cơ Xương Khớp, điểm Google PageSpeed 95/100.',
+    html_content: '<h3>Tổng quan dự án Bác Sĩ Hiếu</h3><p>Xây dựng hệ thống bài viết tư vấn y học chuyên sâu, tối ưu cấu trúc SEO Onpage và Schema Markup y tế. Đem lại hàng ngàn lượt truy cập tự nhiên mỗi tháng từ người bệnh.</p><p>📌 Link vận hành thực tế: <a href="https://bsnguyenngochieu.com/" target="_blank">bsnguyenngochieu.com</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Thương Hiệu Sơn Trường Thịnh (Haky & Alpes)',
+    slug: 'du-an-website-son-truong-thinh-haky-alpes',
+    cover_image: '/assets/images/da/sonth.png',
+    excerpt: 'Ứng dụng công nghệ sơn thử màu thông minh bằng trí tuệ nhân tạo (AI), bảng màu kỹ thuật số tương tác và công cụ tính định mức lượng sơn công trình.',
+    html_content: '<h3>Tổng quan dự án Sơn Trường Thịnh</h3><p>Giải pháp đột phá ngành sơn nước: Người mua chỉ cần tải ảnh ngôi nhà lên là có thể sơn thử màu trực tiếp trực quan trên website trước khi mua hàng.</p><p>📌 Link vận hành thực tế: <a href="https://sontotvn.com" target="_blank">sontotvn.com</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Thương Mại Điện Tử Nguyên Liệu Thành Huy',
+    slug: 'du-an-website-nguyen-lieu-thanh-huy',
+    cover_image: '/assets/images/da/nlth.png',
+    excerpt: 'Kênh bán hàng nguyên liệu pha chế chính chủ, tối ưu chi phí hoa hồng 0% so với sàn TMĐT trung gian, quản lý danh mục 1000+ sản phẩm.',
+    html_content: '<h3>Tổng quan dự án Nguyên Liệu Thành Huy</h3><p>Tự chủ kênh phân phối số giúp doanh nghiệp bảo vệ biên lợi nhuận, tích hợp giỏ hàng thanh toán mượt mà và quản lý dữ liệu khách hàng thân thiết.</p><p>📌 Link vận hành thực tế: <a href="https://nguyenlieuthanhhuy.com" target="_blank">nguyenlieuthanhhuy.com</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Thiết Bị Xây Dựng HD',
+    slug: 'du-an-website-thiet-bi-xay-dung-hd',
+    cover_image: '/assets/images/da/tbhd.png',
+    excerpt: 'Cổng thông tin sản phẩm máy móc thiết bị xây dựng công nghiệp, tối ưu lazy loading hình ảnh và tốc độ tải trang phản hồi tức thì.',
+    html_content: '<h3>Tổng quan dự án Thiết Bị HD</h3><p>Thiết kế danh mục sản phẩm chuyên nghiệp, tích hợp catalog PDF và nút gọi báo giá nhanh giúp đội ngũ kinh doanh chốt đơn cấp tốc.</p><p>📌 Link vận hành thực tế: <a href="https://thietbixaydunghd.com/" target="_blank">thietbixaydunghd.com</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Giấy Cúng An Thành Phát',
+    slug: 'du-an-website-giay-cung-an-thanh-phat',
+    cover_image: '/assets/images/da/atp.webp',
+    excerpt: 'Tối ưu hóa tổng thể SEO từ khóa thương hiệu và ngành hàng, phủ sóng Top Google toàn quốc tìm kiếm sản phẩm văn hóa tâm linh.',
+    html_content: '<h3>Tổng quan dự án An Thành Phát</h3><p>Thiết kế website tối giản mượt mà, tối ưu SEO Local và SEO toàn quốc mang lại lượng đơn đặt hàng sỉ lẻ liên tục cho doanh nghiệp.</p><p>📌 Link vận hành thực tế: <a href="http://congtygiaycunganthanhphat.com/" target="_blank">congtygiaycunganthanhphat.com</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Cơ Khí Chính Xác DHT',
+    slug: 'du-an-website-co-khi-chinh-xac-dht',
+    cover_image: '/assets/images/da/dht.png',
+    excerpt: 'Hồ sơ năng lực số (Digital Profile) giới thiệu hệ thống máy gia công cơ khí CNC, thu hút đối tác đầu tư và đơn hàng sản xuất quy mô lớn.',
+    html_content: '<h3>Tổng quan dự án Cơ Khí DHT</h3><p>Trình bày quy trình công nghệ CNC hiện đại, chứng nhận tiêu chuẩn kỹ thuật và năng lực gia công linh kiện chính xác cho các đối tác công nghiệp.</p><p>📌 Link vận hành thực tế: <a href="https://dhtgroup739.com.vn" target="_blank">dhtgroup739.com.vn</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Nội Thất Cũ Xưa Tịnh Quang',
+    slug: 'du-an-website-noi-that-cu-xua-tinh-quang',
+    cover_image: '/assets/images/da/chu-tinh.webp',
+    excerpt: 'Showroom ảo 360 độ trực tuyến, công cụ phối cảnh sản phẩm gỗ cổ truyền xịn sò và quản lý danh mục đồ gỗ thu mua quý hiếm.',
+    html_content: '<h3>Tổng quan dự án Nội Thất Tịnh Quang</h3><p>Kết nối người yêu thích sản phẩm gỗ cổ xưa với bộ sưu tập độc bản, trải nghiệm xem đồ gỗ 360 độ và tư vấn định giá tận nơi.</p><p>📌 Link vận hành thực tế: <a href="https://thumuadocuxua.com/" target="_blank">thumuadocuxua.com</a></p>',
+    is_published: true
+  },
+  {
+    title: 'Dự Án Thực Tế: Website Đại Long Bình Phước (Cho Thuê Xe Nâng & Việc Làm)',
+    slug: 'du-an-website-dai-long-binh-phuoc',
+    cover_image: '/assets/images/da/dlbp.webp',
+    excerpt: 'Cổng thông tin dịch vụ xe nâng hạ hàng hóa công nghiệp và kết nối việc làm uy tín tại khu vực Bình Phước & Đông Nam Bộ.',
+    html_content: '<h3>Tổng quan dự án Đại Long Bình Phước</h3><p>Website cung cấp dịch vụ hạ tầng kỹ thuật, cho thuê xe nâng hàng trọng tải lớn và đăng tin tuyển dụng nhân sự cho các khu công nghiệp.</p><p>📌 Link vận hành thực tế: <a href="http://dailongbinhphuoc.com/" target="_blank">dailongbinhphuoc.com</a></p>',
     is_published: true
   }
 ];

@@ -69,9 +69,6 @@ const svcs = [
 const wfSteps = [
   { num: '01', title: 'Khảo Sát & Tư Vấn', desc: 'Phân tích mục tiêu doanh nghiệp, hành vi khách hàng và định hướng chiến lược số phù hợp.' },
   { num: '02', title: 'Thiết Kế UI/UX', desc: 'Phác thảo Wireframe và thiết kế giao diện độc bản, trải nghiệm người dùng tối ưu.' },
-  { num: '03', title: 'Lập Trình & Tích Hợp', desc: 'Phát triển frontend & backend bảo mật cao, tích hợp API thanh toán, CRM, ERP.' },
-  { num: '04', title: 'Kiểm Thử QA Toàn Diện', desc: 'Đo tốc độ PageSpeed, kiểm tra đa thiết bị, bảo mật penetration test.' },
-  { num: '05', title: 'Bàn Giao & Hỗ Trợ', desc: 'Đào tạo quản trị hệ thống và hỗ trợ kỹ thuật trọn đời không giới hạn.' },
 ];
 
 export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
@@ -84,36 +81,55 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
   const [statsVisible, setStatsVisible] = useState(false);
   const [c1, setC1] = useState(0);
   const [c2, setC2] = useState(0);
-  const statsRef = useRef<HTMLElement>(null);
+  const [c3, setC3] = useState(0);
+  const statsRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Dynamic projects from Admin
-  const [dynamicProjects, setDynamicProjects] = useState<any[]>(() => {
-    try {
-      const stored = localStorage.getItem('fitallest_admin_projects');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {}
-    return projectsData;
-  });
+  // Dynamic projects from Admin & Supabase
+  const [dynamicProjects, setDynamicProjects] = useState<any[]>(projectsData);
 
-  // Dynamic posts from Admin
-  const [dynamicPosts, setDynamicPosts] = useState<any[]>(() => {
-    try {
-      const stored = localStorage.getItem('fitallest_admin_posts');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  // Dynamic posts from Admin & Supabase
+  const [dynamicPosts, setDynamicPosts] = useState<any[]>([]);
+
+  // Load real projects & posts from Supabase on mount
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const { data: dbPosts } = await supabase.from('posts').select('*').eq('is_published', true).order('created_at', { ascending: false });
+        if (dbPosts && dbPosts.length > 0) {
+          setDynamicPosts(dbPosts.map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            category: p.category || 'Dự Án & Công Nghệ',
+            date: p.created_at ? new Date(p.created_at).toLocaleDateString('vi-VN') : 'Mới',
+            image: p.cover_image || p.image || '/assets/images/da/ptkn.webp',
+            excerpt: p.excerpt || p.description,
+            htmlContent: p.html_content
+          })));
+        }
+      } catch (e) {}
+
+      try {
+        const { data: dbProjects } = await supabase.from('projects').select('*');
+        if (dbProjects && dbProjects.length > 0) {
+          setDynamicProjects(dbProjects.map((p: any) => ({
+            id: p.id,
+            title: p.title || p.name,
+            category: p.category || 'Xây dựng',
+            description: p.description || p.short_description,
+            imageUrl: p.image_url || p.image || p.thumbnail_url,
+            link: p.link || '#'
+          })));
+        } else {
+          setDynamicProjects(projectsData);
+        }
+      } catch (e) {
+        setDynamicProjects(projectsData);
       }
-    } catch (e) {}
-    return [
-      { id: '1', title: 'Xu Hướng Thiết Kế Website 2026: Trí Tuệ Nhân Tạo & Trải Nghiệm Cá Nhân Hóa', cat: 'Công nghệ', date: '2026', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop' },
-      { id: '2', title: 'Bí Quyết Tối Ưu SEO Local Giúp Doanh Nghiệp Thống Trị Top 1 Google', cat: 'SEO & Growth', date: '2026', image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop' },
-      { id: '3', title: 'So Sánh Chi Tiết: Cloud Hosting NVMe vs Hosting Truyền Thống', cat: 'Hạ tầng Cloud', date: '2026', image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop' },
-    ];
-  });
+    }
+
+    loadData();
+  }, []);
 
   // Listen for admin changes in real time
   useEffect(() => {
