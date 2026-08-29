@@ -703,7 +703,11 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {recentArticles.map((art, i) => (
-              <article key={art.id || i} onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              <article key={art.id || i} onClick={() => {
+                sessionStorage.setItem('active_article_id', String(art.id));
+                setCurrentTab('blog');
+                window.scrollTo(0, 0);
+              }}
                 className="group rounded-2xl overflow-hidden border border-white/[0.08] bg-slate-900/60 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-400 cursor-pointer hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col justify-between">
                 <div className="aspect-video relative overflow-hidden bg-slate-950">
                   <img src={art.image || art.imageUrl || art.img || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop'} alt={art.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />

@@ -99,37 +99,92 @@ interface BlogPageProps {
   setCurrentTab: (tab: string) => void;
 }
 
+import { supabase } from '../supabaseClient';
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return 'Mới cập nhật';
+  if (typeof dateStr === 'string' && dateStr.includes('/') && dateStr.length <= 10) return dateStr;
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return String(dateStr);
+    return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch (e) {
+    return String(dateStr);
+  }
+};
+
 export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
   const [posts, setPosts] = useState<PostItem[]>(defaultPosts);
   const [selectedCategory, setSelectedCategory] = useState<string>('Tất cả');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeArticle, setActiveArticle] = useState<PostItem | null>(null);
 
-  const loadPosts = () => {
+  const openArticleModal = async (post: PostItem) => {
+    const newViews = (post.views || 0) + 1;
+    const updatedPost = { ...post, views: newViews };
+    setActiveArticle(updatedPost);
+    setPosts(prev => prev.map(p => String(p.id) === String(post.id) ? updatedPost : p));
     try {
-      const stored = localStorage.getItem('fitallest_admin_posts');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const dynamicPosts: PostItem[] = parsed.map((p: any) => ({
-            id: p.id || String(Date.now()),
-            title: p.title || 'Bài viết công nghệ mới',
-            category: p.category || 'Công nghệ',
-            slug: p.slug || 'bai-viet-moi',
-            image: p.image || p.image_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
-            excerpt: p.excerpt || 'Bài viết phân tích chuyên sâu về giải pháp công nghệ và phần mềm.',
-            content: p.content || p.excerpt || 'Nội dung chi tiết bài viết đang được cập nhật.',
-            author: p.author || 'Ban Biên Tập Fitallest',
-            date: p.created_at || p.date || 'Vừa đăng',
-            views: p.views || 100,
-            featured: false
-          }));
-          setPosts(dynamicPosts);
-          return;
+      await supabase.from('posts').update({ views: newViews }).eq('id', post.id);
+    } catch (e) {}
+  };
+
+  const loadPosts = async () => {
+    let currentPosts: PostItem[] = defaultPosts;
+    
+    // 1. Try Supabase first
+    try {
+      const { data: dbPosts } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+      if (dbPosts && dbPosts.length > 0) {
+        currentPosts = dbPosts.map((p: any) => ({
+          id: p.id,
+          title: p.title || 'Bài viết công nghệ mới',
+          category: p.category || 'Công nghệ',
+          slug: p.slug,
+          image: p.cover_image || p.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
+          excerpt: p.excerpt || 'Bài viết phân tích chuyên sâu về giải pháp công nghệ và phần mềm.',
+          content: p.html_content || p.content || p.excerpt || '',
+          author: p.author || 'Ban Biên Tập Fitallest',
+          date: formatDate(p.created_at || p.date),
+          views: p.views || 150,
+          featured: p.is_featured || false
+        }));
+      } else {
+        const stored = localStorage.getItem('fitallest_admin_posts');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            currentPosts = parsed.map((p: any) => ({
+              id: p.id || String(Date.now()),
+              title: p.title || 'Bài viết công nghệ mới',
+              category: p.category || 'Công nghệ',
+              slug: p.slug,
+              image: p.image || p.image_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
+              excerpt: p.excerpt || 'Bài viết phân tích chuyên sâu về giải pháp công nghệ và phần mềm.',
+              content: p.content || p.excerpt || 'Nội dung chi tiết bài viết đang được cập nhật.',
+              author: p.author || 'Ban Biên Tập Fitallest',
+              date: formatDate(p.created_at || p.date),
+              views: p.views || 150,
+              featured: false
+            }));
+          }
         }
       }
-    } catch (e) {}
-    setPosts(defaultPosts);
+    } catch (e) {
+      console.warn('Lỗi nạp bài viết:', e);
+    }
+    
+    setPosts(currentPosts);
+
+    // Auto-open target article if user clicked an article from HomePage
+    const targetArticleId = sessionStorage.getItem('active_article_id');
+    if (targetArticleId) {
+      sessionStorage.removeItem('active_article_id');
+      const match = currentPosts.find(p => String(p.id) === String(targetArticleId));
+      if (match) {
+        openArticleModal(match);
+      }
+    }
   };
 
   useEffect(() => {
@@ -242,7 +297,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
                   </div>
 
                   <h2 
-                    onClick={() => setActiveArticle(featuredPost)}
+                    onClick={() => openArticleModal(featuredPost)}
                     className="text-2xl lg:text-3xl font-black text-white group-hover:text-indigo-400 transition-colors cursor-pointer leading-snug"
                   >
                     {featuredPost.title}
@@ -262,7 +317,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
                   </div>
 
                   <button 
-                    onClick={() => setActiveArticle(featuredPost)}
+                    onClick={() => openArticleModal(featuredPost)}
                     className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-400 hover:text-indigo-300 transition cursor-pointer"
                   >
                     <span>Đọc toàn bộ bài viết</span>
@@ -279,7 +334,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
           {regularPosts.map((post) => (
             <article 
               key={post.id}
-              onClick={() => setActiveArticle(post)}
+              onClick={() => openArticleModal(post)}
               className="bg-[#0A1020]/30 backdrop-blur-md rounded-2xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:border-indigo-500/30 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group cursor-pointer hover:-translate-y-1"
             >
               <div className="relative aspect-video overflow-hidden bg-slate-950 border-b border-white/5">
@@ -357,7 +412,13 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
                   {activeArticle.category}
                 </span>
                 <span className="text-slate-500">•</span>
-                <span className="text-slate-400">{activeArticle.date}</span>
+                <span className="text-slate-400 flex items-center gap-1">
+                  <Calendar size={13} /> {activeArticle.date}
+                </span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-400 flex items-center gap-1">
+                  <Eye size={13} /> {(activeArticle.views || 150).toLocaleString()} lượt xem
+                </span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">

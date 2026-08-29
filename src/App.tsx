@@ -72,6 +72,10 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentTab]);
+
   const changeTab = (tab: string) => {
     setCurrentTab(tab);
     if (tab === 'home') {
