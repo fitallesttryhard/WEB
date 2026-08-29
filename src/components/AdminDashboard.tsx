@@ -86,7 +86,6 @@ function getWeeklyAnalyticsData() {
     if (raw) rawAnalytics = JSON.parse(raw);
   } catch (e) {}
 
-  const baseDefaults = [240, 310, 450, 380, 520, 680, 750];
   const list = [];
   const todayStr = today.toISOString().split('T')[0];
 
@@ -97,7 +96,8 @@ function getWeeklyAnalyticsData() {
     const label = dayNames[d.getDay()];
     
     const recorded = rawAnalytics[dateStr];
-    const visits = recorded !== undefined ? recorded : baseDefaults[i];
+    // 100% PURE REAL DATA ONLY - 0 if no real visitors recorded
+    const visits = recorded || 0;
 
     list.push({
       name: label,
