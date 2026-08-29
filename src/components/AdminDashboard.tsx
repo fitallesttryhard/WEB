@@ -1858,14 +1858,6 @@ export default function AdminDashboard() {
               <ExternalLink size={14} />
               <span className="hidden sm:inline">Xem Website thực tế</span>
             </a>
-
-            {/* Admin User Profile */}
-            <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-red-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
-                A
-              </div>
-              <span className="hidden md:inline text-xs font-bold text-gray-800">Ban Quản Trị</span>
-            </div>
           </div>
         </header>
 
