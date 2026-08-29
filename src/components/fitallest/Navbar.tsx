@@ -43,7 +43,11 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
 
   const navigate = (tab: string) => {
     setCurrentTab(tab);
-    window.location.hash = tab;
+    if (tab === 'home') {
+      window.history.pushState("", document.title, window.location.pathname + window.location.search);
+    } else {
+      window.location.hash = tab;
+    }
     setMobileMenuOpen(false);
     setDropdownOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });

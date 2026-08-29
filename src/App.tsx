@@ -52,6 +52,10 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = (window.location.hash || '').replace('#', '').split('?')[0];
+      if (!hash || hash === 'home') {
+        setCurrentTab('home');
+        return;
+      }
       if (hash === 'super-admin' || hash === 'superadmin') setCurrentTab('super-admin');
       else if (hash === 'admin') setCurrentTab('admin');
       else if (['home', 'services', 'hosting', 'domain', 'quote', 'ai-design', 'seo', 'projects', 'blog', 'posts', 'articles', 'article'].includes(hash)) {
@@ -70,7 +74,11 @@ export default function App() {
 
   const changeTab = (tab: string) => {
     setCurrentTab(tab);
-    window.location.hash = tab;
+    if (tab === 'home') {
+      window.history.pushState("", document.title, window.location.pathname + window.location.search);
+    } else {
+      window.location.hash = tab;
+    }
   };
 
   if (currentTab === 'super-admin') {
