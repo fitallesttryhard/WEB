@@ -217,6 +217,7 @@ export default function AdminDashboard() {
   const [categorySearch, setCategorySearch] = useState('');
   const [projectSearch, setProjectSearch] = useState('');
   const [projectCatFilter, setProjectCatFilter] = useState('all');
+  const [pageSearch, setPageSearch] = useState('');
 
   // Projects State
   const [adminProjects, setAdminProjects] = useState<any[]>(() => {
@@ -1982,15 +1983,15 @@ export default function AdminDashboard() {
             )}
 
             {activeMenu === 'products' && (
-              <>
-                <div className="flex items-center justify-between mb-8">
+              <div className="animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
                   <div>
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Sản phẩm</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách, giá cả và trạng thái của các sản phẩm.</p>
                   </div>
                   <button 
                     onClick={handleAddNew}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95"
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 shrink-0"
                   >
                     <Plus size={18} />
                     Thêm Sản phẩm mới
@@ -1998,7 +1999,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Search & Filter Toolbar */}
-                <div className="mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="relative w-full sm:w-80">
                     <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
                     <input
@@ -2146,19 +2147,19 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {activeMenu === 'posts' && (
-              <>
-                <div className="flex justify-between items-end mb-8">
+              <div className="animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
                   <div>
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Bài viết</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách, nội dung và trạng thái của các bài viết.</p>
                   </div>
                   <button 
                     onClick={handleAddNewPost}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95"
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 shrink-0"
                   >
                     <Plus size={18} />
                     Viết bài mới
@@ -2166,7 +2167,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Search & Filter Toolbar for Posts */}
-                <div className="mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="relative w-full sm:w-80">
                     <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
                     <input
@@ -2348,23 +2349,40 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {activeMenu === 'pages' && (
-              <>
-                <div className="flex items-center justify-between mb-8">
+              <div className="animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
                   <div>
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Trang tĩnh</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý các trang nội dung tĩnh như Giới thiệu, Liên hệ, Chính sách...</p>
                   </div>
                   <button 
                     onClick={handleAddNewPage}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95"
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 shrink-0"
                   >
                     <Plus size={18} />
                     Thêm Trang mới
                   </button>
+                </div>
+
+                {/* Search Toolbar for Pages */}
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-80">
+                    <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Tìm kiếm trang tĩnh theo tiêu đề..."
+                      value={pageSearch}
+                      onChange={(e) => setPageSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition font-medium"
+                    />
+                  </div>
+                  <div className="text-xs font-semibold text-gray-500">
+                    Tổng cộng: {pages.length} trang tĩnh
+                  </div>
                 </div>
 
                 {/* Bulk Action Bar */}
@@ -2406,7 +2424,9 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {pages.map((page, index) => (
+                      {pages
+                        .filter(p => !pageSearch.trim() || p.title.toLowerCase().includes(pageSearch.toLowerCase().trim()) || p.slug.toLowerCase().includes(pageSearch.toLowerCase().trim()))
+                        .map((page, index) => (
                         <tr key={page.id} className={`group transition-colors ${selectedPages.includes(page.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
                           <td className="px-2 py-3 text-center">
                             <input 
@@ -2478,14 +2498,16 @@ export default function AdminDashboard() {
                     <span className="text-xs font-medium text-gray-500">Hiển thị {pages.length} trang</span>
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {activeMenu === 'categories' && (
-              <div className="flex flex-col h-full animate-in fade-in duration-300">
-                <div className="mb-8">
-                  <h1 className="text-2xl font-black text-gray-900">Quản lý Danh mục</h1>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Tạo và phân loại các chuyên mục cho sản phẩm.</p>
+              <div className="flex flex-col h-full animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900">Quản lý Danh mục</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Tạo và phân loại các chuyên mục cho sản phẩm.</p>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -2647,10 +2669,12 @@ export default function AdminDashboard() {
             )}
 
             {activeMenu === 'post_categories' && (
-              <div className="flex flex-col h-full animate-in fade-in duration-300">
-                <div className="mb-8">
-                  <h1 className="text-2xl font-black text-gray-900">Chuyên mục Bài viết</h1>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Tạo và phân loại các chuyên mục cho bài viết/tin tức.</p>
+              <div className="flex flex-col h-full animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900">Chuyên mục Bài viết</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Tạo và phân loại các chuyên mục cho bài viết/tin tức.</p>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -2811,8 +2835,8 @@ export default function AdminDashboard() {
             )}
 
             {activeMenu === 'projects' && (
-              <div className="animate-in fade-in duration-300">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div className="animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
                   <div>
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Dự án thi công</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách các công trình tiêu biểu đã cung ứng vật tư Fi.tallest.</p>
@@ -2980,10 +3004,12 @@ export default function AdminDashboard() {
             )}
 
             {activeMenu === 'orders' && (
-              <div className="animate-in fade-in duration-300 space-y-8">
-                <div>
-                  <h1 className="text-2xl font-black text-gray-900">Quản Lý Yêu Cầu Báo Giá & Đăng Ký Khách Hàng</h1>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Toàn bộ thông tin đăng ký tư vấn và bảng dự toán khách hàng gửi từ website.</p>
+              <div className="animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900">Quản Lý Yêu Cầu Báo Giá & Đăng Ký Khách Hàng</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Toàn bộ thông tin đăng ký tư vấn và bảng dự toán khách hàng gửi từ website.</p>
+                  </div>
                 </div>
 
                 {/* KHÁCH HÀNG ĐĂNG KÝ TỪ WEBSITE (LEADS) */}
@@ -3243,15 +3269,15 @@ export default function AdminDashboard() {
             )}
 
             {activeMenu === 'banners' && (
-              <div className="animate-in fade-in duration-300">
-                <div className="flex items-center justify-between mb-8">
+              <div className="animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
                   <div>
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Banner / Slider</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Cấu hình các banner trình chiếu trên trang chủ.</p>
                   </div>
                   <button 
                     onClick={handleAddNewBanner}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95"
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 shrink-0"
                   >
                     <Plus size={18} />
                     Thêm Slide Mới
@@ -3358,10 +3384,12 @@ export default function AdminDashboard() {
 
             {/* ───── 1. GIAO DIỆN & LAYOUT WEBSITE (APPEARANCE) ───── */}
             {activeMenu === 'appearance' && (
-              <div className="animate-in fade-in duration-300 max-w-4xl space-y-8">
-                <div className="mb-8">
-                  <h1 className="text-2xl font-black text-gray-900">Quản Lý Giao Diện & Layout Website</h1>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Tùy chỉnh màu sắc thương hiệu, phông chữ, xem trước trực tiếp Header & Footer thực tế trên website.</p>
+              <div className="animate-in fade-in duration-200 max-w-4xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900">Quản Lý Giao Diện & Layout Website</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Tùy chỉnh màu sắc thương hiệu, phông chữ, xem trước trực tiếp Header & Footer thực tế trên website.</p>
+                  </div>
                 </div>
                 
                 <form onSubmit={handleSaveSettings} className="space-y-8">
@@ -3802,10 +3830,12 @@ export default function AdminDashboard() {
 
             {/* ───── 2. THÔNG TIN DOANH NGHIỆP & CÀI ĐẶT HỆ THỐNG (SETTINGS / COMPANY INFO) ───── */}
             {(activeMenu === 'settings' || activeMenu === 'company_info') && (
-              <div className="animate-in fade-in duration-300 max-w-4xl space-y-8">
-                <div className="mb-8">
-                  <h1 className="text-2xl font-black text-gray-900">Thông Tin Doanh Nghiệp & Cài Đặt Hệ Thống</h1>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Cấu hình thông tin doanh nghiệp, bản đồ Google Maps, mã Google Analytics & Search Console.</p>
+              <div className="animate-in fade-in duration-200 max-w-4xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 min-h-[52px]">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900">Thông Tin Doanh Nghiệp & Cài Đặt Hệ Thống</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Cấu hình thông tin doanh nghiệp, bản đồ Google Maps, mã Google Analytics & Search Console.</p>
+                  </div>
                 </div>
                 
                 <form onSubmit={handleSaveSettings} className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-8 space-y-10">
