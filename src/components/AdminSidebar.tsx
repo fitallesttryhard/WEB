@@ -22,37 +22,17 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
   return (
     <aside className="w-64 h-screen bg-slate-900 border-r border-slate-800 flex flex-col flex-shrink-0 z-10 shadow-xl text-slate-100 font-sans select-none">
       {/* Logo Header */}
-      <div className="h-20 flex items-center justify-between px-6 border-b border-slate-800 shrink-0">
+      <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
-            <Sparkles size={20} />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/30 shrink-0">
+            <Sparkles size={18} />
           </div>
           <div>
-            <span className="text-lg font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent uppercase">
+            <span className="text-base font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent uppercase">
               Fi.tallest
             </span>
-            <span className="block text-[10px] text-slate-400 font-semibold tracking-widest uppercase">Admin Portal</span>
+            <span className="block text-[9px] text-slate-400 font-semibold tracking-widest uppercase">Admin Portal</span>
           </div>
-        </div>
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-slate-400 hover:text-white transition-colors p-1"
-          title="Xem Website thực tế (Mở tab mới)"
-        >
-          <ArrowLeft size={18} />
-        </a>
-      </div>
-
-      {/* User Profile */}
-      <div className="p-5 flex items-center gap-3 border-b border-slate-800 shrink-0 bg-slate-900/50">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md">
-          {user?.fullName?.charAt(0).toUpperCase() || 'F'}
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <p className="text-sm font-bold text-white truncate">{user?.fullName || 'Quản Trị Viên Fi.tallest'}</p>
-          <p className="text-xs text-indigo-400 font-medium truncate">{user?.email || 'admin@fitallest.com'}</p>
         </div>
       </div>
 
@@ -289,13 +269,22 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
         </div>
       </nav>
 
-      {/* Logout Footer */}
-      <div className="p-4 border-t border-slate-800 shrink-0">
+      {/* User Profile & Logout Footer */}
+      <div className="p-3.5 border-t border-slate-800 shrink-0 bg-slate-900/90 space-y-3">
+        <div className="flex items-center gap-2.5 px-1">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0">
+            {user?.fullName?.charAt(0).toUpperCase() || 'Q'}
+          </div>
+          <div className="flex-1 overflow-hidden min-w-0">
+            <p className="text-xs font-bold text-white truncate">{user?.fullName || 'Quản Trị Viên Fi.tallest'}</p>
+            <p className="text-[10px] text-indigo-400 font-medium truncate">{user?.email || 'admin@fitallest.com'}</p>
+          </div>
+        </div>
         <button
           onClick={() => { logout(); window.location.hash = '#admin'; }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-red-600/20 hover:text-red-400 text-slate-300 text-xs font-bold uppercase tracking-wider rounded-xl transition-all border border-slate-700"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 hover:bg-red-600/20 hover:text-red-400 text-slate-300 text-xs font-bold uppercase tracking-wider rounded-xl transition-all border border-slate-700/80 active:scale-95 cursor-pointer"
         >
-          <LogOut size={16} />
+          <LogOut size={15} />
           <span>Đăng Xuất Admin</span>
         </button>
       </div>
