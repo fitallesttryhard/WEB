@@ -109,15 +109,15 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
           {/* ─── BRAND LOGO ─── */}
           <div 
             onClick={() => navigate('home')} 
-            className="flex items-center gap-3 cursor-pointer group select-none"
+            className="flex items-center gap-3 cursor-pointer group select-none shrink-0"
           >
             {!logoFailed ? (
-              <div className="logo-border-beam-box group/logo cursor-pointer transition-transform duration-300 hover:scale-[1.03]">
+              <div className="logo-border-beam-box max-w-[140px] sm:max-w-[200px] shrink-0 group/logo cursor-pointer transition-transform duration-300 hover:scale-[1.03]">
                 <div className="logo-border-beam-inner">
                   <img 
                     src={settings.logoUrl || '/assets/images/logo.png'} 
                     alt={companyName} 
-                    className="h-9 max-w-[200px] object-contain relative z-10"
+                    className="h-7 sm:h-9 w-auto max-w-[120px] sm:max-w-[180px] max-h-8 sm:max-h-9 object-contain relative z-10 block shrink-0"
                     onError={() => setLogoFailed(true)}
                   />
                 </div>
