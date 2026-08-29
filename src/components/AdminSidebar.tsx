@@ -35,9 +35,11 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
           </div>
         </div>
         <a 
-          href="#" 
+          href="/" 
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-slate-400 hover:text-white transition-colors p-1"
-          title="Về trang chủ"
+          title="Xem Website thực tế (Mở tab mới)"
         >
           <ArrowLeft size={18} />
         </a>

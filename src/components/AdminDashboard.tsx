@@ -1696,7 +1696,9 @@ export default function AdminDashboard() {
           
           <div className="flex items-center gap-2 lg:gap-4 ml-auto">
             <a 
-              href="#home"
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 lg:gap-2 text-sm font-bold text-gray-600 hover:text-red-600 transition-colors px-2 lg:px-4 py-2 rounded-lg hover:bg-red-50"
             >
               <ExternalLink size={16} />
