@@ -71,7 +71,7 @@ export default function CartDrawer() {
       try {
         const localLeads = JSON.parse(localStorage.getItem('admin_leads') || '[]');
         localLeads.unshift({
-          id: dbPayload.id || `ORD-${Date.now()}`,
+          id: (dbPayload as any).id || `ORD-${Date.now()}`,
           customer: dbPayload.customer,
           phone: dbPayload.phone,
           email: dbPayload.email,

@@ -793,6 +793,8 @@ export default function AdminDashboard() {
           prods = dbProds.map(p => ({
             id: p.id,
             name: p.name,
+            slug: p.slug || p.id,
+            price: p.sale_price || p.regular_price || 0,
             categoryId: p.category_id,
             category: cats.find(c => c.id === p.category_id)?.name || 'Chưa phân loại',
             isHot: p.is_hot,

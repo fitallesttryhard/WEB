@@ -6,6 +6,7 @@ import {
   Star
 } from 'lucide-react';
 import { projectsData } from '../data/projectsData';
+import { supabase } from '../supabaseClient';
 
 interface HomePageProps {
   setCurrentTab: (tab: string) => void;
@@ -69,6 +70,9 @@ const svcs = [
 const wfSteps = [
   { num: '01', title: 'Khảo Sát & Tư Vấn', desc: 'Phân tích mục tiêu doanh nghiệp, hành vi khách hàng và định hướng chiến lược số phù hợp.' },
   { num: '02', title: 'Thiết Kế UI/UX', desc: 'Phác thảo Wireframe và thiết kế giao diện độc bản, trải nghiệm người dùng tối ưu.' },
+  { num: '03', title: 'Phát Triển & Lập Trình', desc: 'Code sạch chuẩn quốc tế với React/Next.js, tích hợp API, hệ thống backend và cơ sở dữ liệu an toàn.' },
+  { num: '04', title: 'Kiểm Thử & Tối Ưu', desc: 'QA toàn diện trên đa thiết bị, tối ưu PageSpeed 95+, bảo mật SSL và kiểm tra trải nghiệm người dùng thực tế.' },
+  { num: '05', title: 'Bàn Giao & Vận Hành', desc: 'Go-live trên hạ tầng Cloud NVMe, đào tạo quản trị, bảo hành dài hạn và hỗ trợ kỹ thuật 24/7.' },
 ];
 
 export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
@@ -423,9 +427,18 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                 </button>
               </div>
               <div className="grid grid-cols-3 gap-3 pt-3 border-t border-white/[0.08] max-w-lg">
-                <div className="space-y-0.5"><div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Tốc độ tải trang</div><div className="text-base font-black text-cyan-400 font-mono">&lt; 1.2s avg</div></div>
-                <div className="space-y-0.5 border-l border-white/10 pl-3"><div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Cam kết Uptime</div><div className="text-base font-black text-emerald-400 font-mono">99.9% SLA</div></div>
-                <div className="space-y-0.5 border-l border-white/10 pl-3"><div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Hỗ trợ kỹ thuật</div><div className="text-base font-black text-purple-400 font-mono">24/7 Live</div></div>
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Tăng trưởng ROI</div>
+                  <div className="text-base font-black text-cyan-400 font-mono">+340%</div>
+                </div>
+                <div className="space-y-0.5 border-l border-white/10 pl-3">
+                  <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Dự án đã triển khai</div>
+                  <div className="text-base font-black text-emerald-400 font-mono">150+</div>
+                </div>
+                <div className="space-y-0.5 border-l border-white/10 pl-3">
+                  <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Từ khóa Top 1 Google</div>
+                  <div className="text-base font-black text-purple-400 font-mono">500+</div>
+                </div>
               </div>
             </div>
 
