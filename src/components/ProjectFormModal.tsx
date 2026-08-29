@@ -320,16 +320,16 @@ export default function ProjectFormModal({
               />
             </div>
 
-            {/* 5. Vật Tư SBUILD Cung Ứng */}
+            {/* 5. Giải Pháp Fi.tallest Triển Khai */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Vật Tư SBUILD Cung Ứng (Nhập các mục phân cách bằng dấu phẩy)
+                Giải Pháp Fi.tallest Triển Khai (Nhập các mục phân cách bằng dấu phẩy)
               </label>
               <input 
                 type="text" 
                 value={formData.materials} 
                 onChange={(e) => setFormData(prev => ({ ...prev, materials: e.target.value }))}
-                placeholder="Ví dụ: Nẹp nhôm T20, Băng cản nước V200, Phụ kiện giàn giáo..." 
+                placeholder="Ví dụ: React, Node.js, Supabase, Băng cản nước V200, Phụ kiện giàn giáo..." 
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
               />
             </div>
@@ -343,7 +343,7 @@ export default function ProjectFormModal({
                 rows={3} 
                 value={formData.description} 
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Nêu tóm tắt giải pháp vật tư SBUILD đã triển khai cho công trình này..." 
+                placeholder="Nêu tóm tắt giải pháp vật tư Fi.tallest đã triển khai cho công trình này..." 
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium resize-none"
               />
             </div>

@@ -91,21 +91,24 @@ export default function StorefrontSections() {
         {/* SECTION 1: SẢN PHẨM NỔI BẬT */}
         <section>
           {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
-              <span className="text-red-600 font-bold text-xs uppercase tracking-widest block mb-1.5">
-                SẢN PHẨM BÁN CHẠY
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight uppercase">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-6 h-0.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600"></span>
+                <span className="text-red-600 font-extrabold text-[11px] uppercase tracking-[0.2em]">
+                  SẢN PHẨM BÁN CHẠY
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
                 Vật Tư & Phụ Kiện Tiêu Biểu
               </h2>
             </div>
             <a
               href="#products"
-              className="inline-flex items-center gap-2 font-bold text-sm text-red-600 hover:text-red-700 transition-colors uppercase tracking-wider group"
+              className="inline-flex items-center gap-2 font-bold text-xs text-red-600 hover:text-red-700 transition-colors uppercase tracking-wider group"
             >
               Xem tất cả sản phẩm
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
 
@@ -117,7 +120,8 @@ export default function StorefrontSections() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((product) => {
-                const img = product.thumbnail_url || product.image_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop';
+                const defaultImg = 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop';
+                const img = product.thumbnail_url || product.image_url || defaultImg;
                 const catName = product.categories?.name || 'Vật tư xây dựng';
                 const price = product.original_price || product.price || 0;
                 const isCompared = compareList.some((p) => p.id === product.id);
@@ -125,36 +129,41 @@ export default function StorefrontSections() {
                 return (
                   <div
                     key={product.id}
-                    className="group flex flex-col bg-white rounded-2xl border border-slate-100 p-3.5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative"
+                    className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 p-4 transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.12)] hover:-translate-y-1 relative"
                   >
                     {/* Image Container */}
-                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-50 mb-3 group/img">
+                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-100 mb-3.5 group/img flex items-center justify-center border border-slate-100">
                       <a href={`#product?id=${product.id}`} className="w-full h-full block">
                         <img
                           src={img}
                           alt={product.name}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = defaultImg;
+                          }}
                           className="w-full h-full object-cover rounded-xl transition-transform duration-500 ease-out group-hover/img:scale-105"
                         />
                       </a>
 
                       {/* HOT Badge */}
                       {product.is_hot && (
-                        <span className="absolute top-2.5 right-2.5 z-10 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs pointer-events-none">
+                        <span className="absolute top-2.5 right-2.5 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md backdrop-blur-md pointer-events-none">
                           Nổi bật
                         </span>
                       )}
 
-                      {/* Compare Icon-Only Button */}
+                      {/* Compare Button */}
                       <button
                         onClick={(e) => handleToggleCompare(e, { ...product, image: img, price })}
-                        className={`absolute top-2.5 left-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-xs backdrop-blur-md cursor-pointer ${
+                        className={`absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md backdrop-blur-md cursor-pointer ${
                           isCompared
-                            ? 'bg-red-600 text-white'
-                            : 'bg-white/90 text-slate-600 hover:bg-slate-900 hover:text-white'
+                            ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-red-500/30'
+                            : 'bg-white/90 text-slate-600 hover:bg-red-600 hover:text-white'
                         }`}
                         title={isCompared ? 'Bỏ so sánh' : 'Thêm vào so sánh'}
                       >
-                        <ArrowLeftRight size={13} />
+                        <ArrowLeftRight size={14} />
                       </button>
                     </div>
 
@@ -165,19 +174,19 @@ export default function StorefrontSections() {
                       </span>
                       <a 
                         href={`#product?id=${product.id}`} 
-                        className="text-sm font-bold text-slate-900 line-clamp-2 leading-snug h-10 mb-2 group-hover:text-red-600 transition-colors"
+                        className="text-sm font-extrabold text-slate-800 line-clamp-2 leading-snug h-10 mb-3 group-hover:text-red-600 transition-colors"
                       >
                         {product.name}
                       </a>
 
-                      <div className="mt-auto pt-2 border-t border-slate-100 flex flex-col gap-2.5">
-                        <span className="text-slate-900 font-black text-base">
+                      <div className="mt-auto pt-3 border-t border-slate-100 flex flex-col gap-3">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-600 font-black text-base">
                           {formatPrice(price)}
                         </span>
 
                         <button
                           onClick={(e) => handleAddToCart(e, product)}
-                          className="w-full py-2.5 bg-slate-900 hover:bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
+                          className="w-full py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-md shadow-red-500/20 active:scale-[0.98] cursor-pointer"
                         >
                           <ShoppingBag size={14} /> Nhận báo giá
                         </button>
@@ -364,7 +373,7 @@ export default function StorefrontSections() {
                       <td className="p-4 font-bold text-slate-500 uppercase tracking-widest bg-white sticky left-0 z-10 border-r border-slate-100">Danh mục</td>
                       {compareList.map((p) => (
                         <td key={p.id} className="p-4 text-slate-900 font-bold">
-                          {p.category || p.categories?.name || 'Nẹp Xây Dựng'}
+                          {p.category || p.categories?.name || 'Dịch Vụ Công Nghệ'}
                         </td>
                       ))}
                     </tr>

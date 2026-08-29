@@ -150,7 +150,7 @@ export default function Hero() {
         <div className={`flex flex-col sm:flex-row gap-4 w-full sm:w-auto ${layoutType === 'standard' ? 'mb-16' : 'mb-8'}`}>
           <a
             href={ctaLink}
-            className="group relative inline-flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-sm font-extrabold tracking-widest uppercase rounded-xl transition-all shadow-[0_10px_30px_rgba(220,38,38,0.3)] hover:-translate-y-0.5 active:translate-y-0"
+            className="group relative inline-flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white px-8 py-4 text-sm font-black tracking-widest uppercase rounded-xl transition-all shadow-[0_10px_30px_rgba(225,29,72,0.35)] hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>{ctaText}</span>
             <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />

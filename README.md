@@ -1,20 +1,8 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Fitallest-Web
+Website chính của công ty Fitallest - Đỉnh cao Công nghệ Thiết kế Website & Apps.
 
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/e8117eb9-2f44-4f30-94e2-34becea7f51a
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Hướng dẫn chạy:
+1. Mở Terminal tại thư mục: `D:\NASANI\Fitallest-Web`
+2. Cài đặt thư viện: `npm install`
+3. Chạy dev server: `npm run dev`
+4. Truy cập địa chỉ: `http://localhost:3001`

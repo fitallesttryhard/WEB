@@ -1,23 +1,346 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+:root {
+  --brand-color: #dc2626;
+  --primary-color: #dc2626;
+}
+
 @layer base {
   html, body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color: #e2e8f0;
+    background-color: #050A14;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    -webkit-text-wrap: balance;
   }
 }
+
+/* Dynamic Theme Helpers */
+.text-primary-theme {
+  color: var(--brand-color, #dc2626);
+}
+
+.bg-primary-theme {
+  background-color: var(--brand-color, #dc2626);
+}
+
+.border-primary-theme {
+  border-color: var(--brand-color, #dc2626);
+}
+
+/* Red Gradient Theme Helpers */
+.text-gradient-red {
+  background: linear-gradient(135deg, var(--brand-color, #dc2626) 0%, #e11d48 50%, #b91c1c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gradient-red {
+  background: linear-gradient(135deg, var(--brand-color, #dc2626) 0%, #e11d48 50%, #b91c1c 100%);
+}
+
+.bg-gradient-red-hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #be123c 50%, #991b1b 100%);
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #e5e7eb;
+  background-color: #f1f5f9;
   border-radius: 10px;
 }
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
+  background-color: #cbd5e1;
 }
+
+
+
+
+
+/* --- INFINITE MARQUEE TICKER ANIMATION --- */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.tech-pill {
+  display: inline-flex;
+  items-center: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.tech-pill:hover {
+  border-color: rgba(129, 140, 248, 0.6);
+  color: #ffffff;
+  background: rgba(49, 46, 129, 0.6);
+  transform: translateY(-2px);
+}
+
+/* --- DYNAMIC ANIMATIONS & KEYFRAMES --- */
+
+/* 1. Floating Levitation Effect */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.5deg); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-18px) scale(1.05); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+/* 2. Flowing Multi-Color Gradient Text */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-text {
+  background-size: 200% auto;
+  animation: gradientFlow 5s linear infinite;
+}
+
+/* 3. Light Sweep Shimmer Flare */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: shimmer 3.5s infinite;
+}
+
+/* 4. Pulsing Glow Ring */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.08); }
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* 5. Slow Rotation */
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}
+
+/* 6. Card Hover Elevation & Modern Glass Card Styling */
+.tech-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tech-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 20px 35px -5px rgba(99, 102, 241, 0.15), 0 0 20px rgba(99, 102, 241, 0.08);
+}
+
+.tech-card-icon-wrapper {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1.25rem;
+  background: rgba(99, 102, 241, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s ease;
+}
+
+.tech-card:hover .tech-card-icon-wrapper {
+  transform: scale(1.1) rotate(4deg);
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Dark Tech Backgrounds & Artistic Elements ── */
+.bg-cyber-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.bg-dot-matrix {
+  background-image: radial-gradient(rgba(6, 182, 212, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-cyber-radial {
+  background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+              radial-gradient(circle at 100% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 0% 80%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
+}
+
+/* Laser Light Beams */
+@keyframes laserSweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(200%); opacity: 0; }
+}
+
+.laser-beam-h {
+  position: absolute;
+  height: 1px;
+  width: 35%;
+  background: linear-gradient(90deg, transparent, #06b6d4, #38bdf8, transparent);
+  animation: laserSweep 7s ease-in-out infinite;
+}
+
+.laser-beam-purple {
+  position: absolute;
+  height: 1px;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, #a855f7, #c084fc, transparent);
+  animation: laserSweep 9s ease-in-out infinite 3s;
+}
+
+/* Glowing Neon Borders */
+.glow-border-cyan {
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), inset 0 0 15px rgba(6, 182, 212, 0.05);
+}
+
+.glow-border-purple {
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), inset 0 0 15px rgba(168, 85, 247, 0.05);
+}
+
+/* ── Dark Tech Homepage Animations ── */
+@keyframes auroraFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(3%, -4%) scale(1.05); }
+  66% { transform: translate(-3%, 3%) scale(0.97); }
+}
+
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(0.5deg); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Override body bg for dark pages */
+.bg-\[#050A14\] {
+  color-scheme: dark;
+}
+
+/* Translucent Crystal Cosmic Glass Sphere */
+@keyframes orbitRotate {
+  0% { transform: rotate3d(1, 1, 1, 0deg); }
+  100% { transform: rotate3d(1, 1, 1, 360deg); }
+}
+
+@keyframes orbitReverse {
+  0% { transform: rotate3d(1, -1, 0.5, 360deg); }
+  100% { transform: rotate3d(1, -1, 0.5, 0deg); }
+}
+
+@keyframes cosmicCorePulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 25px rgba(6,182,212,0.5)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 45px rgba(56,189,248,0.7)) drop-shadow(0 0 70px rgba(129,140,248,0.4)); }
+}
+
+@keyframes specularGlint {
+  0%, 100% { opacity: 0.7; transform: rotate(-25deg) translate(0, 0); }
+  50% { opacity: 1; transform: rotate(-25deg) translate(2px, -2px); }
+}
+
+.cosmic-ring-1 {
+  animation: orbitRotate 20s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.cosmic-ring-2 {
+  animation: orbitReverse 26s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.cosmic-core {
+  animation: cosmicCorePulse 5s ease-in-out infinite;
+}
+
+.crystal-glint {
+  animation: specularGlint 4s ease-in-out infinite;
+}
+
+
+
+

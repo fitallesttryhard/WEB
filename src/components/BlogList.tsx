@@ -31,7 +31,7 @@ export default function BlogList() {
   const displayArticles = posts.map((p) => ({
     id: p.id,
     title: p.title,
-    excerpt: p.excerpt || 'Bài viết kỹ thuật & dự án xây dựng.',
+    excerpt: p.excerpt || 'Bài viết kỹ thuật & dự án công nghệ & phần mềm.',
     date: new Date(p.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }),
     image: p.cover_image || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1200&auto=format&fit=crop',
     category: 'Tin tức & Dự án',

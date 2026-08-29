@@ -1,10 +1,12 @@
+import SuperAdminDashboard from './SuperAdminDashboard';
+import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../seedData';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  LogOut, ExternalLink, Plus, Edit, Trash2, 
+  LogOut, ExternalLink, Plus, Edit, Trash2, Download,
   CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
-  UploadCloud, Copy, Image as ImageIcon, Loader2, Save,
+  UploadCloud, Copy, Image as ImageIcon, Loader2, Save, Sparkles,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
-  Menu, X
+  Menu, X, Search, FileText, ShoppingCart
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -80,6 +82,39 @@ const mockChartData = [
 ];
 
 export default function AdminDashboard() {
+
+  // 1-CLICK EXPORT DATA FUNCTION FOR FITALLEST
+  const handleExportDataOneClick = (tenantData?: any) => {
+    const exportPayload = {
+      version: '1.0.0',
+      exportedAt: new Date().toISOString(),
+      platform: 'Fi.tallest SaaS Platform',
+      tenantInfo: tenantData || settings,
+      products: products || [],
+      categories: categories || [],
+      posts: posts || [],
+      postCategories: postCategories || [],
+      orders: orders || [],
+      adminProjects: adminProjects || [],
+      settings: settings || {}
+    };
+
+    const jsonString = JSON.stringify(exportPayload, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const fileName = `fitallest_export_${tenantData?.subdomain || 'website'}_${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setToast(`✅ Đã xuất dữ liệu 1-Click thành công! (${fileName})`);
+    setTimeout(() => setToast(''), 4000);
+  };
+
   const [activeMenu, setActiveMenu] = useState('products');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,7 +136,7 @@ export default function AdminDashboard() {
     { id: 3, title: 'Chính sách bảo mật', slug: 'chinh-sach-bao-mat', status: 'draft', lastUpdated: '2026-08-10', template: 'full-width' },
   ]);
   const [banners, setBanners] = useState<any[]>([
-    { id: 1, image_url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=1200&auto=format&fit=crop', heading: 'Kiến tạo không gian sống', subheading: 'Sbuild - Cùng bạn xây dựng tương lai vững chắc', cta_text: 'Xem dự án', cta_link: '/du-an', status: true, order: 1 }
+    { id: 1, image_url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=1200&auto=format&fit=crop', heading: 'Kiến tạo không gian sống', subheading: 'Fi.tallest - Cùng bạn xây dựng tương lai vững chắc', cta_text: 'Xem dự án', cta_link: '/du-an', status: true, order: 1 }
   ]);
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<any>(null);
@@ -119,8 +154,16 @@ export default function AdminDashboard() {
   const [isPostCategorySlugEdited, setIsPostCategorySlugEdited] = useState(false);
   const [orders, setOrders] = useState<any[]>(initialOrders);
   const [orderFilter, setOrderFilter] = useState('all');
+  const [orderSearch, setOrderSearch] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+
+  // Search & Filter States
+  const [productSearch, setProductSearch] = useState('');
+  const [productCatFilter, setProductCatFilter] = useState('all');
+  const [postSearch, setPostSearch] = useState('');
+  const [postCatFilter, setPostCatFilter] = useState('all');
+  const [categorySearch, setCategorySearch] = useState('');
 
   // Projects State
   const [adminProjects, setAdminProjects] = useState<any[]>([
@@ -153,9 +196,53 @@ export default function AdminDashboard() {
     location: '',
     scale: '',
     image: '',
-    materials: '',
-    description: ''
   });
+
+  // Admin Leads (Danh sách khách hàng đăng ký từ Web & Báo giá)
+  const [adminLeads, setAdminLeads] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadLeads = () => {
+      try {
+        const stored = localStorage.getItem('admin_leads');
+        if (stored) {
+          setAdminLeads(JSON.parse(stored));
+        }
+      } catch (e) {}
+    };
+    loadLeads();
+    window.addEventListener('storage', loadLeads);
+    window.addEventListener('admin_leads_updated', loadLeads);
+    return () => {
+      window.removeEventListener('storage', loadLeads);
+      window.removeEventListener('admin_leads_updated', loadLeads);
+    };
+  }, []);
+
+  const handleToggleLeadStatus = (id: string) => {
+    setAdminLeads(prev => {
+      const updated = prev.map(l => {
+        if (l.id === id) {
+          const nextStatus = l.status === 'new' ? 'contacted' : l.status === 'contacted' ? 'completed' : 'new';
+          return { ...l, status: nextStatus };
+        }
+        return l;
+      });
+      localStorage.setItem('admin_leads', JSON.stringify(updated));
+      return updated;
+    });
+    showToast('Đã cập nhật trạng thái xử lý!');
+  };
+
+  const handleDeleteLead = (id: string) => {
+    if (!confirm('Bạn có chắc muốn xóa yêu cầu đăng ký này?')) return;
+    setAdminLeads(prev => {
+      const updated = prev.filter(l => l.id !== id);
+      localStorage.setItem('admin_leads', JSON.stringify(updated));
+      return updated;
+    });
+    showToast('Đã xóa thông tin đăng ký!');
+  };
 
   // Settings & Appearance State
   const [appearanceForm, setAppearanceForm] = useState({ 
@@ -167,8 +254,41 @@ export default function AdminDashboard() {
     body_font: 'Inter' 
   });
   const { settings, updateSettings } = useSettings();
-  const [settingsForm, setSettingsForm] = useState(settings);
+  const [settingsForm, setSettingsForm] = useState<any>({
+    companyName: 'Công ty TNHH Công Nghệ Fi.tallest',
+    hotline: '0909 876 817',
+    address: 'Quận 1, TP. Hồ Chí Minh',
+    email: 'contact@fitallest.com',
+    brandColor: '#6366f1',
+    fontFamily: 'Inter, sans-serif',
+    socialLinks: [],
+    footerBlocks: [],
+    ...(settings || {})
+  });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  // Synchronize settings form state whenever loaded settings change
+  useEffect(() => {
+    if (settings) {
+      setSettingsForm({
+        companyName: 'Công ty TNHH Công Nghệ Fi.tallest',
+        hotline: '0909 876 817',
+        address: 'Quận 1, TP. Hồ Chí Minh',
+        email: 'contact@fitallest.com',
+        brandColor: '#6366f1',
+        fontFamily: 'Inter, sans-serif',
+        ...settings,
+        socialLinks: Array.isArray(settings.socialLinks) ? settings.socialLinks : [],
+        footerBlocks: Array.isArray(settings.footerBlocks) ? settings.footerBlocks : []
+      });
+      setAppearanceForm(prev => ({
+        ...prev,
+        primary_color: settings.brandColor || '#dc2626',
+        logo_url: settings.logoUrl || '',
+        favicon_url: settings.faviconUrl || ''
+      }));
+    }
+  }, [settings]);
 
   // Media state
   const [mediaFiles, setMediaFiles] = useState<any[]>([]);
@@ -191,28 +311,69 @@ export default function AdminDashboard() {
     }
   }, [activeMenu, mediaLoaded]);
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const fetchMedia = async () => {
     try {
+      // 1. Get locally saved media items from localStorage
+      let localSaved: any[] = [];
+      const stored = localStorage.getItem('admin_local_media_gallery');
+      if (stored) {
+        try { localSaved = JSON.parse(stored); } catch (e) {}
+      }
+
+      // 2. Fetch from Supabase storage if available
+      let remoteFiles: any[] = [];
       const { data, error } = await supabase.storage.from('product-media').list();
-      if (error) throw error;
-      
-      const validFiles = data.filter((f: any) => f.name !== '.emptyFolderPlaceholder' && f.metadata?.size);
-      
-      const filesWithUrls = validFiles.map((file: any) => {
-        const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(file.name);
-        return {
-          id: file.id,
-          name: file.name,
-          size: file.metadata?.size || 0,
-          path: file.name,
-          url: publicUrl
-        };
-      });
-      setMediaFiles(filesWithUrls.sort((a, b) => b.name.localeCompare(a.name)));
+      if (!error && data) {
+        const validFiles = data.filter((f: any) => f.name !== '.emptyFolderPlaceholder' && f.metadata?.size);
+        remoteFiles = validFiles.map((file: any) => {
+          const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(file.name);
+          return {
+            id: file.id || file.name,
+            name: file.name,
+            size: file.metadata?.size || 0,
+            path: file.name,
+            url: publicUrl
+          };
+        });
+      }
+
+      // Merge remote files and local saved files, eliminating duplicates
+      const merged = [...remoteFiles];
+      for (const item of localSaved) {
+        if (!merged.some(m => m.path === item.path || m.url === item.url)) {
+          merged.push(item);
+        }
+      }
+
+      if (merged.length === 0) {
+        merged.push(
+          { name: 'scaffolding-hero.jpg', size: 1024500, path: 'mock-1', url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=600&auto=format&fit=crop' },
+          { name: 'metal-clamp.png', size: 2048000, path: 'mock-2', url: 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=600&auto=format&fit=crop' }
+        );
+      }
+
+      setMediaFiles(merged);
       setMediaLoaded(true);
     } catch (error) {
       console.error('Error fetching media:', error);
-      if (mediaFiles.length === 0) {
+      let localSaved: any[] = [];
+      try {
+        const stored = localStorage.getItem('admin_local_media_gallery');
+        if (stored) localSaved = JSON.parse(stored);
+      } catch (e) {}
+
+      if (localSaved.length > 0) {
+        setMediaFiles(localSaved);
+      } else {
         setMediaFiles([
           { name: 'scaffolding-hero.jpg', size: 1024500, path: 'mock-1', url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=600&auto=format&fit=crop' },
           { name: 'metal-clamp.png', size: 2048000, path: 'mock-2', url: 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=600&auto=format&fit=crop' }
@@ -233,30 +394,61 @@ export default function AdminDashboard() {
       
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      
+      let uploadedObj: any = null;
+
       try {
-        const { error } = await supabase.storage.from('product-media').upload(fileName, file);
-        if (error) throw error;
-        
-        const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
-        newFiles.push({
-          name: file.name,
-          size: file.size,
-          path: fileName,
-          url: publicUrl
-        });
+        const { data: upData, error } = await supabase.storage.from('product-media').upload(fileName, file);
+        if (!error && upData) {
+          const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
+          uploadedObj = {
+            id: fileName,
+            name: file.name,
+            size: file.size,
+            path: fileName,
+            url: publicUrl
+          };
+        }
       } catch (err) {
-        console.error('Upload error:', err);
-        newFiles.push({
-          name: file.name,
-          size: file.size,
-          path: `mock-${Date.now()}-${i}`,
-          url: URL.createObjectURL(file)
-        });
+        console.warn('Supabase storage upload bypassed:', err);
+      }
+
+      // If Supabase upload failed or permissions blocked it, convert file to Base64 DataURL for permanent local storage!
+      if (!uploadedObj) {
+        try {
+          const base64Url = await fileToBase64(file);
+          uploadedObj = {
+            id: `local-${Date.now()}-${i}`,
+            name: file.name,
+            size: file.size,
+            path: `local-${Date.now()}-${i}`,
+            url: base64Url
+          };
+        } catch (e) {
+          uploadedObj = {
+            id: `mock-${Date.now()}-${i}`,
+            name: file.name,
+            size: file.size,
+            path: `mock-${Date.now()}-${i}`,
+            url: URL.createObjectURL(file)
+          };
+        }
+      }
+
+      if (uploadedObj) {
+        newFiles.push(uploadedObj);
       }
     }
     
-    setMediaFiles(prev => [...newFiles, ...prev]);
+    setMediaFiles(prev => {
+      const updated = [...newFiles, ...prev];
+      try {
+        localStorage.setItem('admin_local_media_gallery', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Could not save media gallery to localStorage:', e);
+      }
+      return updated;
+    });
+
     setIsUploading(false);
     if (newFiles.length > 0) showToast(`Đã tải lên ${newFiles.length} hình ảnh!`);
   };
@@ -264,10 +456,16 @@ export default function AdminDashboard() {
   const handleDeleteMedia = async (path: string) => {
     if (!confirm("Bạn có chắc muốn xóa ảnh này?")) return;
     try {
-      if (!path.startsWith('mock-')) {
+      if (!path.startsWith('mock-') && !path.startsWith('local-')) {
         await supabase.storage.from('product-media').remove([path]);
       }
-      setMediaFiles(prev => prev.filter(f => f.path !== path));
+      setMediaFiles(prev => {
+        const updated = prev.filter(f => f.path !== path);
+        try {
+          localStorage.setItem('admin_local_media_gallery', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
       showToast('Đã xóa hình ảnh!');
     } catch (error) {
       console.error('Delete error:', error);
@@ -367,113 +565,128 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      let { data: catData } = await supabase.from('categories').select('*');
-      let { data: prodData } = await supabase.from('products').select('*, categories(name)').order('created_at', { ascending: false });
-
-      // Nếu chưa có sản phẩm/danh mục nào, tự động nạp 12 sản phẩm nẹp xây dựng thực tế vào DB
-      if ((!catData || catData.length === 0) || (!prodData || prodData.length === 0)) {
-        await seedTrimDatabase();
-        const resCat = await supabase.from('categories').select('*');
-        const resProd = await supabase.from('products').select('*, categories(name)').order('created_at', { ascending: false });
-        catData = resCat.data;
-        prodData = resProd.data;
+      // 1. Products
+      let prods = INITIAL_PRODUCTS;
+      const storedProds = localStorage.getItem('fitallest_admin_products');
+      if (storedProds) {
+        try { prods = JSON.parse(storedProds); } catch (e) {}
+      } else {
+        localStorage.setItem('fitallest_admin_products', JSON.stringify(INITIAL_PRODUCTS));
       }
+      setProducts(prods);
 
-      setCategories(catData || []);
+      // 2. Categories
+      let cats = INITIAL_CATEGORIES;
+      const storedCats = localStorage.getItem('fitallest_admin_categories');
+      if (storedCats) {
+        try { cats = JSON.parse(storedCats); } catch (e) {}
+      } else {
+        localStorage.setItem('fitallest_admin_categories', JSON.stringify(INITIAL_CATEGORIES));
+      }
+      setCategories(cats);
 
-      const { data: settingsData, error: settingsError } = await supabase.from('tenant_settings').select('*').limit(1).maybeSingle();
-      if (settingsData && !settingsError) {
-        const config = settingsData.config || {};
-        const theme = config.theme || {};
-        const fc = settingsData.footer_config || {};
-        const blocks = Array.isArray(fc) ? fc : (fc.blocks || []);
-        const soc = settingsData.socials || [];
-
-        const defaultFooterBlocks = [
-          {
-            id: 'block-default-1',
-            type: 'links',
-            title: 'Liên kết nhanh',
-            items: [
-              { id: '1', label: 'Trang chủ', url: '#' },
-              { id: '2', label: 'Giới thiệu công ty', url: '#about' },
-              { id: '3', label: 'Danh mục sản phẩm', url: '#products' },
-              { id: '4', label: 'Tin tức & Sự kiện', url: '#blog' },
-              { id: '5', label: 'Liên hệ', url: '#contact' },
-            ]
+      // 3. Posts / Articles
+      const storedPosts = localStorage.getItem('fitallest_admin_posts');
+      if (storedPosts) {
+        try { 
+          const parsed = JSON.parse(storedPosts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPosts(parsed);
+          }
+        } catch (e) {}
+      } else {
+        const initialPosts = [
+          { 
+            id: '1', 
+            title: 'Top 10 Xu Hướng Thiết Kế Website & Apps Dẫn Đầu 2026', 
+            category: 'Thiết kế Web', 
+            categoryId: '1', 
+            status: 'published', 
+            image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop', 
+            views: 350, 
+            slug: 'top-10-xu-huong-thiet-ke-website-2026',
+            excerpt: 'Khám phá các tiêu chuẩn UI/UX, AI Design, tốc độ PageSpeed 95+ và kiến trúc headless web mới nhất.',
+            content: 'Nội dung chi tiết về xu hướng thiết kế web và mobile app chuẩn hiện đại năm 2026...'
           },
-          {
-            id: 'block-default-2',
-            type: 'text',
-            title: 'Chính sách chất lượng',
-            content: 'SBUILD cam kết cung cấp giải pháp vật tư, phụ kiện giàn giáo và dụng cụ thi công chất lượng chuẩn CO/CQ với chi phí tối ưu nhất.'
+          { 
+            id: '2', 
+            title: 'Chiến Lược SEO Tổng Thể Thống Trị Top 1 Google Năm 2026', 
+            category: 'SEO Google', 
+            categoryId: '2', 
+            status: 'published', 
+            image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=800&auto=format&fit=crop', 
+            views: 280, 
+            slug: 'chien-luoc-seo-tong-the-top-1-google',
+            excerpt: 'Bí quyết tối ưu SEO Entity, cấu trúc dữ liệu Schema và chiến lược Content AI giúp lên Top 1 bền vững.',
+            content: 'Chi tiết lộ trình triển khai SEO tổng thể...'
+          },
+          { 
+            id: '3', 
+            title: 'Ứng Dụng Trí Tuệ Nhân Tạo (AI) Trong Tự Động Hóa Giao Diện Website', 
+            category: 'Trí tuệ Nhân tạo AI', 
+            categoryId: '1', 
+            status: 'published', 
+            image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=800&auto=format&fit=crop', 
+            views: 410, 
+            slug: 'ung-dung-ai-tu-dong-hoa-giao-dien',
+            excerpt: 'Tích hợp AI phân tích hành vi người dùng, cá nhân hóa trải nghiệm và tối đa hóa tỷ lệ chuyển đổi.',
+            content: 'Phân tích các mô hình AI UI/UX hàng đầu...'
           }
         ];
-
-        setAppearanceForm(prev => ({
-          primary_color: settingsData.brand_color || theme.primary_color || prev.primary_color,
-          secondary_color: theme.secondary_color || prev.secondary_color,
-          logo_url: settingsData.logo_url || theme.logo_url || prev.logo_url,
-          favicon_url: theme.favicon_url || prev.favicon_url,
-          heading_font: theme.heading_font || prev.heading_font,
-          body_font: theme.body_font || prev.body_font,
-        }));
-        setSettingsForm(prev => ({
-          companyName: settingsData.company_name || fc.companyName || prev.companyName,
-          hotline: settingsData.hotline || fc.hotline || prev.hotline,
-          address: settingsData.address || fc.address || prev.address,
-          email: settingsData.email || fc.email || prev.email,
-          logoUrl: settingsData.logo_url || prev.logoUrl,
-          brandColor: settingsData.brand_color || prev.brandColor,
-          socialLinks: Array.isArray(soc) ? soc : (soc.links || prev.socialLinks || []),
-          footerBlocks: blocks.length > 0 ? blocks : defaultFooterBlocks
-        }));
+        localStorage.setItem('fitallest_admin_posts', JSON.stringify(initialPosts));
+        setPosts(initialPosts);
       }
 
-      if (prodData) {
-        setProducts(prodData.map(p => ({
-          id: p.id,
-          name: p.name,
-          category: p.categories?.name || 'Chưa phân loại',
-          categoryId: p.category_id,
-          is_hot: p.is_hot,
-          image: p.thumbnail_url || p.image_url,
-          slug: p.slug,
-          seoTitle: p.seo_title,
-          seoDescription: p.seo_description,
-          thumbnailUrl: p.thumbnail_url,
-          galleryUrls: p.gallery_urls,
-          specs: p.specs,
-          sku: p.sku,
-          regularPrice: p.original_price || p.regular_price,
-          salePrice: p.sale_price,
-          stockStatus: p.stock_status,
-          tags: p.tags,
-          description: p.description,
-          status: p.status
-        })));
+      // 4. Projects
+      const storedProjects = localStorage.getItem('fitallest_admin_projects');
+      if (storedProjects) {
+        try {
+          const parsedProj = JSON.parse(storedProjects);
+          if (Array.isArray(parsedProj) && parsedProj.length > 0) {
+            setAdminProjects(parsedProj);
+          }
+        } catch (e) {}
       } else {
-        setProducts([]);
+        const initialProjects = [
+          {
+            id: 1,
+            title: 'Nền Tảng Thương Mại Điện Tử & SaaS Luxury Central',
+            category: 'E-Commerce & SaaS',
+            location: 'Toàn quốc & Quốc tế',
+            scale: 'Hơn 50,000 người dùng hàng ngày',
+            image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+            materials: ['Next.js 15', 'TypeScript', 'Supabase Realtime', 'Stripe & VNPAY'],
+            description: 'Hệ sinh thái bán hàng và quản trị đa kênh với tốc độ tải trang 0.4s và bảo mật chuẩn ngân hàng.',
+            link: 'https://demo.fitallest.com'
+          },
+          {
+            id: 2,
+            title: 'Hệ Thống Web App Quản Trị & Báo Cáo Doanh Nghiệp',
+            category: 'Enterprise Web App',
+            location: 'TP. Hồ Chí Minh',
+            scale: 'Doanh nghiệp 500+ nhân sự',
+            image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+            materials: ['React 19', 'Tailwind CSS', 'Node.js', 'PostgreSQL'],
+            description: 'Giải pháp ERP & CRM tùy chỉnh tự động hóa 90% quy trình xử lý đơn hàng và báo cáo tài chính.',
+            link: 'https://demo.fitallest.com'
+          },
+          {
+            id: 3,
+            title: 'Cổng Thông Tin & Dịch Vụ Tài Chính Quốc Tế',
+            category: 'Fintech Portal',
+            location: 'Singapore & Việt Nam',
+            scale: 'Giao dịch bảo mật 256-bit',
+            image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop',
+            materials: ['Next.js', 'Cloudflare Enterprise', 'ISO 27001 Security'],
+            description: 'Cổng giao dịch tài chính tốc độ cao, xác thực 2 lớp 2FA và bảo mật đa tầng.',
+            link: 'https://demo.fitallest.com'
+          }
+        ];
+        localStorage.setItem('fitallest_admin_projects', JSON.stringify(initialProjects));
+        setAdminProjects(initialProjects);
       }
-
-      const { data: pageData } = await supabase.from('pages').select('*').order('created_at', { ascending: false });
-      if (pageData) {
-        setPages(pageData.map(p => ({
-          id: p.id,
-          title: p.title,
-          slug: p.slug,
-          status: 'published',
-          lastUpdated: p.updated_at ? p.updated_at.split('T')[0] : '2026-08-14',
-          template: p.template_type || 'default',
-          content: p.html_content
-        })));
-      }
-
-      if (settingsData?.footer_config?.banners) {
-        setBanners(settingsData.footer_config.banners);
-      }
-    } catch (error) {
-      console.warn('Error in fetchData:', error);
+    } catch (err) {
+      console.error('Error fetching data:', err);
     }
   };
 
@@ -489,6 +702,7 @@ export default function AdminDashboard() {
       updateSettings({
         brandColor: appearanceForm.primary_color,
         logoUrl: appearanceForm.logo_url,
+        faviconUrl: appearanceForm.favicon_url,
       });
 
       const { data: existing } = await supabase.from('tenant_settings').select('id').limit(1).maybeSingle();
@@ -518,8 +732,23 @@ export default function AdminDashboard() {
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingSettings(true);
+
+    let cleanedMapUrl = (settingsForm.mapUrl || '').trim();
+    if (cleanedMapUrl.includes('<iframe') && cleanedMapUrl.includes('src=')) {
+      const match = cleanedMapUrl.match(/src=["']([^"']+)["']/i);
+      if (match && match[1]) {
+        cleanedMapUrl = match[1];
+      }
+    }
+
+    const updatedSettingsForm = {
+      ...settingsForm,
+      mapUrl: cleanedMapUrl
+    };
+    setSettingsForm(updatedSettingsForm);
+
     try {
-      await updateSettings(settingsForm); // Synchronously updates React Context for Navbar, Footer, ContactUs, etc.
+      await updateSettings(updatedSettingsForm); // Synchronously updates React Context for Navbar, Footer, ContactUs, etc.
 
       const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
       const existingFc = existing?.footer_config || {};
@@ -534,6 +763,7 @@ export default function AdminDashboard() {
           hotline: settingsForm.hotline,
           address: settingsForm.address,
           email: settingsForm.email,
+          mapUrl: cleanedMapUrl,
           blocks: settingsForm.footerBlocks || [],
           banners: banners || existingFc.banners || [],
         },
@@ -572,7 +802,7 @@ export default function AdminDashboard() {
       return;
     }
 
-    const selectedCat = categories.find(c => c.id.toString() === formData.categoryId);
+    const selectedCat = categories.find(c => String(c.id || c.slug || '') === formData.categoryId);
     const imageUrl = formData.thumbnailUrl || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=150&auto=format&fit=crop';
     
     if (formData.id) {
@@ -586,7 +816,9 @@ export default function AdminDashboard() {
         image: imageUrl
       };
       
-      setProducts(products.map(p => p.id === formData.id ? updatedProduct : p));
+      const nextProds = products.map(p => p.id === formData.id ? updatedProduct : p);
+      setProducts(nextProds);
+      try { localStorage.setItem('fitallest_admin_products', JSON.stringify(nextProds)); } catch (e) {}
       setIsModalOpen(false);
       showToast('Đã cập nhật sản phẩm thành công!');
 
@@ -625,7 +857,9 @@ export default function AdminDashboard() {
         image: imageUrl
       };
 
-      setProducts([newProduct, ...products]);
+      const nextProds = [newProduct, ...products];
+      setProducts(nextProds);
+      try { localStorage.setItem('fitallest_admin_products', JSON.stringify(nextProds)); } catch (e) {}
       setIsModalOpen(false);
       showToast('Đã thêm sản phẩm thành công!');
 
@@ -660,7 +894,9 @@ export default function AdminDashboard() {
     if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
     
     // Cập nhật UI ngay lập tức
-    setProducts(products.filter(p => p.id !== id));
+    const nextProds = products.filter(p => p.id !== id);
+    setProducts(nextProds);
+    try { localStorage.setItem('fitallest_admin_products', JSON.stringify(nextProds)); } catch (e) {}
     setSelectedProducts(selectedProducts.filter(pId => pId !== id));
     showToast('Đã xóa sản phẩm!');
 
@@ -690,7 +926,9 @@ export default function AdminDashboard() {
   };
 
   const handleToggleHot = async (id: any, currentStatus: boolean) => {
-    setProducts(products.map(p => p.id === id ? { ...p, is_hot: !currentStatus } : p));
+    const nextProds = products.map(p => p.id === id ? { ...p, is_hot: !currentStatus } : p);
+    setProducts(nextProds);
+    try { localStorage.setItem('fitallest_admin_products', JSON.stringify(nextProds)); } catch (e) {}
     showToast(`Đã ${!currentStatus ? 'bật' : 'tắt'} trạng thái HOT!`);
     try {
       await supabase.from('products').update({ is_hot: !currentStatus }).eq('id', id);
@@ -699,7 +937,9 @@ export default function AdminDashboard() {
 
   const handleBulkDelete = () => {
     if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedProducts.length} sản phẩm?`)) return;
-    setProducts(products.filter(p => !selectedProducts.includes(p.id)));
+    const nextProds = products.filter(p => !selectedProducts.includes(p.id));
+    setProducts(nextProds);
+    try { localStorage.setItem('fitallest_admin_products', JSON.stringify(nextProds)); } catch (e) {}
     setSelectedProducts([]);
     showToast(`Đã xóa ${selectedProducts.length} sản phẩm thành công!`);
   };
@@ -722,7 +962,7 @@ export default function AdminDashboard() {
   };
 
   const handlePostSubmit = async (formData: any) => {
-    const selectedCat = postCategories.find(c => c.id.toString() === formData.categoryId);
+    const selectedCat = postCategories.find(c => String(c.id || c.slug || '') === formData.categoryId);
     const imageUrl = formData.thumbnailUrl || formData.image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=150&auto=format&fit=crop';
     const slug = formData.slug || toSlug(formData.title || 'bai-viet');
 
@@ -733,7 +973,12 @@ export default function AdminDashboard() {
         image: imageUrl,
         views: editingPost?.views || 0
       };
-      setPosts(posts.map(p => p.id === formData.id ? updatedPost : p));
+      const nextPosts = posts.map(p => p.id === formData.id ? updatedPost : p);
+      setPosts(nextPosts);
+      try {
+        localStorage.setItem('fitallest_admin_posts', JSON.stringify(nextPosts));
+        window.dispatchEvent(new Event('fitallest_posts_updated'));
+      } catch (e) {}
       showToast('Đã cập nhật bài viết thành công!');
 
       try {
@@ -757,7 +1002,12 @@ export default function AdminDashboard() {
         image: imageUrl,
         views: 0
       };
-      setPosts([newPost, ...posts]);
+      const nextPosts = [newPost, ...posts];
+      setPosts(nextPosts);
+      try {
+        localStorage.setItem('fitallest_admin_posts', JSON.stringify(nextPosts));
+        window.dispatchEvent(new Event('fitallest_posts_updated'));
+      } catch (e) {}
       showToast('Đã thêm bài viết mới!');
 
       try {
@@ -783,7 +1033,12 @@ export default function AdminDashboard() {
 
   const handleDeletePost = async (id: any) => {
     if (!confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return;
-    setPosts(posts.filter(p => p.id !== id));
+    const nextPosts = posts.filter(p => p.id !== id);
+    setPosts(nextPosts);
+    try {
+      localStorage.setItem('fitallest_admin_posts', JSON.stringify(nextPosts));
+      window.dispatchEvent(new Event('fitallest_posts_updated'));
+    } catch (e) {}
     setSelectedPosts(selectedPosts.filter(pId => pId !== id));
     showToast('Đã xóa bài viết!');
     try {
@@ -796,7 +1051,12 @@ export default function AdminDashboard() {
   const handleTogglePostStatus = async (id: any, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'draft' : 'published';
     const isPub = newStatus === 'published';
-    setPosts(posts.map(p => p.id === id ? { ...p, status: newStatus } : p));
+    const nextPosts = posts.map(p => p.id === id ? { ...p, status: newStatus } : p);
+    setPosts(nextPosts);
+    try {
+      localStorage.setItem('fitallest_admin_posts', JSON.stringify(nextPosts));
+      window.dispatchEvent(new Event('fitallest_posts_updated'));
+    } catch (e) {}
     showToast(`Đã đổi trạng thái thành ${isPub ? 'Xuất bản' : 'Bản nháp'}!`);
     try {
       await supabase.from('posts').update({ is_published: isPub }).eq('id', id);
@@ -817,7 +1077,12 @@ export default function AdminDashboard() {
 
   const handleBulkDeletePosts = () => {
     if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedPosts.length} bài viết?`)) return;
-    setPosts(posts.filter(p => !selectedPosts.includes(p.id)));
+    const nextPosts = posts.filter(p => !selectedPosts.includes(p.id));
+    setPosts(nextPosts);
+    try {
+      localStorage.setItem('fitallest_admin_posts', JSON.stringify(nextPosts));
+      window.dispatchEvent(new Event('fitallest_posts_updated'));
+    } catch (e) {}
     setSelectedPosts([]);
     showToast(`Đã xóa ${selectedPosts.length} bài viết thành công!`);
   };
@@ -1159,6 +1424,24 @@ export default function AdminDashboard() {
     showToast(`Đã xóa ${selectedPostCategories.length} chuyên mục!`);
   };
 
+  
+  
+  if (activeMenu.startsWith('saas-') || activeMenu === 'superadmin') {
+    return (
+      <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans">
+        <AdminSidebar 
+          activeMenu={activeMenu} 
+          setActiveMenu={setActiveMenu} 
+        />
+        <div className="flex-1 overflow-y-auto">
+          <SuperAdminDashboard activeSubTab={activeMenu} />
+        </div>
+      </div>
+    );
+  }
+
+
+
   return (
     <div className="flex h-screen bg-gray-50 font-sans overflow-hidden text-gray-800 relative">
       
@@ -1217,8 +1500,34 @@ export default function AdminDashboard() {
           <div className="max-w-6xl mx-auto">
             {activeMenu === 'dashboard' && (
               <div className="animate-in fade-in duration-300">
-                <h1 className="text-2xl font-black text-gray-900 mb-2">Tổng quan Bảng điều khiển</h1>
-                <p className="text-sm text-gray-500 font-medium mb-8">Chỉ số thực tế và thống kê hoạt động của hệ thống.</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900 mb-1">Tổng quan Bảng điều khiển</h1>
+                    <p className="text-sm text-gray-500 font-medium">Chỉ số thực tế và thống kê hoạt động của hệ thống cửa hàng.</p>
+                  </div>
+
+                  {/* Quick Action Shortcuts */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      onClick={handleAddNew}
+                      className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      <Plus size={15} /> Thêm Sản phẩm
+                    </button>
+                    <button
+                      onClick={() => { setActiveMenu('posts'); handleAddNewPost(); }}
+                      className="px-3.5 py-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      <FileText size={15} /> Viết Bài mới
+                    </button>
+                    <button
+                      onClick={() => setActiveMenu('orders')}
+                      className="px-3.5 py-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
+                    >
+                      <ShoppingCart size={15} /> Xem Đơn hàng
+                    </button>
+                  </div>
+                </div>
                 
                 {/* Metric Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1319,6 +1628,33 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
+                {/* Search & Filter Toolbar */}
+                <div className="mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-80">
+                    <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Tìm kiếm sản phẩm theo tên..."
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition font-medium"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Filter size={16} className="text-gray-400" />
+                    <select
+                      value={productCatFilter}
+                      onChange={(e) => setProductCatFilter(e.target.value)}
+                      className="py-2 px-3 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 font-medium text-gray-700 cursor-pointer"
+                    >
+                      <option value="all">Tất cả danh mục ({products.length})</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 {/* Bulk Action Bar */}
                 {selectedProducts.length > 0 && (
                   <div className="mb-4 bg-red-50 border border-red-100 rounded-xl p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-200">
@@ -1360,7 +1696,9 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {products.map((product, index) => (
+                      {products
+                        .filter(p => (productCatFilter === 'all' || p.category === productCatFilter) && p.name.toLowerCase().includes(productSearch.toLowerCase()))
+                        .map((product, index) => (
                         <tr key={product.id} className={`transition-colors ${selectedProducts.includes(product.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
                           <td className="px-6 py-4">
                             <input 
@@ -1399,7 +1737,7 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
                               <button 
-                                onClick={() => showToast('Tính năng Xem trước đang được phát triển.')}
+                                onClick={() => window.open(`#product?id=${product.id}`, '_blank')}
                                 className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
                               >
                                 <Eye size={16} />
@@ -1458,6 +1796,33 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
+                {/* Search & Filter Toolbar for Posts */}
+                <div className="mb-6 bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-80">
+                    <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Tìm kiếm bài viết theo tiêu đề..."
+                      value={postSearch}
+                      onChange={(e) => setPostSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition font-medium"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Filter size={16} className="text-gray-400" />
+                    <select
+                      value={postCatFilter}
+                      onChange={(e) => setPostCatFilter(e.target.value)}
+                      className="py-2 px-3 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 font-medium text-gray-700 cursor-pointer"
+                    >
+                      <option value="all">Tất cả chuyên mục ({posts.length})</option>
+                      {postCategories.map((cat) => (
+                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 {/* Bulk Action Bar for Posts */}
                 {selectedPosts.length > 0 && (
                   <div className="mb-4 bg-red-50 border border-red-100 rounded-xl p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-200">
@@ -1500,7 +1865,9 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {posts.map((post, index) => (
+                      {posts
+                        .filter(p => (postCatFilter === 'all' || p.category === postCatFilter) && p.title.toLowerCase().includes(postSearch.toLowerCase()))
+                        .map((post, index) => (
                         <tr key={post.id} className={`transition-colors ${selectedPosts.includes(post.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
                           <td className="px-6 py-4">
                             <input 
@@ -1550,7 +1917,7 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
                               <button 
-                                onClick={() => showToast('Tính năng Xem trước đang được phát triển.')}
+                                onClick={() => window.open(`#article?id=${post.id}`, '_blank')}
                                 className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
                               >
                                 <Eye size={16} />
@@ -1679,7 +2046,7 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
                               <button 
-                                onClick={() => showToast('Tính năng Xem trước đang được phát triển.')}
+                                onClick={() => window.open(`#article?id=${page.id}`, '_blank')}
                                 className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
                               >
                                 <Eye size={16} />
@@ -2038,7 +2405,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between mb-8">
                   <div>
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Dự án thi công</h1>
-                    <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách các công trình tiêu biểu đã cung ứng vật tư SBUILD.</p>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách các công trình tiêu biểu đã cung ứng vật tư Fi.tallest.</p>
                   </div>
                   <button 
                     onClick={() => {
@@ -2123,7 +2490,14 @@ export default function AdminDashboard() {
                               <button 
                                 onClick={() => {
                                   if (confirm(`Bạn có chắc muốn xóa dự án "${proj.title}"?`)) {
-                                    setAdminProjects(prev => prev.filter(p => p.id !== proj.id));
+                                    setAdminProjects(prev => {
+                                      const nextProjects = prev.filter(p => p.id !== proj.id);
+                                      try {
+                                        localStorage.setItem('fitallest_admin_projects', JSON.stringify(nextProjects));
+                                        window.dispatchEvent(new Event('fitallest_projects_updated'));
+                                      } catch (e) {}
+                                      return nextProjects;
+                                    });
                                     showToast('Đã xóa dự án thành công.');
                                   }
                                 }}
@@ -2145,6 +2519,128 @@ export default function AdminDashboard() {
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            )}
+
+            {activeMenu === 'orders' && (
+              <div className="animate-in fade-in duration-300 space-y-8">
+                <div>
+                  <h1 className="text-2xl font-black text-gray-900">Quản Lý Yêu Cầu Báo Giá & Đăng Ký Khách Hàng</h1>
+                  <p className="text-sm text-gray-500 mt-1 font-medium">Toàn bộ thông tin đăng ký tư vấn và bảng dự toán khách hàng gửi từ website.</p>
+                </div>
+
+                {/* KHÁCH HÀNG ĐĂNG KÝ TỪ WEBSITE (LEADS) */}
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                        <MessageCircle size={20} />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900">Danh Sách Khách Hàng Đăng Ký Mới</h2>
+                        <p className="text-xs text-gray-500 font-medium">Tổng cộng {adminLeads.length} yêu cầu nhận từ Form Đăng ký & Báo Giá Tự Động</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        const local = localStorage.getItem('admin_leads');
+                        if (local) setAdminLeads(JSON.parse(local));
+                        showToast('Đã làm mới danh sách đăng ký!');
+                      }}
+                      className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Loader2 size={14} /> Làm mới
+                    </button>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider font-bold text-slate-500">
+                          <th className="px-5 py-3.5">Khách hàng</th>
+                          <th className="px-5 py-3.5">Liên hệ (SĐT / Zalo)</th>
+                          <th className="px-5 py-3.5">Email</th>
+                          <th className="px-5 py-3.5">Gói / Dịch vụ đăng ký</th>
+                          <th className="px-5 py-3.5">Ghi chú</th>
+                          <th className="px-5 py-3.5 text-center">Trạng thái</th>
+                          <th className="px-5 py-3.5 text-right">Hành động</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {adminLeads.map((lead, idx) => (
+                          <tr key={lead.id || idx} className="hover:bg-slate-50/60 transition-colors">
+                            <td className="px-5 py-4 font-bold text-sm text-slate-900">
+                              {lead.fullname || lead.customer || 'Khách hàng Ẩn danh'}
+                            </td>
+                            <td className="px-5 py-4">
+                              <span className="font-mono text-xs font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">
+                                {lead.phone || 'Chưa cung cấp'}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4 text-xs font-medium text-slate-600">
+                              {lead.email || '—'}
+                            </td>
+                            <td className="px-5 py-4 max-w-[220px]">
+                              <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100 inline-block line-clamp-2">
+                                {lead.services || lead.package || 'Tư vấn giải pháp Web/App'}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4 max-w-[200px] text-xs text-slate-500 italic">
+                              {lead.note || lead.notes || 'Không có ghi chú'}
+                            </td>
+                            <td className="px-5 py-4 text-center">
+                              <button
+                                onClick={() => handleToggleLeadStatus(lead.id)}
+                                className={`px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
+                                  lead.status === 'completed'
+                                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                    : lead.status === 'contacted'
+                                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                    : 'bg-amber-100 text-amber-700 border border-amber-200 animate-pulse'
+                                }`}
+                              >
+                                {lead.status === 'completed'
+                                  ? '✓ Đã hoàn thành'
+                                  : lead.status === 'contacted'
+                                  ? '📞 Đã liên hệ'
+                                  : '⏳ Chờ xử lý'}
+                              </button>
+                            </td>
+                            <td className="px-5 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {lead.phone && (
+                                  <button
+                                    onClick={() => copyToClipboard(lead.phone)}
+                                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    title="Copy SĐT"
+                                  >
+                                    <Copy size={15} />
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleDeleteLead(lead.id)}
+                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="Xóa"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+
+                        {adminLeads.length === 0 && (
+                          <tr>
+                            <td colSpan={7} className="px-5 py-10 text-center text-slate-400 font-medium italic">
+                              Chưa có lượt đăng ký mới nào từ khách hàng. Khi khách hàng điền form trên website, thông tin sẽ xuất hiện ngay tại đây!
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}
@@ -2361,6 +2857,124 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {activeMenu === 'media' && (
+              <div className="animate-in fade-in duration-300">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                  <div>
+                    <h1 className="text-2xl font-black text-gray-900">Quản lý Thư viện Media</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Tải lên, sao chép đường dẫn và quản lý toàn bộ hình ảnh sản phẩm, dự án, bài viết.</p>
+                  </div>
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 shrink-0 cursor-pointer"
+                  >
+                    <UploadCloud size={18} />
+                    Tải Ảnh Mới Lên
+                  </button>
+                </div>
+
+                {/* Drag & Drop Upload Zone */}
+                <div 
+                  className={`mb-8 border-2 border-dashed rounded-2xl p-8 text-center transition-all bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)]
+                    ${isDragging ? 'border-red-500 bg-red-50/50' : 'border-gray-200 hover:border-gray-300'}`}
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    handleMediaUpload(e.dataTransfer.files);
+                  }}
+                >
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={(e) => handleMediaUpload(e.target.files)} 
+                    multiple 
+                    accept="image/*" 
+                    className="hidden" 
+                  />
+                  
+                  {isUploading ? (
+                    <div className="flex flex-col items-center py-4">
+                      <Loader2 size={36} className="text-red-600 animate-spin mb-3" />
+                      <p className="text-sm font-bold text-gray-800">Đang tải tệp tin lên máy chủ...</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center py-2">
+                      <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-3 shadow-xs">
+                        <UploadCloud size={28} />
+                      </div>
+                      <h3 className="text-base font-bold text-gray-900 mb-1">Kéo thả file hình ảnh vào đây</h3>
+                      <p className="text-xs text-gray-500 font-medium mb-4">Hỗ trợ JPG, PNG, WEBP, GIF (Tối đa 10MB/file)</p>
+                      <button 
+                        type="button" 
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-5 py-2.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
+                      >
+                        Chọn file từ thiết bị
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Media Grid */}
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-6">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
+                      <ImageIcon size={18} className="text-red-600" />
+                      Tất cả tệp tin ({mediaFiles.length})
+                    </h3>
+                  </div>
+
+                  {mediaFiles.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400">
+                      <ImageIcon size={48} className="mx-auto mb-3 opacity-40" />
+                      <p className="text-sm font-bold text-gray-700">Chưa có tệp hình ảnh nào trong thư viện.</p>
+                      <p className="text-xs text-gray-400 mt-1">Bấm "Tải Ảnh Mới Lên" để bắt đầu nạp dữ liệu.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                      {mediaFiles.map((file, idx) => (
+                        <div 
+                          key={idx} 
+                          className="group bg-gray-50 rounded-xl border border-gray-200/80 overflow-hidden hover:shadow-lg hover:border-red-300 transition-all flex flex-col relative"
+                        >
+                          <div className="aspect-square bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                            <img 
+                              src={file.url} 
+                              alt={file.name} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <button 
+                                onClick={() => copyToClipboard(file.url)}
+                                className="p-2 bg-white text-slate-800 hover:bg-slate-100 rounded-lg shadow-md transition-colors"
+                                title="Sao chép đường dẫn URL"
+                              >
+                                <Copy size={14} />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteMedia(file.path)}
+                                className="p-2 bg-red-600 text-white hover:bg-red-700 rounded-lg shadow-md transition-colors"
+                                title="Xóa hình ảnh"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="p-2.5 bg-white border-t border-gray-100">
+                            <p className="text-xs font-bold text-gray-800 truncate" title={file.name}>{file.name}</p>
+                            <p className="text-[10px] text-gray-400 font-medium">{formatFileSize(file.size || 0)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {activeMenu === 'banners' && (
               <div className="animate-in fade-in duration-300">
                 <div className="flex items-center justify-between mb-8">
@@ -2484,6 +3098,87 @@ export default function AdminDashboard() {
                 
                 <form onSubmit={handleSaveSettings} className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-8">
                   <div className="space-y-12">
+                    
+                    {/* Cấu hình Giao diện & Màu sắc chủ đạo */}
+                    <div className="bg-gradient-to-r from-slate-900 to-indigo-950 p-6 rounded-2xl border border-indigo-500/30 text-white space-y-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+                          <Sparkles size={20} />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-black text-white">Giao Diện & Màu Sắc Chủ Đạo (Brand Theme)</h3>
+                          <p className="text-xs text-slate-300 font-medium">Tùy chỉnh màu sắc thương hiệu và phông chữ hiển thị tức thì trên toàn bộ website.</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {/* Chọn màu sắc chủ đạo */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider mb-2">
+                            Màu sắc chủ đạo (Brand Color)
+                          </label>
+                          <div className="flex items-center gap-3 mb-3">
+                            <input 
+                              type="color" 
+                              value={settingsForm.brandColor || '#dc2626'} 
+                              onChange={(e) => setSettingsForm({ ...settingsForm, brandColor: e.target.value })}
+                              className="w-10 h-10 rounded-xl cursor-pointer border-2 border-white/20 bg-transparent shrink-0"
+                            />
+                            <input 
+                              type="text" 
+                              value={settingsForm.brandColor || '#dc2626'} 
+                              onChange={(e) => setSettingsForm({ ...settingsForm, brandColor: e.target.value })}
+                              placeholder="#dc2626"
+                              className="flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                            />
+                          </div>
+
+                          {/* Quick Preset Colors */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {[
+                              { name: 'Đỏ Fi.tallest', hex: '#dc2626' },
+                              { name: 'Xanh Indigo', hex: '#6366f1' },
+                              { name: 'Tím Galaxy', hex: '#8b5cf6' },
+                              { name: 'Xanh Emerald', hex: '#10b981' },
+                              { name: 'Xanh Royal', hex: '#2563eb' },
+                              { name: 'Vàng Kim Gold', hex: '#d97706' },
+                            ].map((c) => (
+                              <button
+                                type="button"
+                                key={c.hex}
+                                onClick={() => setSettingsForm({ ...settingsForm, brandColor: c.hex })}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] text-slate-200 transition-all"
+                              >
+                                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: c.hex }} />
+                                <span>{c.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Chọn phông chữ */}
+                        <div>
+                          <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider mb-2">
+                            Phông chữ Website (Font Family)
+                          </label>
+                          <select
+                            value={settingsForm.fontFamily || 'Inter'}
+                            onChange={(e) => setSettingsForm({ ...settingsForm, fontFamily: e.target.value })}
+                            className="w-full px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500 font-bold"
+                          >
+                            <option value="Inter, sans-serif">Inter (Hiện đại, tối giản)</option>
+                            <option value="'Be Vietnam Pro', sans-serif">Be Vietnam Pro (Tiếng Việt mượt mà)</option>
+                            <option value="Roboto, sans-serif">Roboto (Tiêu chuẩn Google)</option>
+                            <option value="Outfit, sans-serif">Outfit (Sang trọng, công nghệ)</option>
+                            <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">System Default</option>
+                          </select>
+                          <p className="text-[11px] text-slate-400 mt-2">
+                            💡 Màu sắc và phông chữ đã chọn sẽ được áp dụng ngay lập tức trên trang chủ và tất cả trang dịch vụ.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Cơ bản */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2">
@@ -2492,7 +3187,7 @@ export default function AdminDashboard() {
                           type="text" 
                           value={settingsForm.companyName}
                           onChange={(e) => setSettingsForm({...settingsForm, companyName: e.target.value})}
-                          placeholder="Công ty TNHH Sbuild"
+                          placeholder="Công ty TNHH Fi.tallest"
                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
                         />
                       </div>
@@ -2518,6 +3213,90 @@ export default function AdminDashboard() {
                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
                         />
                       </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Google Maps Embed URL (Link nhúng bản đồ)</label>
+                        <input 
+                          type="text" 
+                          value={settingsForm.mapUrl || ''}
+                          onChange={(e) => setSettingsForm({...settingsForm, mapUrl: e.target.value})}
+                          placeholder="https://www.google.com/maps/embed?pb=..."
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium font-mono"
+                        />
+                        <p className="text-xs text-gray-400 mt-1.5 font-medium">
+                          💡 Cách lấy link: Vào Google Maps ➔ Tìm địa chỉ công ty ➔ Bấm "Chia sẻ" ➔ Chọn tab "Nhúng bản đồ" ➔ Sao chép liên kết trong thuộc tính <code className="bg-gray-100 px-1 py-0.5 rounded text-red-600 font-bold">src="..."</code>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <hr className="border-gray-100" />
+
+                    {/* Cấu hình Google Analytics & Search Console */}
+                    <div>
+                      <div className="mb-4">
+                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                          <Globe size={20} className="text-blue-600" />
+                          <span>Tích hợp Google & SEO (GA4 & Google Search Console)</span>
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Cấu hình mã đo lường lượt đọc bài viết và mã xác minh cho từng website độc lập.
+                        </p>
+                      </div>
+
+                      <div className="space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200/80">
+                        {/* GA4 */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-800 mb-1.5 flex items-center justify-between">
+                            <span>Mã Google Analytics 4 (GA4 Measurement ID)</span>
+                            <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Ví dụ: G-1234567890</span>
+                          </label>
+                          <input 
+                            type="text" 
+                            value={settingsForm.gaMeasurementId || ''}
+                            onChange={(e) => setSettingsForm({...settingsForm, gaMeasurementId: e.target.value})}
+                            placeholder="G-XXXXXXXXXX"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-mono bg-white"
+                          />
+                          <p className="text-xs text-gray-500 mt-1.5 font-medium">
+                            📊 Mã đo lường lượt truy cập và xem bài viết từ tài khoản Google Analytics 4.
+                          </p>
+                        </div>
+
+                        {/* GSC */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-800 mb-1.5 flex items-center justify-between">
+                            <span>Mã xác minh Google Search Console (GSC)</span>
+                            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Xác minh quyền quản trị</span>
+                          </label>
+                          <input 
+                            type="text" 
+                            value={settingsForm.gscVerificationCode || ''}
+                            onChange={(e) => setSettingsForm({...settingsForm, gscVerificationCode: e.target.value})}
+                            placeholder='Dán mã verification token hoặc toàn bộ thẻ: <meta name="google-site-verification" content="..." />'
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-mono bg-white"
+                          />
+                          <p className="text-xs text-gray-500 mt-1.5 font-medium">
+                            🔍 Dùng để xác minh website với Google Search Console, giúp đẩy bài viết lên tìm kiếm Google nhanh hơn.
+                          </p>
+                        </div>
+
+                        {/* Custom Scripts */}
+                        <div>
+                          <label className="block text-sm font-bold text-gray-800 mb-1.5">
+                            Mã nhúng Script tùy chỉnh cho thẻ &lt;head&gt; (Tùy chọn)
+                          </label>
+                          <textarea 
+                            value={settingsForm.customHeaderScripts || ''}
+                            onChange={(e) => setSettingsForm({...settingsForm, customHeaderScripts: e.target.value})}
+                            placeholder='Chèn thêm mã Facebook Pixel, Zalo Chat widget, Tawk.to, v.v.'
+                            rows={3}
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm font-mono bg-white resize-none"
+                          />
+                          <p className="text-xs text-gray-500 mt-1.5 font-medium">
+                            ⚙️ Mã nhúng này sẽ được tự động chèn vào thẻ &lt;head&gt; của trang web độc lập cho từng tên miền.
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
                     <hr className="border-gray-100" />
@@ -2535,7 +3314,7 @@ export default function AdminDashboard() {
                       </div>
                       
                       <div className="space-y-3">
-                        {settingsForm.socialLinks.map((link) => (
+                        {(settingsForm.socialLinks || []).map((link: any) => (
                           <div key={link.id} className="flex items-center gap-3">
                             <div className="flex items-center gap-2 p-2 border border-gray-200 rounded-xl bg-gray-50">
                               {getSocialIcon(link.platform)}
@@ -2564,7 +3343,7 @@ export default function AdminDashboard() {
                             </button>
                           </div>
                         ))}
-                        {settingsForm.socialLinks.length === 0 && (
+                        {(!settingsForm.socialLinks || settingsForm.socialLinks.length === 0) && (
                           <p className="text-sm text-gray-500 italic">Chưa có liên kết nào. Bấm "Thêm liên kết" để bắt đầu.</p>
                         )}
                       </div>
@@ -2593,12 +3372,12 @@ export default function AdminDashboard() {
                       </div>
                       
                       <div className="space-y-4 mb-8">
-                        {settingsForm.footerBlocks.map((block, index) => (
+                        {(settingsForm.footerBlocks || []).map((block: any, index: number) => (
                           <div key={block.id} className="p-4 border border-gray-200 rounded-xl bg-gray-50 flex gap-4 relative">
                             <div className="flex flex-col gap-1 items-center justify-start border-r border-gray-200 pr-3">
                               <button type="button" onClick={() => moveFooterBlock(index, 'up')} disabled={index === 0} className="p-1 text-gray-400 hover:text-gray-900 disabled:opacity-30"><ArrowUp size={16} /></button>
                               <span className="text-xs font-bold text-gray-400 my-1">{index + 1}</span>
-                              <button type="button" onClick={() => moveFooterBlock(index, 'down')} disabled={index === settingsForm.footerBlocks.length - 1} className="p-1 text-gray-400 hover:text-gray-900 disabled:opacity-30"><ArrowDown size={16} /></button>
+                              <button type="button" onClick={() => moveFooterBlock(index, 'down')} disabled={index === (settingsForm.footerBlocks?.length || 0) - 1} className="p-1 text-gray-400 hover:text-gray-900 disabled:opacity-30"><ArrowDown size={16} /></button>
                             </div>
                             
                             <div className="flex-1 space-y-3">
@@ -2643,7 +3422,7 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                         ))}
-                        {settingsForm.footerBlocks.length === 0 && (
+                        {(!settingsForm.footerBlocks || settingsForm.footerBlocks.length === 0) && (
                           <div className="p-8 border border-dashed border-gray-300 rounded-xl text-center text-gray-500 text-sm">Chưa có Block nào. Vui lòng thêm Block để xây dựng Footer.</div>
                         )}
                       </div>
@@ -2666,7 +3445,7 @@ export default function AdminDashboard() {
                                   <img src={settingsForm.logoUrl || appearanceForm.logo_url} alt="Logo" className="h-10 w-auto object-contain self-start bg-white/10 p-1 rounded" />
                                 ) : null}
                                 <span className="text-sm font-black uppercase tracking-widest text-white">
-                                  {settingsForm.companyName || 'Công ty TNHH Đầu tư Xây dựng Sbuild'}
+                                  {settingsForm.companyName || 'Công ty TNHH Đầu tư Xây dựng Fi.tallest'}
                                 </span>
                               </div>
                               <p className="text-[12px] opacity-80 leading-relaxed mb-6 font-medium">
@@ -2686,14 +3465,14 @@ export default function AdminDashboard() {
 
                             {/* Dynamic Blocks */}
                             <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                              {settingsForm.footerBlocks.map((block: any, index: number) => (
+                              {(settingsForm.footerBlocks || []).map((block: any, index: number) => (
                                 <div key={`preview-block-${block.id || index}`}>
                                   <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-4">
                                     {block.title || 'Block tiêu đề'}
                                   </h3>
                                   {block.type === 'links' && (
                                     <ul className="flex flex-col gap-2 font-medium text-[12px] opacity-90">
-                                      {block.items?.map((item: any, i: number) => (
+                                      {(block.items || []).map((item: any, i: number) => (
                                         <li key={i}>{item.label || item.title || 'Tên liên kết'}</li>
                                       ))}
                                       {(!block.items || block.items.length === 0) && <li className="italic opacity-60">(Trống)</li>}
@@ -2720,7 +3499,7 @@ export default function AdminDashboard() {
                               <ul className="flex flex-col gap-3 text-[12px] font-medium opacity-90">
                                 <li className="flex items-start gap-2.5">
                                   <span className="shrink-0 mt-0.5">📍</span>
-                                  <span>{settingsForm.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP.HCM'}</span>
+                                  <span>{settingsForm.address || 'Tầng 5, Tòa nhà Fi.tallest, Quận 1, TP.HCM'}</span>
                                 </li>
                                 <li className="flex items-center gap-2.5">
                                   <span className="shrink-0">📞</span>
@@ -2736,7 +3515,7 @@ export default function AdminDashboard() {
 
                           {/* Bottom Bar */}
                           <div className="border-t border-white/20 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-medium opacity-75">
-                            <p>&copy; {new Date().getFullYear()} {settingsForm.companyName || 'SBUILD'}. Tất cả quyền được bảo lưu.</p>
+                            <p>&copy; {new Date().getFullYear()} {settingsForm.companyName || 'Fi.tallest'}. Tất cả quyền được bảo lưu.</p>
                             <div className="flex gap-4">
                               <span>Điều khoản dịch vụ</span>
                               <span>Hỗ trợ khách hàng</span>
@@ -2863,7 +3642,17 @@ export default function AdminDashboard() {
                     <p className="text-sm text-gray-500 mt-1 font-medium">Theo dõi và cập nhật trạng thái đơn hàng.</p>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <div className="relative w-full sm:w-64">
+                      <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Tìm theo tên, SĐT, mã đơn..."
+                        value={orderSearch}
+                        onChange={(e) => setOrderSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition shadow-xs"
+                      />
+                    </div>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                         <Filter size={16} />
@@ -2871,9 +3660,9 @@ export default function AdminDashboard() {
                       <select 
                         value={orderFilter}
                         onChange={(e) => setOrderFilter(e.target.value)}
-                        className="pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none shadow-sm cursor-pointer"
+                        className="pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none shadow-xs cursor-pointer"
                       >
-                        <option value="all">Tất cả trạng thái</option>
+                        <option value="all">Tất cả trạng thái ({orders.length})</option>
                         <option value="pending">Chờ xử lý</option>
                         <option value="paid">Đã thanh toán</option>
                         <option value="shipped">Đang giao</option>
@@ -2895,13 +3684,20 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {orders.filter(o => orderFilter === 'all' || o.status === orderFilter).map((order) => (
+                      {orders
+                        .filter(o => (orderFilter === 'all' || o.status === orderFilter) && (
+                          o.customer.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                          o.id.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                          (o.phone && o.phone.includes(orderSearch))
+                        ))
+                        .map((order) => (
                         <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
                           <td className="px-6 py-4">
                             <span className="text-sm font-bold text-gray-900">{order.id}</span>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="text-sm font-bold text-gray-700">{order.customer}</span>
+                            <p className="text-sm font-bold text-gray-900">{order.customer}</p>
+                            {order.phone && <p className="text-[11px] text-gray-400 font-medium">{order.phone}</p>}
                           </td>
                           <td className="px-6 py-4">
                             <span className="text-sm font-medium text-gray-500">{order.date}</span>
@@ -2930,16 +3726,30 @@ export default function AdminDashboard() {
                             </select>
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setIsOrderModalOpen(true);
-                              }}
-                              className="text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 hover:border-red-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm inline-flex items-center gap-1.5"
-                            >
-                              <Eye size={14} />
-                              Chi tiết
-                            </button>
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedOrder(order);
+                                  setIsOrderModalOpen(true);
+                                }}
+                                className="text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 hover:border-red-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <Eye size={14} />
+                                Chi tiết
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Bạn có chắc muốn xóa đơn hàng #${order.id}?`)) {
+                                    setOrders(orders.filter(o => o.id !== order.id));
+                                    showToast(`Đã xóa đơn hàng #${order.id}`);
+                                  }
+                                }}
+                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                title="Xóa đơn hàng"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -3005,10 +3815,25 @@ export default function AdminDashboard() {
         initialData={projectForm}
         onSubmit={(data) => {
           if (projectForm.id) {
-            setAdminProjects(prev => prev.map(p => p.id === data.id ? data : p));
+            setAdminProjects(prev => {
+              const nextProjects = prev.map(p => p.id === data.id ? data : p);
+              try {
+                localStorage.setItem('fitallest_admin_projects', JSON.stringify(nextProjects));
+                window.dispatchEvent(new Event('fitallest_projects_updated'));
+              } catch (e) {}
+              return nextProjects;
+            });
             showToast('Đã cập nhật dự án thành công.');
           } else {
-            setAdminProjects(prev => [data, ...prev]);
+            const newProj = { ...data, id: Date.now() };
+            setAdminProjects(prev => {
+              const nextProjects = [newProj, ...prev];
+              try {
+                localStorage.setItem('fitallest_admin_projects', JSON.stringify(nextProjects));
+                window.dispatchEvent(new Event('fitallest_projects_updated'));
+              } catch (e) {}
+              return nextProjects;
+            });
             showToast('Đã thêm dự án mới thành công.');
           }
           setIsProjectModalOpen(false);

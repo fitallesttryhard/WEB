@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Upload, Search, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import MediaPickerModal from './MediaPickerModal';
@@ -29,6 +29,7 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
 
   const [isSlugEdited, setIsSlugEdited] = useState(false);
   const [mediaPickerConfig, setMediaPickerConfig] = useState<{isOpen: boolean}>({ isOpen: false });
+  const tinyMCECallbackRef = useRef<any>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -119,7 +120,12 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
 
   const handleMediaSelected = (urls: string[]) => {
     if (urls.length === 0) return;
-    setFormData(prev => ({ ...prev, thumbnailUrl: urls[0] }));
+    if (tinyMCECallbackRef.current) {
+      tinyMCECallbackRef.current(urls[0], { title: 'Hình ảnh từ thư viện S-BUILD' });
+      tinyMCECallbackRef.current = null;
+    } else {
+      setFormData(prev => ({ ...prev, thumbnailUrl: urls[0] }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -135,7 +141,7 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
     return 'opacity-40 transition-all duration-300 pointer-events-none blur-[1px]';
   };
 
-  const categoryName = categories.find(c => c.id.toString() === formData.categoryId.toString())?.name || 'Danh mục bài viết';
+  const categoryName = categories.find(c => String(c.id || (c as any).slug || '') === String(formData.categoryId || ''))?.name || 'Danh mục bài viết';
 
   if (!isOpen) return null;
 
@@ -489,6 +495,12 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
                       ].join(' | '),
                       content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px; line-height: 1.6; }',
                       language: 'en',
+                      file_picker_callback: (callback, _value, meta) => {
+                        if (meta.filetype === 'image') {
+                          tinyMCECallbackRef.current = callback;
+                          setMediaPickerConfig({ isOpen: true });
+                        }
+                      }
                     }}
                   />
                 </div>

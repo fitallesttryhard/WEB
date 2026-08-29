@@ -33,13 +33,24 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 shrink-0 ${
-        isScrolled 
-          ? 'bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-b border-slate-200/80 h-16' 
-          : 'bg-white/95 backdrop-blur-md border-b border-slate-100 h-20'
-      }`}
-    >
+    <>
+      {settings.status === 'locked' && (
+        <div className="bg-rose-950 text-white text-xs px-4 py-2.5 text-center font-bold flex flex-wrap items-center justify-center gap-2 border-b border-rose-800 relative z-50 animate-in fade-in duration-200">
+          <span>🔒 Tài khoản Cửa hàng ({settings.companyName || 'SBUILD'}) đang tạm ngưng dịch vụ do bị khóa bởi Super Admin.</span>
+          <a href="#super-admin" className="underline text-amber-300 hover:text-amber-200 font-extrabold ml-2">
+            Vào Super Admin để mở khóa ↗
+          </a>
+        </div>
+      )}
+      <header 
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 shrink-0 ${
+          settings.status === 'locked' ? 'top-9' : 'top-0'
+        } ${
+          isScrolled 
+            ? 'bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border-b border-slate-200/80 h-16' 
+            : 'bg-white/95 backdrop-blur-md border-b border-slate-100 h-20'
+        }`}
+      >
       <div className="max-w-7xl h-full mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         {/* Brand Logo */}
         <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.location.hash = ''}>
@@ -67,7 +78,7 @@ export default function Navbar() {
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
           </a>
           
-          <a href="#" className="hover:text-red-600 transition-colors py-2 relative group">
+          <a href="#about" className="hover:text-red-600 transition-colors py-2 relative group">
             Giới thiệu
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
           </a>
@@ -76,7 +87,7 @@ export default function Navbar() {
           <div className="relative group">
             <button 
               onClick={() => window.location.hash = '#products'}
-              className="flex items-center gap-1.5 hover:text-red-600 transition-colors py-2"
+              className="flex items-center gap-1.5 uppercase hover:text-red-600 transition-colors py-2"
             >
               Sản phẩm 
               <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300 text-slate-400 group-hover:text-red-600" />
@@ -145,9 +156,9 @@ export default function Navbar() {
           <div className="hidden md:flex">
             <a 
               href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} 
-              className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-red-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all duration-300 shadow-sm active:scale-95 overflow-hidden"
+              className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white px-5 py-2.5 rounded-xl font-extrabold text-xs tracking-wider uppercase transition-all duration-300 shadow-md shadow-red-500/20 active:scale-95 overflow-hidden"
             >
-              <Phone size={15} className="text-red-400 group-hover:text-white transition-colors" />
+              <Phone size={15} className="text-white group-hover:scale-110 transition-transform" />
               <span>{settings.hotline || '0901 234 567'}</span>
             </a>
           </div>
@@ -165,11 +176,11 @@ export default function Navbar() {
       {/* Mobile Drawer Navigation */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-2xl border-b border-slate-200 shadow-2xl p-6 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-300">
-          <a href="#" className="font-bold text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Trang chủ</a>
-          <a href="#" className="font-bold text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Giới thiệu</a>
+          <a href="#" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Trang chủ</a>
+          <a href="#about" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Giới thiệu</a>
           
           <div className="flex flex-col py-1">
-            <a href="#products" className="font-bold text-red-600 py-1 text-sm uppercase tracking-wider" onClick={() => setIsMobileMenuOpen(false)}>Sản phẩm</a>
+            <a href="#products" className="font-bold text-xs uppercase tracking-wider text-red-600 py-1" onClick={() => setIsMobileMenuOpen(false)}>Sản phẩm</a>
             {categories.length > 0 && (
               <div className="pl-4 flex flex-col gap-2 border-l-2 border-red-500/20 ml-1 mt-2">
                 {categories.map((cat) => (
@@ -186,8 +197,9 @@ export default function Navbar() {
             )}
           </div>
 
-          <a href="#blog" className="font-bold text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Tin tức</a>
-          <a href="#contact" className="font-bold text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Liên hệ</a>
+          <a href="#projects" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Dự án</a>
+          <a href="#blog" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Tin tức</a>
+          <a href="#contact" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Liên hệ</a>
           
           <a 
             href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} 
@@ -199,5 +211,6 @@ export default function Navbar() {
         </div>
       )}
     </header>
+  </>
   );
 }

@@ -50,7 +50,7 @@ export default function AdminLoginGate() {
           </div>
 
           <h1 className="text-2xl font-black uppercase tracking-tight text-white flex items-center gap-2">
-            <span>SBUILD ADMIN</span>
+            <span>FITALLEST ADMIN</span>
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
           </h1>
 
@@ -82,7 +82,7 @@ export default function AdminLoginGate() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@sbuild.vn"
+                placeholder="admin@fitallest.com"
                 className="w-full pl-11 pr-4 py-3.5 bg-slate-950/60 border border-slate-800 rounded-xl text-sm font-semibold text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-slate-600"
               />
             </div>
@@ -133,7 +133,7 @@ export default function AdminLoginGate() {
             <ShieldCheck size={14} />
             <span>Xác thực Quản trị viên:</span>
           </div>
-          Email: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-white font-mono">admin@sbuild.vn</code><br/>
+          Email: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-white font-mono">admin@fitallest.com</code><br/>
           Mật khẩu: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-white font-mono">admin123</code>
         </div>
 

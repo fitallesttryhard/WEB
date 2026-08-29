@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Facebook, Youtube, Instagram, Twitter, Video, MessageCircle, Globe } from 'lucide-react';
+import { MapPin, Phone, Mail, Facebook, Youtube, Instagram, Twitter, Video, MessageCircle, Globe, ChevronRight } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
 export default function Footer() {
@@ -21,41 +21,50 @@ export default function Footer() {
     ? settings.socialLinks
     : [
         { platform: 'facebook', url: '#' },
-        { platform: 'youtube', url: '#' }
+        { platform: 'youtube', url: '#' },
+        { platform: 'zalo', url: '#' }
       ];
 
   const footerBlocks = settings.footerBlocks || [];
 
-  const footerBg = settings.brandColor || '#dc2626';
-
   return (
-    <footer style={{ backgroundColor: footerBg }} className="text-white pt-16 pb-12 shrink-0 transition-colors duration-300">
+    <footer className="bg-slate-950 text-slate-300 pt-24 pb-12 shrink-0 border-t border-slate-800/80 relative z-0">
+      {/* Top Subtle Red Accent Line */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-rose-600 to-red-600"></div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12">
           
           {/* Col 1: About / Company Name */}
           <div className="lg:col-span-4">
-            <div className="flex flex-col gap-2 mb-6">
+            <div className="flex flex-col gap-3 mb-6">
               {settings.logoUrl ? (
-                <img src={settings.logoUrl} alt={settings.companyName} className="h-10 w-auto object-contain self-start bg-white/10 p-1 rounded" />
+                <img 
+                  src={settings.logoUrl} 
+                  alt={settings.companyName} 
+                  className="h-10 w-auto object-contain self-start bg-slate-900 border border-slate-800 p-1.5 rounded-xl shadow-xs" 
+                />
               ) : null}
-              <span className="text-sm font-black uppercase tracking-widest text-white">
-                {settings.companyName || 'Công ty TNHH Đầu tư Xây dựng Sbuild'}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-600"></span>
+                <span className="text-sm font-black uppercase tracking-wider text-white">
+                  {settings.companyName || 'Công ty TNHH Đầu tư Xây dựng Sbuild'}
+                </span>
+              </div>
             </div>
-            <p className="text-[12px] opacity-80 leading-relaxed mb-6 font-medium">
-              Nhà cung cấp chuyên nghiệp các giải pháp vật tư, phụ kiện và dụng cụ thi công xây dựng với chất lượng hàng đầu tại Việt Nam.
+            <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium max-w-sm">
+              Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.
             </p>
 
             {/* Social Links */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5 flex-wrap">
               {socialLinks.map((link: any, index: number) => (
                 <a 
                   key={index} 
                   href={link.url || '#'} 
                   target="_blank" 
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center hover:bg-white hover:text-red-700 transition-colors uppercase"
+                  className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800/80 text-slate-400 flex items-center justify-center hover:bg-red-600 hover:border-red-600 hover:text-white transition-all duration-200 uppercase shadow-xs"
                   title={link.platform}
                 >
                   {getSocialIcon(link.platform)}
@@ -68,22 +77,24 @@ export default function Footer() {
           {footerBlocks.length > 0 ? (
             footerBlocks.map((block: any, index: number) => (
               <div key={block.id || index} className="lg:col-span-3">
-                <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-6">
+                <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
                   {block.title || 'Liên kết'}
                 </h3>
                 {block.type === 'links' && block.items && (
-                  <ul className="flex flex-col gap-3 font-medium text-[12px]">
+                  <ul className="flex flex-col gap-3 font-medium text-xs">
                     {block.items.map((item: any, i: number) => (
                       <li key={i}>
-                        <a href={item.url || '#'} className="hover:underline opacity-90 transition-all">
-                          {item.label || item.title}
+                        <a href={item.url || '#'} className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                          <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <span>{item.label || item.title}</span>
                         </a>
                       </li>
                     ))}
                   </ul>
                 )}
                 {block.type === 'text' && (
-                  <p className="text-[12px] opacity-80 leading-relaxed font-medium">
+                  <p className="text-xs text-slate-400 leading-relaxed font-medium">
                     {block.content}
                   </p>
                 )}
@@ -91,50 +102,92 @@ export default function Footer() {
             ))
           ) : (
             <div className="lg:col-span-3">
-              <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-6">Liên kết nhanh</h3>
-              <ul className="flex flex-col gap-3 font-medium text-[12px]">
-                <li><a href="#" className="hover:underline opacity-90 transition-all">Trang chủ</a></li>
-                <li><a href="#" className="hover:underline opacity-90 transition-all">Giới thiệu công ty</a></li>
-                <li><a href="#products" className="hover:underline opacity-90 transition-all">Danh mục sản phẩm</a></li>
-                <li><a href="#blog" className="hover:underline opacity-90 transition-all">Tin tức & Sự kiện</a></li>
-                <li><a href="#contact" className="hover:underline opacity-90 transition-all">Liên hệ</a></li>
+              <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                Danh Mục Nhanh
+              </h3>
+              <ul className="flex flex-col gap-3 font-medium text-xs">
+                <li>
+                  <a href="#" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Trống & Trang chủ
+                  </a>
+                </li>
+                <li>
+                  <a href="#about" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Về chúng tôi
+                  </a>
+                </li>
+                <li>
+                  <a href="#products" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Danh mục vật tư
+                  </a>
+                </li>
+                <li>
+                  <a href="#projects" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Dự án đã thi công
+                  </a>
+                </li>
+                <li>
+                  <a href="#contact" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Yêu cầu báo giá
+                  </a>
+                </li>
               </ul>
             </div>
           )}
 
           {/* Col Contact */}
           <div className="lg:col-span-5">
-            <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-6">Thông tin liên hệ</h3>
-            <ul className="flex flex-col gap-4 text-[12px] font-medium opacity-90">
+            <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+              Thông Tin Trụ Sở & Liên Hệ
+            </h3>
+            <ul className="flex flex-col gap-4 text-xs font-medium">
               <li className="flex items-start gap-3">
-                <MapPin size={16} className="mt-0.5 flex-shrink-0" />
-                <span>{settings.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP. Hồ Chí Minh'}</span>
+                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800/80 text-red-500 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                  <MapPin size={15} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Địa chỉ văn phòng</span>
+                  <span className="text-slate-300 font-semibold">{settings.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP. Hồ Chí Minh'}</span>
+                </div>
               </li>
               <li className="flex items-center gap-3">
-                <Phone size={16} className="flex-shrink-0" />
-                <a href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} className="hover:underline">
-                  {settings.hotline || '0901 234 567'}
-                </a>
+                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800/80 text-red-500 flex items-center justify-center shrink-0 shadow-xs">
+                  <Phone size={15} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Hotline tư vấn B2B</span>
+                  <a href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} className="text-white font-extrabold hover:text-red-400 transition-colors">
+                    {settings.hotline || '0901 234 567'}
+                  </a>
+                </div>
               </li>
               <li className="flex items-center gap-3">
-                <Mail size={16} className="flex-shrink-0" />
-                <a href={`mailto:${settings.email}`} className="hover:underline">
-                  {settings.email || 'contact@sbuild.vn'}
-                </a>
+                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800/80 text-red-500 flex items-center justify-center shrink-0 shadow-xs">
+                  <Mail size={15} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Email tiếp nhận báo giá</span>
+                  <a href={`mailto:${settings.email}`} className="text-slate-300 hover:text-white transition-colors">
+                    {settings.email || 'contact@sbuild.vn'}
+                  </a>
+                </div>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="border-t border-white/20 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] font-medium opacity-70">
-          <p>&copy; {new Date().getFullYear()} {settings.companyName || 'Xây Dựng Sbuild'}. Tất cả quyền được bảo lưu.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:underline transition-all">Điều khoản dịch vụ</a>
-            <a href="#contact" className="hover:underline transition-all">Hỗ trợ khách hàng</a>
+        {/* Bottom Bar */}
+        <div className="border-t border-slate-800/80 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-500">
+          <p>&copy; {new Date().getFullYear()} <span className="text-slate-300 font-bold">{settings.companyName || 'S-BUILD Việt Nam'}</span>. Tất cả quyền được bảo lưu.</p>
+          <div className="flex gap-6 text-slate-400">
+            <a href="#" className="hover:text-white transition-colors">Điều khoản dịch vụ</a>
+            <a href="#contact" className="hover:text-white transition-colors">Hỗ trợ đối tác B2B</a>
           </div>
         </div>
       </div>
     </footer>
   );
 }
+

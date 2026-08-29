@@ -12,7 +12,7 @@ export const defaultProjects = [
     scale: '38 Tầng • 1,200 Căn hộ',
     featured: true,
     image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop',
-    materials: ['Nẹp nhôm T20 Anode', 'Băng cản nước V200', 'Khoá giáo BS1139'],
+    materials: ['giao diện UI/UX T20 Anode', 'Băng cản nước V200', 'Khoá giáo BS1139'],
     description: 'Cung cấp toàn bộ giải pháp nẹp trang trí nhôm cao cấp mạ Anode chống oxy hóa cho 38 tầng căn hộ hạng sang, kết hợp băng cản nước chuẩn kiểm định chống thấm mạch ngừng móng.'
   },
   {
@@ -23,7 +23,7 @@ export const defaultProjects = [
     scale: '5 Hầm • 28 Tầng nổi',
     featured: false,
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
-    materials: ['Nẹp Inox 304 PVD', 'Nẹp thảm gạch đá', 'Ty ren & Bát chuồn D16'],
+    materials: ['hạ tầng server 304 PVD', 'Nẹp thảm gạch đá', 'Ty ren & Bát chuồn D16'],
     description: 'Giải pháp nẹp mạ PVD vàng mờ sang trọng tạo điểm nhấn kiến trúc cho sảnh chính và hệ thang máy trung tâm thương mại lớn bậc nhất Hà Nội.'
   },
   {
@@ -91,7 +91,7 @@ export default function ProjectsShowcase() {
         <div className="max-w-3xl mb-12 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-[11px] font-bold uppercase tracking-widest">
             <Sparkles size={13} className="text-amber-400" />
-            <span>SBUILD PORTFOLIO // CASE STUDIES</span>
+            <span>Fi.tallest PORTFOLIO // CASE STUDIES</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 uppercase tracking-tight leading-[1.15]">
@@ -280,7 +280,7 @@ export default function ProjectsShowcase() {
               </div>
 
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Vật tư SBUILD đã cung ứng:</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Vật tư Fi.tallest đã cung ứng:</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {(Array.isArray(selectedProject.materials) ? selectedProject.materials : []).map((m: string, i: number) => (
                     <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-bold flex items-center gap-2 text-slate-800">
