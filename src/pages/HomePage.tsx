@@ -80,6 +80,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [hoveredSvc, setHoveredSvc] = useState<number | null>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const [resetTimer, setResetTimer] = useState(0);
   const [statsVisible, setStatsVisible] = useState(false);
   const [c1, setC1] = useState(0);
   const [c2, setC2] = useState(0);
@@ -301,6 +302,14 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
     }, 20);
     return () => clearInterval(timer);
   }, [statsVisible]);
+
+  // Auto-play workflow steps every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % wfSteps.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [resetTimer]);
 
   // Service toggle
   const toggleSvc = (svc: string) => {
@@ -650,7 +659,10 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
             </div>
             <div className="space-y-3">
               {wfSteps.map((step, i) => (
-                <div key={i} onClick={() => setActiveStep(i)}
+                <div key={i} onClick={() => {
+                  setActiveStep(i);
+                  setResetTimer(prev => prev + 1);
+                }}
                   className={`group flex items-start gap-4 p-5 rounded-2xl border cursor-pointer transition-all duration-300 backdrop-blur-xl ${activeStep === i ? 'border-violet-500/50 bg-violet-500/15 shadow-[0_10px_30px_rgba(124,58,237,0.2)]' : 'border-white/[0.08] bg-slate-900/40 hover:bg-slate-900/70 hover:border-white/15'}`}>
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0 transition-all duration-300 ${activeStep === i ? 'bg-violet-500 text-white shadow-md shadow-violet-500/40' : 'bg-white/[0.05] text-slate-500'}`}>
                     {step.num}
