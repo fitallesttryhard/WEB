@@ -215,6 +215,8 @@ export default function AdminDashboard() {
   const [postSearch, setPostSearch] = useState('');
   const [postCatFilter, setPostCatFilter] = useState('all');
   const [categorySearch, setCategorySearch] = useState('');
+  const [projectSearch, setProjectSearch] = useState('');
+  const [projectCatFilter, setProjectCatFilter] = useState('all');
 
   // Projects State
   const [adminProjects, setAdminProjects] = useState<any[]>(() => {
@@ -2810,7 +2812,7 @@ export default function AdminDashboard() {
 
             {activeMenu === 'projects' && (
               <div className="animate-in fade-in duration-300">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                   <div>
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Dự án thi công</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách các công trình tiêu biểu đã cung ứng vật tư Fi.tallest.</p>
@@ -2820,52 +2822,91 @@ export default function AdminDashboard() {
                       setProjectForm({ id: null, title: '', category: 'Chung cư cao cấp', location: '', scale: '', image: '', materials: '', description: '' });
                       setIsProjectModalOpen(true);
                     }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 cursor-pointer"
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 cursor-pointer shrink-0"
                   >
                     <Plus size={18} />
                     Thêm Dự án mới
                   </button>
                 </div>
 
+                {/* Thanh Tìm Kiếm & Bộ Lọc Kho Dự Án */}
+                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-80">
+                    <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Tìm kiếm dự án theo tên, vị trí, vật tư..."
+                      value={projectSearch}
+                      onChange={(e) => setProjectSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition font-medium"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Filter size={16} className="text-gray-400" />
+                    <select
+                      value={projectCatFilter}
+                      onChange={(e) => setProjectCatFilter(e.target.value)}
+                      className="py-2 px-3 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 font-medium text-gray-700 cursor-pointer"
+                    >
+                      <option value="all">Tất cả loại hình ({adminProjects.length})</option>
+                      {Array.from(new Set(adminProjects.map(p => p.category).filter(Boolean))).map((cat: any) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                        <th className="px-5 py-3.5 w-16 text-center">STT</th>
-                        <th className="px-5 py-3.5">Tên Dự án</th>
-                        <th className="px-5 py-3.5 w-36 whitespace-nowrap">Loại hình</th>
-                        <th className="px-5 py-3.5 w-44">Vị trí & Quy mô</th>
-                        <th className="px-5 py-3.5 w-52">Vật tư cung ứng</th>
-                        <th className="px-5 py-3.5 text-right whitespace-nowrap min-w-[120px] w-32">Hành động</th>
+                      <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] uppercase tracking-wider font-bold text-gray-500">
+                        <th className="px-2 py-3 w-10 text-center">STT</th>
+                        <th className="px-3 py-3">Tên Dự án</th>
+                        <th className="px-2 py-3 w-36 whitespace-nowrap">Loại hình</th>
+                        <th className="px-2 py-3 w-44">Vị trí & Quy mô</th>
+                        <th className="px-2 py-3 w-52">Vật tư cung ứng</th>
+                        <th className="px-3 py-3 text-right whitespace-nowrap w-32">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {adminProjects.map((proj, idx) => (
+                      {adminProjects
+                        .filter(proj => {
+                          const matchesCategory = projectCatFilter === 'all' || proj.category === projectCatFilter;
+                          const searchLower = projectSearch.toLowerCase().trim();
+                          const matchesSearch = !searchLower || 
+                            proj.title?.toLowerCase().includes(searchLower) ||
+                            proj.location?.toLowerCase().includes(searchLower) ||
+                            proj.scale?.toLowerCase().includes(searchLower) ||
+                            proj.description?.toLowerCase().includes(searchLower) ||
+                            (Array.isArray(proj.materials) ? proj.materials.join(' ') : String(proj.materials || '')).toLowerCase().includes(searchLower);
+                          return matchesCategory && matchesSearch;
+                        })
+                        .map((proj, idx) => (
                         <tr key={proj.id || idx} className="group hover:bg-gray-50/50 transition-colors">
-                          <td className="px-5 py-3.5 font-bold text-xs text-gray-400 text-center">{idx + 1}</td>
-                          <td className="px-5 py-3.5">
-                            <div className="flex items-center gap-3">
+                          <td className="px-2 py-3 font-bold text-xs text-gray-400 text-center">{idx + 1}</td>
+                          <td className="px-3 py-3">
+                            <div className="flex items-center gap-2.5 min-w-0">
                               <img 
                                 src={proj.image || proj.image_url || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop'} 
                                 alt={proj.title} 
-                                className="w-14 h-11 rounded-lg object-cover border border-gray-100 shadow-2xs shrink-0"
+                                className="w-12 h-9 rounded-md object-cover border border-gray-100 shadow-2xs shrink-0"
                               />
-                              <div>
-                                <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{proj.title}</h4>
-                                <p className="text-[11px] text-gray-400 font-medium line-clamp-1">{proj.description}</p>
+                              <div className="flex flex-col min-w-0 overflow-hidden">
+                                <h4 className="font-bold text-xs text-gray-900 truncate max-w-[200px] sm:max-w-[280px] lg:max-w-[380px]">{proj.title}</h4>
+                                <p className="text-[10px] text-gray-400 font-medium truncate mt-0.5 max-w-[200px] sm:max-w-[280px] lg:max-w-[380px]">{proj.description}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-5 py-3.5 w-36 whitespace-nowrap">
-                            <span className="bg-red-50 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-100 inline-block">
+                          <td className="px-2 py-3 w-36 whitespace-nowrap">
+                            <span className="bg-red-50 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded border border-red-100 inline-block">
                               {proj.category}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 text-xs font-medium text-gray-600 w-44">
-                            <p className="font-bold text-gray-900">{proj.location}</p>
-                            <p className="text-gray-400 mt-0.5">{proj.scale}</p>
+                          <td className="px-2 py-3 text-xs font-medium text-gray-600 w-44">
+                            <p className="font-bold text-xs text-gray-900">{proj.location}</p>
+                            <p className="text-gray-400 text-[10px] mt-0.5">{proj.scale}</p>
                           </td>
-                          <td className="px-5 py-3.5 w-52">
+                          <td className="px-2 py-3 w-52">
                             <div className="flex flex-wrap gap-1 max-w-[220px]">
                               {(Array.isArray(proj.materials) ? proj.materials : String(proj.materials || '').split(',')).map((m: any, i: number) => (
                                 <span key={i} className="text-[10px] font-semibold bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
@@ -2874,14 +2915,14 @@ export default function AdminDashboard() {
                               ))}
                             </div>
                           </td>
-                          <td className="px-5 py-3.5 text-right whitespace-nowrap min-w-[120px]">
-                            <div className="flex items-center justify-end gap-1.5 shrink-0">
+                          <td className="px-3 py-3 text-right whitespace-nowrap w-32">
+                            <div className="flex items-center justify-end gap-1 shrink-0">
                               <button 
                                 onClick={() => window.open(`${window.location.origin}/#projects`, '_blank')}
                                 className="p-1.5 text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
                                 title="Xem dự án trên website"
                               >
-                                <Eye size={16} />
+                                <Eye size={15} />
                               </button>
                               <button 
                                 onClick={() => {
@@ -2900,7 +2941,7 @@ export default function AdminDashboard() {
                                 className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0"
                                 title="Chỉnh sửa"
                               >
-                                <Edit size={16} />
+                                <Edit size={15} />
                               </button>
                               <button 
                                 onClick={() => {
@@ -2919,7 +2960,7 @@ export default function AdminDashboard() {
                                 className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0"
                                 title="Xóa"
                               >
-                                <Trash2 size={16} />
+                                <Trash2 size={15} />
                               </button>
                             </div>
                           </td>
