@@ -147,12 +147,18 @@ export default function App() {
       <SettingsProvider>
         <SeoAnalyticsInjector />
         <AuthProvider>
-          <div className="min-h-screen flex flex-col bg-[#050A14] text-slate-100 font-sans selection:bg-cyan-500 selection:text-white">
-            <FitallestNavbar currentTab={currentTab} setCurrentTab={changeTab} />
-            <main className="flex-grow">
-              {renderContent()}
-            </main>
-            <FitallestFooter setCurrentTab={changeTab} />
+          <div className="min-h-screen flex flex-col bg-[#050A14] bg-cyber-grid text-slate-100 font-sans selection:bg-cyan-500 selection:text-white relative">
+            {/* Global background glow & dot matrix overlay */}
+            <div className="fixed inset-0 pointer-events-none z-0 bg-cyber-radial opacity-70" />
+            <div className="fixed inset-0 pointer-events-none z-0 bg-dot-matrix opacity-25" />
+            
+            <div className="relative z-10 flex flex-col min-h-screen flex-grow">
+              <FitallestNavbar currentTab={currentTab} setCurrentTab={changeTab} />
+              <main className="flex-grow">
+                {renderContent()}
+              </main>
+              <FitallestFooter setCurrentTab={changeTab} />
+            </div>
           </div>
         </AuthProvider>
       </SettingsProvider>

@@ -349,11 +349,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden relative bg-[#050A14] bg-cyber-grid text-[#e2e8f0]">
-      
-      {/* ─── GLOBAL AMBIENT LAYER ─── */}
-      <div className="fixed inset-0 pointer-events-none z-0 bg-cyber-radial opacity-70" />
-      <div className="fixed inset-0 pointer-events-none z-0 bg-dot-matrix opacity-25" />
+    <div className="overflow-x-hidden relative text-[#e2e8f0]">
 
       {/* ─── HERO: DEEP TECH COSMIC ORB ─── */}
       <section className="relative min-h-[92vh] flex items-center pt-8 pb-20 overflow-hidden z-10">
