@@ -2212,10 +2212,10 @@ export default function AdminDashboard() {
                 )}
 
                     <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
-                      <table className="w-full text-left border-collapse min-w-[900px]">
+                      <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-gray-50/80 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                            <th className="px-4 py-3.5 w-12 text-center">
+                          <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] uppercase tracking-wider font-bold text-gray-500">
+                            <th className="px-2 py-3 w-10 text-center">
                               <input 
                                 type="checkbox" 
                                 checked={posts.length > 0 && selectedPosts.length === posts.length}
@@ -2223,12 +2223,12 @@ export default function AdminDashboard() {
                                 className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                               />
                             </th>
-                            <th className="px-3 py-3.5 w-12 text-center">STT</th>
-                            <th className="px-4 py-3.5">Bài viết</th>
-                            <th className="px-4 py-3.5 w-36 whitespace-nowrap">Chuyên mục</th>
-                            <th className="px-4 py-3.5 w-28 text-center whitespace-nowrap">Trạng thái</th>
-                            <th className="px-4 py-3.5 w-24 text-center whitespace-nowrap">Lượt xem</th>
-                            <th className="px-4 py-3.5 w-56 min-w-[220px] text-right whitespace-nowrap">Hành động</th>
+                            <th className="px-2 py-3 w-10 text-center">STT</th>
+                            <th className="px-3 py-3">Bài viết</th>
+                            <th className="px-2 py-3 w-32 text-center whitespace-nowrap">Chuyên mục</th>
+                            <th className="px-2 py-3 w-24 text-center whitespace-nowrap">Trạng thái</th>
+                            <th className="px-2 py-3 w-20 text-center whitespace-nowrap">Lượt xem</th>
+                            <th className="px-3 py-3 w-40 text-right whitespace-nowrap">Hành động</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -2236,7 +2236,7 @@ export default function AdminDashboard() {
                             .filter(p => (postCatFilter === 'all' || p.category === postCatFilter) && p.title.toLowerCase().includes(postSearch.toLowerCase()))
                             .map((post, index) => (
                             <tr key={post.id} className={`group transition-colors ${selectedPosts.includes(post.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
-                              <td className="px-4 py-3.5 text-center">
+                              <td className="px-2 py-3 text-center">
                                 <input 
                                   type="checkbox" 
                                   checked={selectedPosts.includes(post.id)}
@@ -2244,35 +2244,35 @@ export default function AdminDashboard() {
                                   className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                                 />
                               </td>
-                              <td className="px-3 py-3.5 text-center">
+                              <td className="px-2 py-3 text-center">
                                 <span className="text-xs font-bold text-gray-400">{index + 1}</span>
                               </td>
-                              <td className="px-4 py-3.5">
-                                <div className="flex items-center gap-3 min-w-[260px]">
+                              <td className="px-3 py-3">
+                                <div className="flex items-center gap-2.5 min-w-0">
                                   <img 
                                     src={post.image} 
                                     alt={post.title} 
-                                    className="w-14 h-11 rounded-lg object-cover border border-gray-100 shadow-2xs shrink-0"
+                                    className="w-12 h-9 rounded-md object-cover border border-gray-100 shadow-2xs shrink-0"
                                   />
-                                  <div className="flex flex-col min-w-0">
-                                    <span className="font-bold text-sm text-gray-900 line-clamp-1 truncate">{post.title}</span>
-                                    <span className="text-[11px] font-medium text-gray-400 truncate mt-0.5">{post.slug || 'chua-cap-nhat-slug'}</span>
+                                  <div className="flex flex-col min-w-0 overflow-hidden">
+                                    <span className="font-bold text-xs text-gray-900 truncate max-w-[200px] sm:max-w-[280px] lg:max-w-[380px]">{post.title}</span>
+                                    <span className="text-[10px] font-medium text-gray-400 truncate mt-0.5 max-w-[200px] sm:max-w-[280px] lg:max-w-[380px]">{post.slug || 'chua-cap-nhat-slug'}</span>
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-4 py-3.5 w-36 whitespace-nowrap">
-                                <span className="text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">
+                              <td className="px-2 py-3 w-32 text-center whitespace-nowrap">
+                                <span className="text-[11px] font-semibold text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
                                   {post.category}
                                 </span>
                               </td>
-                              <td className="px-4 py-3.5 w-28 text-center whitespace-nowrap">
-                                <div className="flex flex-col items-center gap-1">
+                              <td className="px-2 py-3 w-24 text-center whitespace-nowrap">
+                                <div className="flex flex-col items-center gap-0.5">
                                   <button
                                     onClick={() => handleTogglePostStatus(post.id, post.status)}
-                                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${post.status === 'published' ? 'bg-red-600' : 'bg-gray-200'}`}
+                                    className={`relative inline-flex h-4.5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 ${post.status === 'published' ? 'bg-red-600' : 'bg-gray-200'}`}
                                   >
                                     <span
-                                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform shadow-xs ${post.status === 'published' ? 'translate-x-5' : 'translate-x-1'}`}
+                                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform shadow-xs ${post.status === 'published' ? 'translate-x-5' : 'translate-x-1'}`}
                                     />
                                   </button>
                                   <span className={`text-[9px] font-bold uppercase tracking-wider ${post.status === 'published' ? 'text-red-600' : 'text-gray-400'}`}>
@@ -2280,11 +2280,11 @@ export default function AdminDashboard() {
                                   </span>
                                 </div>
                               </td>
-                              <td className="px-4 py-3.5 w-24 text-center whitespace-nowrap">
-                                <span className="text-xs font-bold text-gray-500">{(post.views || 0).toLocaleString()}</span>
+                              <td className="px-2 py-3 w-20 text-center whitespace-nowrap">
+                                <span className="text-xs font-bold text-gray-600">{(post.views || 0).toLocaleString()}</span>
                               </td>
-                              <td className="px-4 py-3.5 w-56 min-w-[220px] text-right whitespace-nowrap">
-                                <div className="flex items-center justify-end gap-1.5 shrink-0">
+                              <td className="px-3 py-3 w-40 text-right whitespace-nowrap">
+                                <div className="flex items-center justify-end gap-1 shrink-0">
                                   <button 
                                     onClick={() => {
                                       sessionStorage.setItem('active_article_id', String(post.id));
@@ -2293,7 +2293,7 @@ export default function AdminDashboard() {
                                     className="p-1.5 text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
                                     title="Xem trước bài viết thực tế"
                                   >
-                                    <Eye size={16} />
+                                    <Eye size={15} />
                                   </button>
                                   <button 
                                     onClick={() => {
@@ -2308,21 +2308,21 @@ export default function AdminDashboard() {
                                     className="p-1.5 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors shrink-0"
                                     title="Sao chép link bài viết & Khai báo Index Google"
                                   >
-                                    <Globe size={16} />
+                                    <Globe size={15} />
                                   </button>
                                   <button 
                                     onClick={() => handleEditPost(post)}
                                     className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0" 
                                     title="Chỉnh sửa bài viết"
                                   >
-                                    <Edit size={16} />
+                                    <Edit size={15} />
                                   </button>
                                   <button 
                                     onClick={() => handleDeletePost(post.id)}
                                     className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0"
                                     title="Xóa bài viết"
                                   >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={15} />
                                   </button>
                                 </div>
                               </td>
