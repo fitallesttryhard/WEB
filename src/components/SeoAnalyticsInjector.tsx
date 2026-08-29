@@ -13,7 +13,7 @@ export default function SeoAnalyticsInjector() {
       // Extract content string if user pasted full tag: <meta name="google-site-verification" content="XYZ" />
       let contentVal = gscCode;
       const contentMatch = gscCode.match(/content=["']([^"']+)["']/i);
-      if (contentMatch) {
+      if (contentMatch && contentMatch[1]) {
         contentVal = contentMatch[1];
       }
 
@@ -23,8 +23,6 @@ export default function SeoAnalyticsInjector() {
         document.head.appendChild(gscMeta);
       }
       gscMeta.setAttribute('content', contentVal);
-    } else if (gscMeta) {
-      gscMeta.remove();
     }
 
     // 2. Inject Google Analytics 4 (GA4 gtag.js)
