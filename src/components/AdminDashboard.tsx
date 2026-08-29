@@ -428,15 +428,7 @@ export default function AdminDashboard() {
     showToast('Đã xóa thông tin đăng ký!');
   };
 
-  // Settings & Appearance State
-  const [appearanceForm, setAppearanceForm] = useState({ 
-    primary_color: '#dc2626', 
-    secondary_color: '#1f2937', 
-    logo_url: '', 
-    favicon_url: '', 
-    heading_font: 'Inter', 
-    body_font: 'Inter' 
-  });
+  // Settings State (single source of truth for all admin settings)
   const { settings, updateSettings } = useSettings();
   const [settingsForm, setSettingsForm] = useState<any>({
     companyName: 'Công ty TNHH Công Nghệ Fi.tallest',
@@ -473,12 +465,7 @@ export default function AdminDashboard() {
         socialLinks: Array.isArray(settings.socialLinks) ? settings.socialLinks : [],
         footerBlocks: Array.isArray(settings.footerBlocks) ? settings.footerBlocks : []
       });
-      setAppearanceForm(prev => ({
-        ...prev,
-        primary_color: settings.brandColor || '#dc2626',
-        logo_url: settings.logoUrl || '',
-        favicon_url: settings.faviconUrl || ''
-      }));
+      // logoUrl and faviconUrl are stored in settingsForm via ...settings spread above
     }
   }, [settings]);
 
@@ -1005,39 +992,7 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const handleSaveAppearance = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSavingSettings(true);
-    try {
-      updateSettings({
-        brandColor: appearanceForm.primary_color,
-        logoUrl: appearanceForm.logo_url,
-        faviconUrl: appearanceForm.favicon_url,
-      });
-
-      const { data: existing } = await supabase.from('tenant_settings').select('id').limit(1).maybeSingle();
-
-      const payload = {
-        brand_color: appearanceForm.primary_color,
-        logo_url: appearanceForm.logo_url,
-      };
-
-      if (existing?.id) {
-        await supabase.from('tenant_settings').update(payload).eq('id', existing.id);
-      } else {
-        const { data: tenant } = await supabase.from('tenants').select('id').limit(1).maybeSingle();
-        if (tenant?.id) {
-          await supabase.from('tenant_settings').insert([{ ...payload, tenant_id: tenant.id }]);
-        }
-      }
-      showToast('Đã lưu và áp dụng giao diện mới!');
-    } catch (error) {
-      console.error(error);
-      showToast('Đã cập nhật giao diện!');
-    } finally {
-      setIsSavingSettings(false);
-    }
-  };
+  // handleSaveAppearance removed — all saves go through handleSaveSettings
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -3371,6 +3326,117 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
+                  {/* ─── NHẬN DIỆN THƯƠNG HIỆU: LOGO & FAVICON ─── */}
+                  <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-6">
+                    <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center border border-emerald-500/20">
+                        <ImageIcon size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">Nhận Diện Thương Hiệu (Logo & Favicon)</h3>
+                        <p className="text-xs text-gray-500 font-medium">Tải lên hoặc thay đổi Logo và Favicon hiển thị trên website.</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {/* Logo Upload */}
+                      <div className="space-y-3">
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">Logo Website</label>
+                        <div className="flex items-center gap-4">
+                          <div className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+                            {settingsForm.logoUrl ? (
+                              <img src={settingsForm.logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
+                            ) : (
+                              <ImageIcon size={24} className="text-gray-300" />
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <input
+                              type="text"
+                              value={settingsForm.logoUrl || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, logoUrl: e.target.value })}
+                              placeholder="URL Logo (https://...)"
+                              className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-mono"
+                            />
+                            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200">
+                              <UploadCloud size={14} />
+                              <span>Tải lên</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  try {
+                                    const fileName = `logo_${Date.now()}.${file.name.split('.').pop()}`;
+                                    const { data, error } = await supabase.storage.from('media').upload(fileName, file);
+                                    if (error) throw error;
+                                    const { data: urlData } = supabase.storage.from('media').getPublicUrl(data.path);
+                                    setSettingsForm((prev: any) => ({ ...prev, logoUrl: urlData.publicUrl }));
+                                    showToast('Đã tải lên Logo!');
+                                  } catch (err) {
+                                    console.error(err);
+                                    showToast('Lỗi tải lên logo');
+                                  }
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-gray-400">Khuyên dùng: PNG trong suốt, tỷ lệ ngang, tối đa 500KB.</p>
+                      </div>
+
+                      {/* Favicon Upload */}
+                      <div className="space-y-3">
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">Favicon (Tab Icon)</label>
+                        <div className="flex items-center gap-4">
+                          <div className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+                            {settingsForm.faviconUrl ? (
+                              <img src={settingsForm.faviconUrl} alt="Favicon" className="w-10 h-10 object-contain" />
+                            ) : (
+                              <Globe size={24} className="text-gray-300" />
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <input
+                              type="text"
+                              value={settingsForm.faviconUrl || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, faviconUrl: e.target.value })}
+                              placeholder="URL Favicon (https://...)"
+                              className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-mono"
+                            />
+                            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors cursor-pointer border border-emerald-200">
+                              <UploadCloud size={14} />
+                              <span>Tải lên</span>
+                              <input
+                                type="file"
+                                accept="image/png,image/x-icon,image/svg+xml"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  try {
+                                    const fileName = `favicon_${Date.now()}.${file.name.split('.').pop()}`;
+                                    const { data, error } = await supabase.storage.from('media').upload(fileName, file);
+                                    if (error) throw error;
+                                    const { data: urlData } = supabase.storage.from('media').getPublicUrl(data.path);
+                                    setSettingsForm((prev: any) => ({ ...prev, faviconUrl: urlData.publicUrl }));
+                                    showToast('Đã tải lên Favicon!');
+                                  } catch (err) {
+                                    console.error(err);
+                                    showToast('Lỗi tải lên favicon');
+                                  }
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-gray-400">Khuyên dùng: PNG/ICO 32x32px hoặc 64x64px.</p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* ─── CẤU HÌNH & XEM TRƯỚC HEADER (LIVE HEADER PREVIEW) ─── */}
                   <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-6">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -3577,15 +3643,15 @@ export default function AdminDashboard() {
                           <span className="text-xs text-gray-500 font-medium italic">* Bản xem trước giống 100% giao diện thực tế khách nhìn thấy</span>
                         </div>
                         <div 
-                          style={{ backgroundColor: settingsForm.brandColor || appearanceForm.primary_color || '#dc2626' }}
+                          style={{ backgroundColor: settingsForm.brandColor || '#dc2626' }}
                           className="text-white p-8 sm:p-10 rounded-2xl shadow-xl space-y-10 transition-colors duration-300"
                         >
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
                             {/* Col 1: Thông tin công ty & Logo */}
                             <div className="lg:col-span-4">
                               <div className="flex flex-col gap-2 mb-4">
-                                {(settingsForm.logoUrl || appearanceForm.logo_url) ? (
-                                  <img src={settingsForm.logoUrl || appearanceForm.logo_url} alt="Logo" className="h-10 w-auto object-contain self-start bg-white/10 p-1 rounded" />
+                                {settingsForm.logoUrl ? (
+                                  <img src={settingsForm.logoUrl} alt="Logo" className="h-10 w-auto object-contain self-start bg-white/10 p-1 rounded" />
                                 ) : null}
                                 <span className="text-sm font-black uppercase tracking-widest text-white">
                                   {settingsForm.companyName || 'Công ty TNHH Đầu tư Xây dựng Fi.tallest'}
