@@ -403,6 +403,19 @@ export default function AdminDashboard() {
     };
   }, []);
 
+  const parseServiceString = (raw: any): string[] => {
+    if (Array.isArray(raw)) return raw.map(String).map(s => s.trim()).filter(Boolean);
+    if (!raw) return ['Tư vấn giải pháp Web/App'];
+    const str = String(raw).trim();
+    if (!str) return ['Tư vấn giải pháp Web/App'];
+    if (str.includes(',')) return str.split(',').map(s => s.trim()).filter(Boolean);
+    if (str.includes('\n')) return str.split('\n').map(s => s.trim()).filter(Boolean);
+    const regex = /(Website [^T]+|Tên Miền [^H]+|Hosting [^T]+|Tối ưu [^T]+|Tên Miền Quốc Gia [^\)]+\))/g;
+    const matches = str.match(regex);
+    if (matches && matches.length > 0) return matches.map(s => s.trim()).filter(Boolean);
+    return [str];
+  };
+
   const handleToggleLeadStatus = (id: string) => {
     setAdminLeads(prev => {
       const updated = prev.map(l => {
@@ -2908,46 +2921,53 @@ export default function AdminDashboard() {
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider font-bold text-slate-500">
-                          <th className="px-5 py-3.5">Khách hàng</th>
-                          <th className="px-5 py-3.5">Liên hệ (SĐT / Zalo)</th>
-                          <th className="px-5 py-3.5">Email</th>
-                          <th className="px-5 py-3.5">Gói / Dịch vụ đăng ký</th>
-                          <th className="px-5 py-3.5">Ghi chú</th>
-                          <th className="px-5 py-3.5 text-center">Trạng thái</th>
-                          <th className="px-5 py-3.5 text-right">Hành động</th>
+                          <th className="px-5 py-3.5 w-40 min-w-[140px] whitespace-nowrap">Khách hàng</th>
+                          <th className="px-5 py-3.5 w-36 min-w-[140px] whitespace-nowrap">Liên hệ (SĐT / Zalo)</th>
+                          <th className="px-5 py-3.5 w-44 min-w-[150px] whitespace-nowrap">Email</th>
+                          <th className="px-5 py-3.5 w-72 min-w-[260px] whitespace-nowrap">Gói / Dịch vụ đăng ký</th>
+                          <th className="px-5 py-3.5 w-52 min-w-[180px] whitespace-nowrap">Ghi chú</th>
+                          <th className="px-5 py-3.5 text-center w-44 min-w-[170px] whitespace-nowrap">Trạng thái</th>
+                          <th className="px-5 py-3.5 text-right w-28 min-w-[100px] whitespace-nowrap">Hành động</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {adminLeads.map((lead, idx) => (
                           <tr key={lead.id || idx} className="hover:bg-slate-50/60 transition-colors">
-                            <td className="px-5 py-4 font-bold text-sm text-slate-900">
+                            <td className="px-5 py-4 font-bold text-sm text-slate-900 w-40 min-w-[140px]">
                               {lead.fullname || lead.customer || 'Khách hàng Ẩn danh'}
                             </td>
-                            <td className="px-5 py-4">
-                              <span className="font-mono text-xs font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">
+                            <td className="px-5 py-4 w-36 min-w-[140px] whitespace-nowrap">
+                              <span className="font-mono text-xs font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 shadow-2xs inline-block">
                                 {lead.phone || 'Chưa cung cấp'}
                               </span>
                             </td>
-                            <td className="px-5 py-4 text-xs font-medium text-slate-600">
+                            <td className="px-5 py-4 text-xs font-medium text-slate-600 w-44 min-w-[150px] truncate max-w-[180px]">
                               {lead.email || '—'}
                             </td>
-                            <td className="px-5 py-4 max-w-[220px]">
-                              <span className="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100 inline-block line-clamp-2">
-                                {lead.services || lead.package || 'Tư vấn giải pháp Web/App'}
-                              </span>
+                            <td className="px-5 py-4 w-72 min-w-[260px] max-w-[320px]">
+                              <div className="flex flex-wrap gap-1.5">
+                                {parseServiceString(lead.services || lead.package || lead.service).map((item: string, i: number) => (
+                                  <span 
+                                    key={i} 
+                                    className="inline-block bg-purple-50 text-purple-700 border border-purple-200/80 rounded-md px-2 py-0.5 text-[11px] font-semibold leading-relaxed shadow-2xs"
+                                  >
+                                    {item}
+                                  </span>
+                                ))}
+                              </div>
                             </td>
-                            <td className="px-5 py-4 max-w-[200px] text-xs text-slate-500 italic">
+                            <td className="px-5 py-4 w-52 min-w-[180px] max-w-[240px] text-xs text-slate-500 italic">
                               {lead.note || lead.notes || 'Không có ghi chú'}
                             </td>
-                            <td className="px-5 py-4 text-center">
+                            <td className="px-5 py-4 text-center w-44 min-w-[170px] whitespace-nowrap">
                               <button
                                 onClick={() => handleToggleLeadStatus(lead.id)}
-                                className={`px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
+                                className={`w-38 h-8 inline-flex items-center justify-center rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-2xs shrink-0 ${
                                   lead.status === 'completed'
-                                    ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
                                     : lead.status === 'contacted'
-                                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                                    : 'bg-amber-100 text-amber-700 border border-amber-200 animate-pulse'
+                                    ? 'bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200'
+                                    : 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 animate-pulse'
                                 }`}
                               >
                                 {lead.status === 'completed'
@@ -2957,12 +2977,12 @@ export default function AdminDashboard() {
                                   : '⏳ Chờ xử lý'}
                               </button>
                             </td>
-                            <td className="px-5 py-4 text-right">
-                              <div className="flex items-center justify-end gap-2">
+                            <td className="px-5 py-4 text-right w-28 min-w-[100px] whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-1.5">
                                 {lead.phone && (
                                   <button
                                     onClick={() => copyToClipboard(lead.phone)}
-                                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                                     title="Copy SĐT"
                                   >
                                     <Copy size={15} />
@@ -2970,7 +2990,7 @@ export default function AdminDashboard() {
                                 )}
                                 <button
                                   onClick={() => handleDeleteLead(lead.id)}
-                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                  className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                                   title="Xóa"
                                 >
                                   <Trash2 size={15} />
