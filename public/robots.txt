@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /super-admin
 
-Sitemap: https://fitallest.com/sitemap.xml
+Sitemap: https://fitallest.io.vn/sitemap.xml
