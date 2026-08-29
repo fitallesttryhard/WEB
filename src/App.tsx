@@ -40,9 +40,21 @@ function AdminArea() {
 }
 
 function recordPageVisit(tabName: string) {
-  if (['admin', 'super-admin'].includes(tabName)) return;
+  // 1. Ignore visits on Admin / SuperAdmin pages
+  const currentHash = (window.location.hash || '').toLowerCase();
+  if (['admin', 'super-admin'].includes(tabName) || currentHash.includes('admin')) {
+    return;
+  }
+
+  // 2. Deduplicate F5 reloads within the same session
   try {
     const today = new Date().toISOString().split('T')[0];
+    const sessionKey = `fitallest_visited_${today}_${tabName}`;
+    if (sessionStorage.getItem(sessionKey)) {
+      return; // Already counted this session visit, ignore F5 reload
+    }
+    sessionStorage.setItem(sessionKey, '1');
+
     const raw = localStorage.getItem('fitallest_daily_analytics');
     const analytics = raw ? JSON.parse(raw) : {};
     analytics[today] = (analytics[today] || 0) + 1;
