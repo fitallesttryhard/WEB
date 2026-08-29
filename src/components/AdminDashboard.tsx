@@ -495,6 +495,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchData();
+    window.addEventListener('storage', fetchData);
+    window.addEventListener('fitallest_posts_updated', fetchData);
+    return () => {
+      window.removeEventListener('storage', fetchData);
+      window.removeEventListener('fitallest_posts_updated', fetchData);
+    };
   }, []);
 
   useEffect(() => {
@@ -827,17 +833,34 @@ export default function AdminDashboard() {
       } catch (e) {
         console.warn('Lỗi tải posts từ Supabase:', e);
       }
+      const storedPosts = localStorage.getItem('fitallest_admin_posts');
+      let localViewsMap: Record<string, number> = {};
+      if (storedPosts) {
+        try {
+          const parsed = JSON.parse(storedPosts);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((item: any) => {
+              if (item.id && typeof item.views === 'number') {
+                localViewsMap[String(item.id)] = item.views;
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
       if (dbPostsList.length > 0) {
-        setPosts(dbPostsList);
-        localStorage.setItem('fitallest_admin_posts', JSON.stringify(dbPostsList));
-      } else {
-        const storedPosts = localStorage.getItem('fitallest_admin_posts');
-        if (storedPosts) {
-          try { 
-            const parsed = JSON.parse(storedPosts);
-            if (Array.isArray(parsed) && parsed.length > 0) setPosts(parsed);
-          } catch (e) {}
-        }
+        const mergedPosts = dbPostsList.map(p => {
+          const localView = localViewsMap[String(p.id)];
+          const finalViews = Math.max(p.views || 0, localView || 0);
+          return { ...p, views: finalViews };
+        });
+        setPosts(mergedPosts);
+        localStorage.setItem('fitallest_admin_posts', JSON.stringify(mergedPosts));
+      } else if (storedPosts) {
+        try { 
+          const parsed = JSON.parse(storedPosts);
+          if (Array.isArray(parsed) && parsed.length > 0) setPosts(parsed);
+        } catch (e) {}
       }
 
       // 4. Projects

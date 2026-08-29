@@ -149,6 +149,20 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
     const updatedPost = { ...post, views: newViews };
     setActiveArticle(updatedPost);
     setPosts(prev => prev.map(p => String(p.id) === String(post.id) ? updatedPost : p));
+
+    try {
+      const stored = localStorage.getItem('fitallest_admin_posts');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const updatedLocal = parsed.map((item: any) => 
+          String(item.id) === String(post.id) ? { ...item, views: newViews } : item
+        );
+        localStorage.setItem('fitallest_admin_posts', JSON.stringify(updatedLocal));
+      }
+    } catch (e) {}
+
+    window.dispatchEvent(new Event('fitallest_posts_updated'));
+
     try {
       await supabase.from('posts').update({ views: newViews }).eq('id', post.id);
     } catch (e) {}
