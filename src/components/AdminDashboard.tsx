@@ -2579,18 +2579,20 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="px-5 py-4">
-                              <div className="flex items-center justify-end gap-1.5">
+                              <div className="flex items-center justify-end gap-1.5 shrink-0">
                                 <button 
                                   onClick={() => handleEditCategory(cat)}
-                                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
+                                  className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0" 
+                                  title="Chỉnh sửa"
                                 >
-                                  <Edit size={15} />
+                                  <Edit size={16} />
                                 </button>
                                 <button 
                                   onClick={() => handleDeleteCategory(cat.id)}
-                                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Xóa"
+                                  className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0" 
+                                  title="Xóa"
                                 >
-                                  <Trash2 size={15} />
+                                  <Trash2 size={16} />
                                 </button>
                               </div>
                             </td>
@@ -2737,18 +2739,20 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="px-5 py-4">
-                              <div className="flex items-center justify-end gap-1.5">
+                              <div className="flex items-center justify-end gap-1.5 shrink-0">
                                 <button 
                                   onClick={() => handleEditPostCategory(cat)}
-                                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
+                                  className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0" 
+                                  title="Chỉnh sửa"
                                 >
-                                  <Edit size={15} />
+                                  <Edit size={16} />
                                 </button>
                                 <button 
                                   onClick={() => handleDeletePostCategory(cat.id)}
-                                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Xóa"
+                                  className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0" 
+                                  title="Xóa"
                                 >
-                                  <Trash2 size={15} />
+                                  <Trash2 size={16} />
                                 </button>
                               </div>
                             </td>
@@ -2789,24 +2793,24 @@ export default function AdminDashboard() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                        <th className="px-6 py-4 w-16">STT</th>
-                        <th className="px-6 py-4">Tên Dự án</th>
-                        <th className="px-6 py-4">Loại hình</th>
-                        <th className="px-6 py-4">Vị trí & Quy mô</th>
-                        <th className="px-6 py-4">Vật tư cung ứng</th>
-                        <th className="px-6 py-4 text-right sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">Hành động</th>
+                        <th className="px-5 py-3.5 w-16 text-center">STT</th>
+                        <th className="px-5 py-3.5">Tên Dự án</th>
+                        <th className="px-5 py-3.5 w-36 whitespace-nowrap">Loại hình</th>
+                        <th className="px-5 py-3.5 w-44">Vị trí & Quy mô</th>
+                        <th className="px-5 py-3.5 w-52">Vật tư cung ứng</th>
+                        <th className="px-5 py-3.5 text-right whitespace-nowrap min-w-[120px] w-32">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {adminProjects.map((proj, idx) => (
                         <tr key={proj.id || idx} className="group hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-4 font-bold text-sm text-gray-400">{idx + 1}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-5 py-3.5 font-bold text-xs text-gray-400 text-center">{idx + 1}</td>
+                          <td className="px-5 py-3.5">
                             <div className="flex items-center gap-3">
                               <img 
                                 src={proj.image || proj.image_url || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop'} 
                                 alt={proj.title} 
-                                className="w-16 h-12 rounded-lg object-cover border border-gray-100 shadow-xs shrink-0"
+                                className="w-14 h-11 rounded-lg object-cover border border-gray-100 shadow-2xs shrink-0"
                               />
                               <div>
                                 <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{proj.title}</h4>
@@ -2814,17 +2818,17 @@ export default function AdminDashboard() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="bg-red-50 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-100 whitespace-nowrap">
+                          <td className="px-5 py-3.5 w-36 whitespace-nowrap">
+                            <span className="bg-red-50 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-100 inline-block">
                               {proj.category}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-xs font-medium text-gray-600">
+                          <td className="px-5 py-3.5 text-xs font-medium text-gray-600 w-44">
                             <p className="font-bold text-gray-900">{proj.location}</p>
                             <p className="text-gray-400 mt-0.5">{proj.scale}</p>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-wrap gap-1 max-w-[250px]">
+                          <td className="px-5 py-3.5 w-52">
+                            <div className="flex flex-wrap gap-1 max-w-[220px]">
                               {(Array.isArray(proj.materials) ? proj.materials : String(proj.materials || '').split(',')).map((m: any, i: number) => (
                                 <span key={i} className="text-[10px] font-semibold bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
                                   {m.trim()}
@@ -2832,8 +2836,15 @@ export default function AdminDashboard() {
                               ))}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-gray-50/90 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">
-                            <div className="flex items-center justify-end gap-2">
+                          <td className="px-5 py-3.5 text-right whitespace-nowrap min-w-[120px]">
+                            <div className="flex items-center justify-end gap-1.5 shrink-0">
+                              <button 
+                                onClick={() => window.open(`${window.location.origin}/#projects`, '_blank')}
+                                className="p-1.5 text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
+                                title="Xem dự án trên website"
+                              >
+                                <Eye size={16} />
+                              </button>
                               <button 
                                 onClick={() => {
                                   setProjectForm({
@@ -2848,7 +2859,7 @@ export default function AdminDashboard() {
                                   });
                                   setIsProjectModalOpen(true);
                                 }}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0"
                                 title="Chỉnh sửa"
                               >
                                 <Edit size={16} />
@@ -2867,7 +2878,7 @@ export default function AdminDashboard() {
                                     showToast('Đã xóa dự án thành công.');
                                   }
                                 }}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0"
                                 title="Xóa"
                               >
                                 <Trash2 size={16} />
