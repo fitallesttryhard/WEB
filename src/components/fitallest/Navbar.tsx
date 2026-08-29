@@ -112,12 +112,11 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
             {!logoFailed ? (
-              <div className="relative group/logo px-3 py-1.5 rounded-2xl bg-gradient-to-r from-cyan-500/10 via-indigo-500/10 to-purple-500/10 border border-cyan-500/30 backdrop-blur-xl shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_35px_rgba(6,182,212,0.5)] hover:border-cyan-400/60 transition-all duration-500">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-indigo-500 to-pink-500 opacity-20 blur-md group-hover/logo:opacity-40 transition-opacity duration-500 rounded-2xl" />
+              <div className="relative group/logo px-3.5 py-1.5 rounded-2xl bg-[#050A14]/80 border border-cyan-500/30 backdrop-blur-xl transition-all duration-500 aurora-bg-gradient">
                 <img 
                   src={settings.logoUrl || '/assets/images/logo.png'} 
                   alt={companyName} 
-                  className="h-9 max-w-[200px] object-contain relative z-10 group-hover/logo:scale-105 transition-transform duration-300"
+                  className="h-9 max-w-[200px] object-contain relative z-10 aurora-logo-glow group-hover/logo:scale-105 transition-transform duration-300"
                   onError={() => setLogoFailed(true)}
                 />
                 <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 z-20">

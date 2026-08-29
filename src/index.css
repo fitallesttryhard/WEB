@@ -21,6 +21,70 @@
   }
 }
 
+/* --- AURORA BOREALIS CONTOUR GLOW FOR LOGO --- */
+@keyframes aurora-contour {
+  0% {
+    filter: 
+      drop-shadow(0 0 3px rgba(6, 182, 212, 0.9)) 
+      drop-shadow(0 0 10px rgba(16, 185, 129, 0.7)) 
+      drop-shadow(0 0 20px rgba(99, 102, 241, 0.5));
+  }
+  25% {
+    filter: 
+      drop-shadow(0 0 5px rgba(16, 185, 129, 0.95)) 
+      drop-shadow(0 0 14px rgba(6, 182, 212, 0.8)) 
+      drop-shadow(0 0 24px rgba(168, 85, 247, 0.6));
+  }
+  50% {
+    filter: 
+      drop-shadow(0 0 4px rgba(168, 85, 247, 0.95)) 
+      drop-shadow(0 0 12px rgba(236, 72, 153, 0.8)) 
+      drop-shadow(0 0 22px rgba(6, 182, 212, 0.6));
+  }
+  75% {
+    filter: 
+      drop-shadow(0 0 6px rgba(59, 130, 246, 0.9)) 
+      drop-shadow(0 0 16px rgba(16, 185, 129, 0.75)) 
+      drop-shadow(0 0 26px rgba(244, 114, 182, 0.55));
+  }
+  100% {
+    filter: 
+      drop-shadow(0 0 3px rgba(6, 182, 212, 0.9)) 
+      drop-shadow(0 0 10px rgba(16, 185, 129, 0.7)) 
+      drop-shadow(0 0 20px rgba(99, 102, 241, 0.5));
+  }
+}
+
+@keyframes aurora-wave-bg {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.aurora-logo-glow {
+  animation: aurora-contour 5s infinite ease-in-out;
+  transition: all 0.3s ease;
+}
+
+.aurora-logo-glow:hover {
+  filter: 
+    drop-shadow(0 0 8px rgba(6, 182, 212, 1)) 
+    drop-shadow(0 0 20px rgba(16, 185, 129, 0.9)) 
+    drop-shadow(0 0 35px rgba(168, 85, 247, 0.8)) !important;
+}
+
+.aurora-bg-gradient {
+  background: linear-gradient(120deg, rgba(6,182,212,0.15), rgba(16,185,129,0.15), rgba(168,85,247,0.15), rgba(236,72,153,0.15));
+  background-size: 300% 300%;
+  animation: aurora-wave-bg 6s ease infinite;
+}
+
 /* Dynamic Theme Helpers */
 .text-primary-theme {
   color: var(--brand-color, #dc2626);
