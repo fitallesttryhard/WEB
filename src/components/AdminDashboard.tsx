@@ -2046,8 +2046,8 @@ export default function AdminDashboard() {
                 <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                        <th className="px-6 py-4 w-12">
+                      <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] uppercase tracking-wider font-bold text-gray-500">
+                        <th className="px-2 py-3 w-10 text-center">
                           <input 
                             type="checkbox" 
                             checked={products.length > 0 && selectedProducts.length === products.length}
@@ -2055,19 +2055,19 @@ export default function AdminDashboard() {
                             className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                           />
                         </th>
-                        <th className="px-6 py-4 w-16">STT</th>
-                        <th className="px-6 py-4">Sản phẩm</th>
-                        <th className="px-6 py-4">Danh mục</th>
-                        <th className="px-6 py-4 text-center">Trạng thái</th>
-                        <th className="px-6 py-4 text-right">Hành động</th>
+                        <th className="px-2 py-3 w-10 text-center">STT</th>
+                        <th className="px-3 py-3">Sản phẩm</th>
+                        <th className="px-2 py-3 w-36 text-center whitespace-nowrap">Danh mục</th>
+                        <th className="px-2 py-3 w-28 text-center whitespace-nowrap">Trạng thái</th>
+                        <th className="px-3 py-3 w-32 text-right whitespace-nowrap">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {products
                         .filter(p => (productCatFilter === 'all' || p.category === productCatFilter) && p.name.toLowerCase().includes(productSearch.toLowerCase()))
                         .map((product, index) => (
-                        <tr key={product.id} className={`transition-colors ${selectedProducts.includes(product.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
-                          <td className="px-6 py-4">
+                        <tr key={product.id} className={`group transition-colors ${selectedProducts.includes(product.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
+                          <td className="px-2 py-3 text-center">
                             <input 
                               type="checkbox" 
                               checked={selectedProducts.includes(product.id)}
@@ -2075,11 +2075,11 @@ export default function AdminDashboard() {
                               className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                             />
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-bold text-gray-400">{index + 1}</span>
+                          <td className="px-2 py-3 text-center">
+                            <span className="text-xs font-bold text-gray-400">{index + 1}</span>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-4">
+                          <td className="px-3 py-3">
+                            <div className="flex items-center gap-2.5 min-w-0">
                               <img 
                                 src={product.image} 
                                 alt={product.name} 
@@ -2386,8 +2386,8 @@ export default function AdminDashboard() {
                 <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                        <th className="px-6 py-4 w-12">
+                      <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] uppercase tracking-wider font-bold text-gray-500">
+                        <th className="px-2 py-3 w-10 text-center">
                           <input 
                             type="checkbox" 
                             checked={pages.length > 0 && selectedPages.length === pages.length}
@@ -2395,17 +2395,18 @@ export default function AdminDashboard() {
                             className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                           />
                         </th>
-                        <th className="px-6 py-4">Tiêu đề trang</th>
-                        <th className="px-6 py-4">Đường dẫn</th>
-                        <th className="px-6 py-4">Cập nhật lần cuối</th>
-                        <th className="px-6 py-4 text-center">Trạng thái</th>
-                        <th className="px-6 py-4 text-right">Hành động</th>
+                        <th className="px-2 py-3 w-10 text-center">STT</th>
+                        <th className="px-3 py-3">Tiêu đề trang</th>
+                        <th className="px-2 py-3 w-36 text-center whitespace-nowrap">Đường dẫn</th>
+                        <th className="px-2 py-3 w-36 text-center whitespace-nowrap">Cập nhật lần cuối</th>
+                        <th className="px-2 py-3 w-28 text-center whitespace-nowrap">Trạng thái</th>
+                        <th className="px-3 py-3 w-32 text-right whitespace-nowrap">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {pages.map((page, index) => (
-                        <tr key={page.id} className={`transition-colors ${selectedPages.includes(page.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
-                          <td className="px-6 py-4">
+                        <tr key={page.id} className={`group transition-colors ${selectedPages.includes(page.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
+                          <td className="px-2 py-3 text-center">
                             <input 
                               type="checkbox" 
                               checked={selectedPages.includes(page.id)}
@@ -2413,44 +2414,50 @@ export default function AdminDashboard() {
                               className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                             />
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="font-bold text-sm text-gray-900">{page.title}</span>
+                          <td className="px-2 py-3 text-center">
+                            <span className="text-xs font-bold text-gray-400">{index + 1}</span>
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-medium text-gray-500">/{page.slug}</span>
+                          <td className="px-3 py-3">
+                            <span className="font-bold text-xs text-gray-900 truncate block max-w-[200px] sm:max-w-[280px] lg:max-w-[380px]">{page.title}</span>
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-medium text-gray-500">{page.lastUpdated}</span>
+                          <td className="px-2 py-3 w-36 text-center whitespace-nowrap">
+                            <span className="text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded">/{page.slug}</span>
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td className="px-2 py-3 w-36 text-center whitespace-nowrap">
+                            <span className="text-[11px] font-medium text-gray-500">{page.lastUpdated}</span>
+                          </td>
+                          <td className="px-2 py-3 w-28 text-center whitespace-nowrap">
                             <button
                               onClick={() => handleTogglePageStatus(page.id, page.status)}
-                              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${
+                              className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider transition-colors ${
                                 page.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
                               }`}
                             >
-                              {page.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}
+                              {page.status === 'published' ? 'Xuất bản' : 'Bản nháp'}
                             </button>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center justify-end gap-2">
+                          <td className="px-3 py-3 w-32 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-1 shrink-0">
                               <button 
                                 onClick={() => window.open(`#article?id=${page.id}`, '_blank')}
-                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
+                                className="p-1.5 text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
+                                title="Xem trước"
                               >
-                                <Eye size={16} />
+                                <Eye size={15} />
                               </button>
                               <button 
                                 onClick={() => handleEditPage(page)}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
+                                className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0" 
+                                title="Chỉnh sửa"
                               >
-                                <Edit size={16} />
+                                <Edit size={15} />
                               </button>
                               <button 
                                 onClick={() => handleDeletePage(page.id)}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Xóa"
+                                className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0" 
+                                title="Xóa"
                               >
-                                <Trash2 size={16} />
+                                <Trash2 size={15} />
                               </button>
                             </div>
                           </td>
@@ -2561,8 +2568,8 @@ export default function AdminDashboard() {
                     )}
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                          <th className="px-5 py-4 w-12">
+                        <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] uppercase tracking-wider font-bold text-gray-500">
+                          <th className="px-2 py-3 w-10 text-center">
                             <input 
                               type="checkbox" 
                               checked={categories.length > 0 && selectedCategories.length === categories.length}
@@ -2570,16 +2577,17 @@ export default function AdminDashboard() {
                               className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                             />
                           </th>
-                          <th className="px-5 py-4">Tên danh mục</th>
-                          <th className="px-5 py-4">Mô tả</th>
-                          <th className="px-5 py-4 text-center">Số lượng</th>
-                          <th className="px-5 py-4 text-right">Hành động</th>
+                          <th className="px-2 py-3 w-10 text-center">STT</th>
+                          <th className="px-3 py-3">Tên danh mục</th>
+                          <th className="px-2 py-3">Mô tả</th>
+                          <th className="px-2 py-3 w-20 text-center">Số lượng</th>
+                          <th className="px-3 py-3 w-24 text-right">Hành động</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {categories.map((cat) => (
-                          <tr key={cat.id} className={`transition-colors ${selectedCategories.includes(cat.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
-                            <td className="px-5 py-4">
+                        {categories.map((cat, idx) => (
+                          <tr key={cat.id} className={`group transition-colors ${selectedCategories.includes(cat.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
+                            <td className="px-2 py-3 text-center">
                               <input 
                                 type="checkbox" 
                                 checked={selectedCategories.includes(cat.id)}
@@ -2587,17 +2595,20 @@ export default function AdminDashboard() {
                                 className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                               />
                             </td>
-                            <td className="px-5 py-4">
+                            <td className="px-2 py-3 text-center">
+                              <span className="text-xs font-bold text-gray-400">{idx + 1}</span>
+                            </td>
+                            <td className="px-3 py-3">
                               <div className="flex flex-col">
-                                <span className="font-bold text-sm text-gray-900">{cat.name}</span>
-                                <span className="text-[11px] font-medium text-gray-400 mt-0.5">{cat.slug}</span>
+                                <span className="font-bold text-xs text-gray-900">{cat.name}</span>
+                                <span className="text-[10px] font-medium text-gray-400 mt-0.5">{cat.slug}</span>
                               </div>
                             </td>
-                            <td className="px-5 py-4 max-w-[200px]">
-                              <p className="text-sm font-medium text-gray-500 line-clamp-2">{cat.description || '—'}</p>
+                            <td className="px-2 py-3 max-w-[180px]">
+                              <p className="text-xs font-medium text-gray-500 line-clamp-1">{cat.description || '—'}</p>
                             </td>
-                            <td className="px-5 py-4 text-center">
-                              <span className="inline-flex items-center justify-center px-2 py-1 rounded bg-gray-100 text-gray-600 text-xs font-bold">
+                            <td className="px-2 py-3 text-center">
+                              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded bg-gray-100 text-gray-600 text-xs font-bold">
                                 {cat.count || 0}
                               </span>
                             </td>
@@ -2721,8 +2732,8 @@ export default function AdminDashboard() {
                     )}
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                          <th className="px-5 py-4 w-12">
+                        <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] uppercase tracking-wider font-bold text-gray-500">
+                          <th className="px-2 py-3 w-10 text-center">
                             <input 
                               type="checkbox" 
                               checked={postCategories.length > 0 && selectedPostCategories.length === postCategories.length}
@@ -2730,16 +2741,17 @@ export default function AdminDashboard() {
                               className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                             />
                           </th>
-                          <th className="px-5 py-4">Tên chuyên mục</th>
-                          <th className="px-5 py-4">Mô tả</th>
-                          <th className="px-5 py-4 text-center">Số lượng</th>
-                          <th className="px-5 py-4 text-right">Hành động</th>
+                          <th className="px-2 py-3 w-10 text-center">STT</th>
+                          <th className="px-3 py-3">Tên chuyên mục</th>
+                          <th className="px-2 py-3">Mô tả</th>
+                          <th className="px-2 py-3 w-20 text-center">Số lượng</th>
+                          <th className="px-3 py-3 w-24 text-right">Hành động</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {postCategories.map((cat) => (
-                          <tr key={cat.id} className={`transition-colors ${selectedPostCategories.includes(cat.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
-                            <td className="px-5 py-4">
+                        {postCategories.map((cat, idx) => (
+                          <tr key={cat.id} className={`group transition-colors ${selectedPostCategories.includes(cat.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
+                            <td className="px-2 py-3 text-center">
                               <input 
                                 type="checkbox" 
                                 checked={selectedPostCategories.includes(cat.id)}
@@ -2747,17 +2759,20 @@ export default function AdminDashboard() {
                                 className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                               />
                             </td>
-                            <td className="px-5 py-4">
+                            <td className="px-2 py-3 text-center">
+                              <span className="text-xs font-bold text-gray-400">{idx + 1}</span>
+                            </td>
+                            <td className="px-3 py-3">
                               <div className="flex flex-col">
-                                <span className="font-bold text-sm text-gray-900">{cat.name}</span>
-                                <span className="text-[11px] font-medium text-gray-400 mt-0.5">{cat.slug}</span>
+                                <span className="font-bold text-xs text-gray-900">{cat.name}</span>
+                                <span className="text-[10px] font-medium text-gray-400 mt-0.5">{cat.slug}</span>
                               </div>
                             </td>
-                            <td className="px-5 py-4 max-w-[200px]">
-                              <p className="text-sm font-medium text-gray-500 line-clamp-2">{cat.description || '—'}</p>
+                            <td className="px-2 py-3 max-w-[180px]">
+                              <p className="text-xs font-medium text-gray-500 line-clamp-1">{cat.description || '—'}</p>
                             </td>
-                            <td className="px-5 py-4 text-center">
-                              <span className="inline-flex items-center justify-center px-2 py-1 rounded bg-gray-100 text-gray-600 text-xs font-bold">
+                            <td className="px-2 py-3 text-center">
+                              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded bg-gray-100 text-gray-600 text-xs font-bold">
                                 {cat.count || 0}
                               </span>
                             </td>
@@ -2955,86 +2970,90 @@ export default function AdminDashboard() {
                     </button>
                   </div>
 
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="bg-slate-50 border-b border-slate-100 text-xs uppercase tracking-wider font-bold text-slate-500">
-                          <th className="px-5 py-3.5 w-40 min-w-[140px] whitespace-nowrap">Khách hàng</th>
-                          <th className="px-5 py-3.5 w-36 min-w-[140px] whitespace-nowrap">Liên hệ (SĐT / Zalo)</th>
-                          <th className="px-5 py-3.5 w-44 min-w-[150px] whitespace-nowrap">Email</th>
-                          <th className="px-5 py-3.5 w-72 min-w-[260px] whitespace-nowrap">Gói / Dịch vụ đăng ký</th>
-                          <th className="px-5 py-3.5 w-52 min-w-[180px] whitespace-nowrap">Ghi chú</th>
-                          <th className="px-5 py-3.5 text-center w-44 min-w-[170px] whitespace-nowrap">Trạng thái</th>
-                          <th className="px-5 py-3.5 text-right w-28 min-w-[100px] whitespace-nowrap">Hành động</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {adminLeads.map((lead, idx) => (
-                          <tr key={lead.id || idx} className="hover:bg-slate-50/60 transition-colors">
-                            <td className="px-5 py-4 font-bold text-sm text-slate-900 w-40 min-w-[140px]">
-                              {lead.fullname || lead.customer || 'Khách hàng Ẩn danh'}
-                            </td>
-                            <td className="px-5 py-4 w-36 min-w-[140px] whitespace-nowrap">
-                              <span className="font-mono text-xs font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 shadow-2xs inline-block">
-                                {lead.phone || 'Chưa cung cấp'}
-                              </span>
-                            </td>
-                            <td className="px-5 py-4 text-xs font-medium text-slate-600 w-44 min-w-[150px] truncate max-w-[180px]">
-                              {lead.email || '—'}
-                            </td>
-                            <td className="px-5 py-4 w-72 min-w-[260px] max-w-[320px]">
-                              <div className="flex flex-wrap gap-1.5">
-                                {parseServiceString(lead.services || lead.package || lead.service).map((item: string, i: number) => (
-                                  <span 
-                                    key={i} 
-                                    className="inline-block bg-purple-50 text-purple-700 border border-purple-200/80 rounded-md px-2 py-0.5 text-[11px] font-semibold leading-relaxed shadow-2xs"
-                                  >
-                                    {item}
-                                  </span>
-                                ))}
-                              </div>
-                            </td>
-                            <td className="px-5 py-4 w-52 min-w-[180px] max-w-[240px] text-xs text-slate-500 italic">
-                              {lead.note || lead.notes || 'Không có ghi chú'}
-                            </td>
-                            <td className="px-5 py-4 text-center w-44 min-w-[170px] whitespace-nowrap">
-                              <button
-                                onClick={() => handleToggleLeadStatus(lead.id)}
-                                className={`w-38 h-8 inline-flex items-center justify-center rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-2xs shrink-0 ${
-                                  lead.status === 'completed'
-                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
-                                    : lead.status === 'contacted'
-                                    ? 'bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200'
-                                    : 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 animate-pulse'
-                                }`}
-                              >
-                                {lead.status === 'completed'
-                                  ? '✓ Đã hoàn thành'
-                                  : lead.status === 'contacted'
-                                  ? '📞 Đã liên hệ'
-                                  : '⏳ Chờ xử lý'}
-                              </button>
-                            </td>
-                            <td className="px-5 py-4 text-right w-28 min-w-[100px] whitespace-nowrap">
-                              <div className="flex items-center justify-end gap-1.5">
-                                {lead.phone && (
-                                  <button
-                                    onClick={() => copyToClipboard(lead.phone)}
-                                    className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                                    title="Copy SĐT"
-                                  >
-                                    <Copy size={15} />
-                                  </button>
-                                )}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50/80 border-b border-slate-100 text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                            <th className="px-2 py-3 w-10 text-center">STT</th>
+                            <th className="px-3 py-3 w-36 whitespace-nowrap">Khách hàng</th>
+                            <th className="px-2 py-3 w-32 whitespace-nowrap">Liên hệ (SĐT / Zalo)</th>
+                            <th className="px-3 py-3 w-40 whitespace-nowrap">Email</th>
+                            <th className="px-3 py-3 whitespace-nowrap">Gói / Dịch vụ đăng ký</th>
+                            <th className="px-2 py-3 w-44 whitespace-nowrap">Ghi chú</th>
+                            <th className="px-2 py-3 text-center w-36 whitespace-nowrap">Trạng thái</th>
+                            <th className="px-3 py-3 text-right w-24 whitespace-nowrap">Hành động</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {adminLeads.map((lead, idx) => (
+                            <tr key={lead.id || idx} className="hover:bg-slate-50/60 transition-colors">
+                              <td className="px-2 py-3 text-center">
+                                <span className="text-xs font-bold text-slate-400">{idx + 1}</span>
+                              </td>
+                              <td className="px-3 py-3 font-bold text-xs text-slate-900 w-36">
+                                {lead.fullname || lead.customer || 'Khách hàng Ẩn danh'}
+                              </td>
+                              <td className="px-2 py-3 w-32 whitespace-nowrap">
+                                <span className="font-mono text-xs font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 inline-block">
+                                  {lead.phone || 'Chưa cung cấp'}
+                                </span>
+                              </td>
+                              <td className="px-3 py-3 text-xs font-medium text-slate-600 w-40 truncate max-w-[160px]">
+                                {lead.email || '—'}
+                              </td>
+                              <td className="px-3 py-3">
+                                <div className="flex flex-wrap gap-1">
+                                  {parseServiceString(lead.services || lead.package || lead.service).map((item: string, i: number) => (
+                                    <span 
+                                      key={i} 
+                                      className="inline-block bg-purple-50 text-purple-700 border border-purple-200/80 rounded px-2 py-0.5 text-[10px] font-semibold"
+                                    >
+                                      {item}
+                                    </span>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="px-2 py-3 w-44 text-xs text-slate-500 italic truncate max-w-[180px]">
+                                {lead.note || lead.notes || 'Không có ghi chú'}
+                              </td>
+                              <td className="px-2 py-3 text-center w-36 whitespace-nowrap">
                                 <button
-                                  onClick={() => handleDeleteLead(lead.id)}
-                                  className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
-                                  title="Xóa"
+                                  onClick={() => handleToggleLeadStatus(lead.id)}
+                                  className={`w-32 h-7 inline-flex items-center justify-center rounded-full text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                                    lead.status === 'completed'
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
+                                      : lead.status === 'contacted'
+                                      ? 'bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200'
+                                      : 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 animate-pulse'
+                                  }`}
                                 >
-                                  <Trash2 size={15} />
+                                  {lead.status === 'completed'
+                                    ? '✓ Đã hoàn thành'
+                                    : lead.status === 'contacted'
+                                    ? '📞 Đã liên hệ'
+                                    : '⏳ Chờ xử lý'}
                                 </button>
-                              </div>
-                            </td>
+                              </td>
+                              <td className="px-3 py-3 text-right w-24 whitespace-nowrap">
+                                <div className="flex items-center justify-end gap-1">
+                                  {lead.phone && (
+                                    <button
+                                      onClick={() => copyToClipboard(lead.phone)}
+                                      className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors shrink-0"
+                                      title="Copy SĐT"
+                                    >
+                                      <Copy size={15} />
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleDeleteLead(lead.id)}
+                                    className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0"
+                                    title="Xóa"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
                           </tr>
                         ))}
 
