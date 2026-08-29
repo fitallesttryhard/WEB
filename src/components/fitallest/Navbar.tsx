@@ -274,26 +274,61 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
           </nav>
 
           {/* ─── RIGHT ACTIONS ─── */}
-          <div className="hidden lg:flex items-center gap-3">
-            {/* Live Availability Status */}
-            <div className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Nhận Dự Án</span>
-            </div>
+          <div className="hidden lg:flex items-center gap-2.5">
+            {/* Dynamic Header Contact Buttons */}
+            {settings.enableHotlineHeader !== false && (
+              <a 
+                href={`tel:${hotline.replace(/\s+/g, '')}`} 
+                className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-cyan-300 px-3 py-1.5 rounded-full hover:bg-white/[0.06] transition-colors"
+                title={`Hotline: ${hotline}`}
+              >
+                <Phone className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{hotline}</span>
+              </a>
+            )}
 
-            {/* Hotline button */}
-            <a 
-              href={`tel:${hotline.replace(/\s+/g, '')}`} 
-              className="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-cyan-300 px-3 py-2 rounded-full hover:bg-white/[0.06] transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5 text-cyan-400" />
-              <span>{hotline}</span>
-            </a>
+            {settings.enableZaloHeader !== false && (
+              <a 
+                href={settings.zaloUrl || `https://zalo.me/${hotline.replace(/\s+/g, '')}`} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 px-2.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
+                title="Chat Zalo Báo Giá"
+              >
+                <span className="w-4 h-4 rounded-full bg-blue-500 text-white font-black text-[9px] flex items-center justify-center shrink-0">Z</span>
+                <span>Zalo</span>
+              </a>
+            )}
+
+            {settings.enableMessengerHeader !== false && (
+              <a 
+                href={settings.messengerUrl || 'https://m.me/fitallest.tech'} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:text-indigo-300 px-2.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors"
+                title="Chat Messenger Facebook"
+              >
+                <span className="w-4 h-4 rounded-full bg-indigo-600 text-white font-black text-[9px] flex items-center justify-center shrink-0">M</span>
+                <span>Messenger</span>
+              </a>
+            )}
+
+            {settings.enableTelegramHeader === true && (
+              <a 
+                href={settings.telegramUrl || 'https://t.me/fitallest'} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs font-bold text-sky-400 hover:text-sky-300 px-2.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/20 hover:bg-sky-500/20 transition-colors"
+                title="Telegram Support"
+              >
+                <span>Telegram</span>
+              </a>
+            )}
 
             {/* CTA Button */}
             <button 
               onClick={() => navigate('quote')}
-              className="group relative px-5 py-2.5 rounded-full font-bold text-xs text-white overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+              className="group relative px-5 py-2 rounded-full font-bold text-xs text-white overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] ml-1"
               style={{ background: 'linear-gradient(135deg,#0891b2,#06b6d4,#38bdf8)' }}
             >
               <span className="relative z-10 flex items-center gap-1.5">
