@@ -1,62 +1,38 @@
 import React, { useState } from 'react';
-import { projectsData, Project } from '../data/projectsData';
 import { 
+  Sparkles, 
   Search, 
   ExternalLink, 
-  Layers, 
-  CheckCircle2, 
-  Sparkles, 
-  X,
-  ArrowRight,
-  Filter
+  X, 
+  Filter,
+  Code
 } from 'lucide-react';
+import { projectsData } from '../data/projectsData';
 
 interface ProjectsPageProps {
   setCurrentTab: (tab: string) => void;
 }
 
 export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('Tất cả');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [adminProjects, setAdminProjects] = useState<Project[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('Tất cả');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
-  const loadProjects = () => {
+  // Dynamic projects from Admin
+  const [projects] = useState<any[]>(() => {
     try {
       const stored = localStorage.getItem('fitallest_admin_projects');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const formatted: Project[] = parsed.map((p: any) => ({
-            id: p.id || Date.now(),
-            title: p.title || 'Dự án mới',
-            category: p.category || 'Website',
-            imageUrl: p.image || p.imageUrl || p.image_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
-            description: p.description || 'Sản phẩm giải pháp thiết kế website và ứng dụng di động cao cấp.',
-            link: p.link || '#'
-          }));
-          setAdminProjects(formatted);
-          return;
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch (e) {}
-    setAdminProjects([]);
-  };
+    return projectsData;
+  });
 
-  React.useEffect(() => {
-    loadProjects();
-    window.addEventListener('storage', loadProjects);
-    window.addEventListener('fitallest_projects_updated', loadProjects);
-    return () => {
-      window.removeEventListener('storage', loadProjects);
-      window.removeEventListener('fitallest_projects_updated', loadProjects);
-    };
-  }, []);
+  const categories = ['Tất cả', 'E-commerce', 'Doanh nghiệp', 'Ứng dụng Web', 'Landing Page'];
 
-  const combinedProjects = adminProjects.length > 0 ? adminProjects : projectsData;
-  const categories = ['Tất cả', ...Array.from(new Set(combinedProjects.map(p => p.category)))];
-
-  const filteredProjects = combinedProjects.filter(project => {
+  const filteredProjects = projects.filter((project) => {
     const matchesCategory = selectedCategory === 'Tất cả' || project.category === selectedCategory;
     const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           project.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -64,24 +40,29 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
   });
 
   return (
-    <div className="tech-bg min-h-screen py-16 text-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-16 text-slate-100 relative overflow-hidden">
+      
+      {/* Glow elements specific to projects page */}
+      <div className="absolute top-1/4 left-1/10 w-[500px] h-[500px] rounded-full opacity-20 pointer-events-none filter blur-[120px]"
+        style={{ background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)' }} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* HEADER */}
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 uppercase tracking-wider inline-flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-indigo-600" /> Kho Dự Án Thực Tế
+          <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider inline-flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-indigo-400" /> Kho Dự Án Thực Tế
           </span>
-          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
             Sản Phẩm Khách Hàng Đã Đưa Vào Vận Hành
           </h1>
-          <p className="text-slate-600 text-base sm:text-lg">
-            Khám phá danh sách các dự án thiết kế website & ứng dụng tiêu biểu được Fi.tallest thực hiện thành công cho các doanh nghiệp, tập đoàn lớn.
+          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Khám phá danh sách các dự án thiết kế website & ứng dụng tiêu biểu được Fitallest thực hiện thành công cho các doanh nghiệp, tập đoàn lớn.
           </p>
         </div>
 
         {/* SEARCH & FILTER BAR */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm mb-12 space-y-6">
+        <div className="bg-[#0A1020]/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] mb-12 space-y-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             
             {/* SEARCH INPUT */}
@@ -92,12 +73,12 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
                 placeholder="Tìm kiếm dự án theo tên hoặc từ khóa..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:border-indigo-600"
+                className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-slate-950/60 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
             </div>
 
-            <div className="text-xs text-slate-500 font-semibold">
-              Hiển thị <span className="text-indigo-600 font-bold">{filteredProjects.length}</span> dự án
+            <div className="text-xs text-slate-400 font-semibold">
+              Hiển thị <span className="text-indigo-400 font-bold">{filteredProjects.length}</span> dự án
             </div>
           </div>
 
@@ -107,10 +88,10 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
                   selectedCategory === cat
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-600/20'
+                    : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10'
                 }`}
               >
                 {cat}
@@ -121,20 +102,20 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
 
         {/* PROJECTS GRID */}
         {filteredProjects.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 p-8 space-y-3">
-            <Filter className="w-10 h-10 text-slate-400 mx-auto" />
-            <h3 className="text-lg font-bold text-slate-800">Không tìm thấy dự án phù hợp</h3>
-            <p className="text-slate-500 text-xs">Hãy thử thay đổi từ khóa tìm kiếm hoặc chọn danh mục khác.</p>
+          <div className="text-center py-20 bg-[#0A1020]/40 backdrop-blur-xl rounded-3xl border border-white/10 p-8 space-y-3">
+            <Filter className="w-10 h-10 text-slate-500 mx-auto" />
+            <h3 className="text-lg font-bold text-white">Không tìm thấy dự án phù hợp</h3>
+            <p className="text-slate-400 text-xs">Hãy thử thay đổi từ khóa tìm kiếm hoặc chọn danh mục khác.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProjects.map((project) => (
               <div 
                 key={project.id}
-                className="tech-card rounded-3xl overflow-hidden group flex flex-col justify-between"
+                className="bg-[#0A1020]/30 backdrop-blur-md rounded-3xl overflow-hidden border border-white/[0.08] hover:border-indigo-500/30 transition-all duration-300 group flex flex-col justify-between"
               >
                 <div>
-                  <div className="relative aspect-video overflow-hidden bg-slate-900">
+                  <div className="relative aspect-video overflow-hidden bg-slate-950">
                     <img 
                       src={project.imageUrl} 
                       alt={project.title}
@@ -143,16 +124,16 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
                         (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=60';
                       }}
                     />
-                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-md text-xs font-semibold text-indigo-300 border border-slate-700">
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-[10px] font-semibold text-indigo-300 border border-white/5">
                       {project.category}
                     </div>
                   </div>
 
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                    <h3 className="text-base font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors line-clamp-1">
                       {project.title}
                     </h3>
-                    <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-4">
+                    <p className="text-slate-450 text-[11px] leading-relaxed line-clamp-3 mb-4 text-slate-300">
                       {project.description}
                     </p>
                   </div>
@@ -161,7 +142,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
                 <div className="px-6 pb-6 flex items-center gap-3">
                   <button 
                     onClick={() => setSelectedProject(project)}
-                    className="flex-1 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs transition-colors"
+                    className="flex-1 py-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 font-bold text-xs transition-colors"
                   >
                     Xem Chi Tiết
                   </button>
@@ -170,10 +151,10 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white transition-colors"
+                    className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-white/5 text-white transition-colors"
                     title="Truy cập Live Website"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-4 h-4 text-slate-400" />
                   </a>
                 </div>
               </div>
@@ -185,17 +166,17 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
 
       {/* DETAIL MODAL */}
       {selectedProject && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0B1224] border border-white/10 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
             
             <button 
               onClick={() => setSelectedProject(null)}
-              className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+              className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/5"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-900">
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-950 border border-white/5">
               <img 
                 src={selectedProject.imageUrl} 
                 alt={selectedProject.title} 
@@ -207,19 +188,19 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
             </div>
 
             <div className="space-y-3">
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                 {selectedProject.category}
               </span>
-              <h2 className="text-2xl font-bold text-slate-900">{selectedProject.title}</h2>
-              <p className="text-slate-600 text-sm leading-relaxed">{selectedProject.description}</p>
+              <h2 className="text-2xl font-bold text-white">{selectedProject.title}</h2>
+              <p className="text-slate-300 text-sm leading-relaxed">{selectedProject.description}</p>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+            <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-4">
               <a 
                 href={selectedProject.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20"
+                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20"
               >
                 <span>Ghé Thăm Live Website</span>
                 <ExternalLink className="w-4 h-4" />
@@ -230,7 +211,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
                   setSelectedProject(null);
                   setCurrentTab('quote');
                 }}
-                className="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs"
+                className="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold text-xs"
               >
                 Tôi Muốn Thiết Kế Web Tương Tự
               </button>

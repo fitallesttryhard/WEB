@@ -43,7 +43,7 @@ const defaultPosts: PostItem[] = [
 2. Micro-Interactions: Những chuyển động vi mô tinh tế mang lại cảm giác sống động, chân thực trên từng thao tác chạm/click.
 3. Tối ưu tốc độ tải trang dưới 1 giây với kiến trúc Next.js / Vite hiện đại.
 4. Tích hợp AI thông minh hỗ trợ tư vấn và tương tác khách hàng tức thì.`,
-    author: 'Fi.tallest Tech Team',
+    author: 'Fitallest Tech Team',
     date: '28/08/2026',
     views: 2450,
     featured: true
@@ -61,7 +61,7 @@ const defaultPosts: PostItem[] = [
 - Tối ưu hóa cấu trúc liên kết nội bộ (Internal Links).
 - Chuẩn hóa Schema Rich Snippets cho sản phẩm và bài viết.
 - Tăng tốc độ phản hồi máy chủ (TTFB) với hạ tầng Cloud NVMe thế hệ mới.`,
-    author: 'Chuyên gia SEO Fi.tallest',
+    author: 'Chuyên gia SEO Fitallest',
     date: '25/08/2026',
     views: 1890,
     featured: false
@@ -74,8 +74,8 @@ const defaultPosts: PostItem[] = [
     image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1000&auto=format&fit=crop',
     excerpt: 'Tại sao tốc độ tải trang ảnh hưởng trực tiếp đến 70% quyết định mua hàng và cách nâng cấp hạ tầng lưu trữ đám mây cho doanh nghiệp.',
     content: `Khảo sát từ Google chỉ ra rằng hơn 53% người dùng sẽ rời bỏ website nếu trang tải chậm quá 3 giây.
-Hạ tầng Cloud Server tại Fi.tallest sử dụng 100% ổ cứng Enterprise NVMe U.2 mang đến hiệu năng đọc ghi vượt trội gấp 10 lần so với SSD thông thường.`,
-    author: 'Kỹ sư Hệ thống Fi.tallest',
+Hạ tầng Cloud Server tại Fitallest sử dụng 100% ổ cứng Enterprise NVMe U.2 mang đến hiệu năng đọc ghi vượt trội gấp 10 lần so với SSD thông thường.`,
+    author: 'Kỹ sư Hệ thống Fitallest',
     date: '20/08/2026',
     views: 1320,
     featured: false
@@ -87,8 +87,8 @@ Hạ tầng Cloud Server tại Fi.tallest sử dụng 100% ổ cứng Enterprise
     slug: 'ung-dung-ai-tu-dong-hoa-giao-dien',
     image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1000&auto=format&fit=crop',
     excerpt: 'Công nghệ AI Design giúp tạo mẫu trang landing page tự động, cá nhân hóa nội dung cho từng phân khúc khách hàng tiềm năng.',
-    content: `Trí tuệ nhân tạo đang tái định nghĩa cách chúng ta xây dựng phần mềm và trang web. Tại Fi.tallest, giải pháp AI Design được tích hợp sâu giúp tự động hóa việc phối màu, tối ưu tỷ lệ văn bản và đề xuất layout phù hợp với từng lĩnh vực kinh doanh.`,
-    author: 'Fi.tallest AI Lab',
+    content: `Trí tuệ nhân tạo đang tái định nghĩa cách chúng ta xây dựng phần mềm và trang web. Tại Fitallest, giải pháp AI Design được tích hợp sâu giúp tự động hóa việc phối màu, tối ưu tỷ lệ văn bản và đề xuất layout phù hợp với từng lĩnh vực kinh doanh.`,
+    author: 'Fitallest AI Lab',
     date: '18/08/2026',
     views: 2100,
     featured: false
@@ -119,7 +119,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
             image: p.image || p.image_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop',
             excerpt: p.excerpt || 'Bài viết phân tích chuyên sâu về giải pháp công nghệ và phần mềm.',
             content: p.content || p.excerpt || 'Nội dung chi tiết bài viết đang được cập nhật.',
-            author: p.author || 'Ban Biên Tập Fi.tallest',
+            author: p.author || 'Ban Biên Tập Fitallest',
             date: p.created_at || p.date || 'Vừa đăng',
             views: p.views || 100,
             featured: false
@@ -155,38 +155,43 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
   const regularPosts = filteredPosts.filter(p => p.id !== featuredPost?.id);
 
   return (
-    <div className="tech-bg min-h-screen py-16 text-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-16 text-slate-100 relative overflow-hidden">
+      
+      {/* Glow elements specific to blog page */}
+      <div className="absolute top-1/4 left-1/10 w-[500px] h-[500px] rounded-full opacity-20 pointer-events-none filter blur-[120px]"
+        style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)' }} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* HEADER SECTION */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-bold uppercase tracking-wider animate-pulse">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-wider">
             <BookOpen size={14} />
             <span>Trung Tâm Kiến Thức & Tin Tức Công Nghệ</span>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">
             Bài Viết, Xu Hướng & <br />
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Cẩm Nang Chuyển Đổi Số
             </span>
           </h1>
 
-          <p className="text-base text-slate-600 font-medium">
+          <p className="text-sm sm:text-base text-slate-350 leading-relaxed text-slate-300">
             Tổng hợp các bài viết chuyên sâu về thiết kế UX/UI, giải pháp SEO Top 1 Google, kiến trúc Cloud và ứng dụng AI tự động hóa cho doanh nghiệp.
           </p>
         </div>
 
         {/* SEARCH & CATEGORY BAR */}
-        <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 shadow-lg shadow-slate-100 mb-12 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="bg-[#0A1020]/40 backdrop-blur-xl p-4 rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] mb-12 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-3 text-slate-400" size={18} />
+            <Search className="absolute left-3.5 top-3 text-slate-500" size={18} />
             <input 
               type="text"
               placeholder="Tìm kiếm bài viết, chủ đề..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-950/60 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
@@ -195,10 +200,10 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-500/20'
+                    : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10'
                 }`}
               >
                 {cat}
@@ -209,7 +214,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
 
         {/* FEATURED POST BANNER */}
         {featuredPost && (
-          <div className="mb-16 bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden group hover:border-indigo-300 transition-all duration-300">
+          <div className="mb-16 bg-[#0A1020]/30 backdrop-blur-xl rounded-3xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden group hover:border-indigo-500/30 transition-all duration-300">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
               <div className="lg:col-span-7 h-72 lg:h-auto overflow-hidden relative">
                 <img 
@@ -227,7 +232,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
               <div className="lg:col-span-5 p-8 lg:p-10 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
-                    <span className="text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100">
+                    <span className="text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">
                       {featuredPost.category}
                     </span>
                     <span>•</span>
@@ -238,27 +243,27 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
 
                   <h2 
                     onClick={() => setActiveArticle(featuredPost)}
-                    className="text-2xl lg:text-3xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors cursor-pointer leading-snug"
+                    className="text-2xl lg:text-3xl font-black text-white group-hover:text-indigo-400 transition-colors cursor-pointer leading-snug"
                   >
                     {featuredPost.title}
                   </h2>
 
-                  <p className="text-slate-600 text-sm font-medium leading-relaxed line-clamp-3">
+                  <p className="text-slate-300 text-xs sm:text-sm leading-relaxed line-clamp-3">
                     {featuredPost.excerpt}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black">
+                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                    <div className="w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-black">
                       <User size={15} />
                     </div>
-                    <span>{featuredPost.author || 'Fi.tallest'}</span>
+                    <span>{featuredPost.author || 'Fitallest'}</span>
                   </div>
 
                   <button 
                     onClick={() => setActiveArticle(featuredPost)}
-                    className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600 hover:text-indigo-800 transition"
+                    className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-400 hover:text-indigo-300 transition cursor-pointer"
                   >
                     <span>Đọc toàn bộ bài viết</span>
                     <ArrowRight size={15} />
@@ -275,22 +280,22 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
             <article 
               key={post.id}
               onClick={() => setActiveArticle(post)}
-              className="bg-white rounded-2xl border border-slate-200/80 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group cursor-pointer hover:-translate-y-1"
+              className="bg-[#0A1020]/30 backdrop-blur-md rounded-2xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:border-indigo-500/30 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group cursor-pointer hover:-translate-y-1"
             >
-              <div className="relative aspect-video overflow-hidden bg-slate-100">
+              <div className="relative aspect-video overflow-hidden bg-slate-950 border-b border-white/5">
                 <img 
                   src={post.image} 
                   alt={post.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-slate-800 shadow-sm">
+                <div className="absolute top-3 left-3 bg-slate-950/90 backdrop-blur-sm border border-white/5 px-2.5 py-1 rounded-lg text-[10px] font-extrabold text-indigo-300 shadow-sm">
                   {post.category}
                 </div>
               </div>
 
               <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+                  <div className="flex items-center gap-2 text-[11px] font-medium text-slate-400">
                     <Calendar size={13} />
                     <span>{post.date}</span>
                     <span>•</span>
@@ -299,18 +304,18 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug line-clamp-2">
+                  <h3 className="font-bold text-base text-white group-hover:text-indigo-400 transition-colors leading-snug line-clamp-2">
                     {post.title}
                   </h3>
 
-                  <p className="text-slate-500 text-xs font-medium leading-relaxed line-clamp-2">
+                  <p className="text-slate-300 text-[11px] leading-relaxed line-clamp-2">
                     {post.excerpt}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-600">{post.author || 'Fi.tallest'}</span>
-                  <span className="font-bold text-indigo-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-400">{post.author || 'Fitallest'}</span>
+                  <span className="font-bold text-indigo-450 text-indigo-400 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                     Chi tiết <ChevronRight size={14} />
                   </span>
                 </div>
@@ -320,13 +325,13 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
         </div>
 
         {filteredPosts.length === 0 && (
-          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-xl mx-auto space-y-4 shadow-sm">
-            <BookOpen size={48} className="mx-auto text-slate-300" />
-            <h3 className="text-lg font-bold text-slate-800">Không tìm thấy bài viết phù hợp</h3>
-            <p className="text-sm text-slate-500 font-medium">Thử tìm kiếm với từ khóa khác hoặc chuyển sang chuyên mục khác.</p>
+          <div className="bg-[#0A1020]/40 backdrop-blur-xl rounded-3xl p-12 text-center border border-white/10 max-w-xl mx-auto space-y-4 shadow-sm">
+            <BookOpen size={48} className="mx-auto text-slate-500" />
+            <h3 className="text-lg font-bold text-white">Không tìm thấy bài viết phù hợp</h3>
+            <p className="text-xs text-slate-400">Thử tìm kiếm với từ khóa khác hoặc chuyển sang chuyên mục khác.</p>
             <button 
               onClick={() => { setSelectedCategory('Tất cả'); setSearchQuery(''); }}
-              className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition"
+              className="px-4 py-2 rounded-xl bg-indigo-600 border border-indigo-500 text-white text-xs font-bold hover:bg-indigo-500 transition cursor-pointer"
             >
               Xem tất cả bài viết
             </button>
@@ -337,43 +342,43 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
 
       {/* ARTICLE FULL MODAL */}
       {activeArticle && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6 sm:p-10 relative">
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-[#0B1224] border border-white/10 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-10 relative">
             <button 
               onClick={() => setActiveArticle(null)}
-              className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer"
+              className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-350 transition cursor-pointer border border-white/5"
             >
               <X size={20} />
             </button>
 
             <div className="space-y-6">
-              <div className="flex items-center gap-3 text-xs font-bold text-indigo-600">
-                <span className="bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+              <div className="flex items-center gap-3 text-xs font-bold text-indigo-400">
+                <span className="bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
                   {activeArticle.category}
                 </span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-500">{activeArticle.date}</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-400">{activeArticle.date}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                 {activeArticle.title}
               </h2>
 
-              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-100">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-950 border border-white/5">
                 <img src={activeArticle.image} alt={activeArticle.title} className="w-full h-full object-cover" />
               </div>
 
-              <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed font-medium space-y-4 whitespace-pre-line text-sm sm:text-base">
+              <div className="prose prose-invert max-w-none text-slate-300 leading-relaxed font-medium space-y-4 whitespace-pre-line text-sm sm:text-base">
                 {activeArticle.content || activeArticle.excerpt}
               </div>
 
-              <div className="pt-6 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
+              <div className="pt-6 border-t border-white/5 flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold">
                     <User size={18} />
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-slate-900">{activeArticle.author || 'Fi.tallest'}</div>
+                    <div className="text-sm font-bold text-white">{activeArticle.author || 'Fitallest'}</div>
                     <div className="text-xs text-slate-400 font-medium">Tác giả bài viết</div>
                   </div>
                 </div>
@@ -386,7 +391,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
                         alert('Đã sao chép liên kết bài viết!');
                       }
                     }}
-                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-2 transition"
+                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/5 font-bold text-xs flex items-center gap-2 transition"
                   >
                     <Share2 size={14} /> Chia sẻ
                   </button>
@@ -395,7 +400,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
                       setActiveArticle(null);
                       setCurrentTab('quote');
                     }}
-                    className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20"
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20"
                   >
                     Tư vấn giải pháp
                   </button>
