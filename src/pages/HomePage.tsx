@@ -618,10 +618,13 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                 <div className="p-6">
                   <h3 className="font-bold text-white text-base mb-2 group-hover:text-cyan-400 transition-colors line-clamp-1">{project.title}</h3>
                   <p className="text-slate-400 text-xs leading-relaxed line-clamp-2 mb-5">{project.description}</p>
-                  <a href={project.link || '#'} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-                    className="w-full py-2.5 rounded-xl bg-white/[0.05] hover:bg-cyan-500/20 border border-white/[0.08] hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2">
-                    Xem Live Website <ArrowRight className="w-3.5 h-3.5" />
-                  </a>
+                  <button 
+                    onClick={() => setCurrentTab('projects')}
+                    className="w-full py-2.5 rounded-xl bg-white/[0.05] hover:bg-cyan-500/20 border border-white/[0.08] hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Xem Chi Tiết Dự Án</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             )) : [

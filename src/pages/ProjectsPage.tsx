@@ -147,15 +147,6 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
                     Xem Chi Tiết
                   </button>
 
-                  <a 
-                    href={project.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-white/5 text-white transition-colors"
-                    title="Truy cập Live Website"
-                  >
-                    <ExternalLink className="w-4 h-4 text-slate-400" />
-                  </a>
                 </div>
               </div>
             ))}
@@ -195,25 +186,15 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
               <p className="text-slate-300 text-sm leading-relaxed">{selectedProject.description}</p>
             </div>
 
-            <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-4">
-              <a 
-                href={selectedProject.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20"
-              >
-                <span>Ghé Thăm Live Website</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-
+            <div className="pt-4 border-t border-white/5 flex items-center justify-center">
               <button 
                 onClick={() => {
                   setSelectedProject(null);
                   setCurrentTab('quote');
                 }}
-                className="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-bold text-xs"
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-cyan-600 to-indigo-600 hover:opacity-90 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer"
               >
-                Tôi Muốn Thiết Kế Web Tương Tự
+                <span>Nhận Tư Vấn & Báo Giá Thiết Kế Web Tương Tự</span>
               </button>
             </div>
 
