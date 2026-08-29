@@ -1130,22 +1130,34 @@ export default function AdminDashboard() {
     else setSelectedPosts([...selectedPosts, id]);
   };
 
-  const handleBulkDeletePosts = () => {
+  const handleBulkDeletePosts = async () => {
     if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedPosts.length} bài viết?`)) return;
-    const nextPosts = posts.filter(p => !selectedPosts.includes(p.id));
+    const toDeleteIds = [...selectedPosts];
+    const nextPosts = posts.filter(p => !toDeleteIds.includes(p.id));
     setPosts(nextPosts);
     try {
       localStorage.setItem('fitallest_admin_posts', JSON.stringify(nextPosts));
       window.dispatchEvent(new Event('fitallest_posts_updated'));
     } catch (e) {}
     setSelectedPosts([]);
-    showToast(`Đã xóa ${selectedPosts.length} bài viết thành công!`);
+    showToast(`Đã xóa ${toDeleteIds.length} bài viết thành công!`);
+    try {
+      await supabase.from('posts').delete().in('id', toDeleteIds);
+    } catch (err) {
+      console.warn('Lỗi bulk delete posts:', err);
+    }
   };
 
-  const handleBulkDraftPosts = () => {
-    setPosts(posts.map(p => selectedPosts.includes(p.id) ? { ...p, status: 'draft' } : p));
+  const handleBulkDraftPosts = async () => {
+    const toDraftIds = [...selectedPosts];
+    setPosts(posts.map(p => toDraftIds.includes(p.id) ? { ...p, status: 'draft' } : p));
     setSelectedPosts([]);
-    showToast(`Đã chuyển ${selectedPosts.length} bài viết về bản nháp!`);
+    showToast(`Đã chuyển ${toDraftIds.length} bài viết về bản nháp!`);
+    try {
+      await supabase.from('posts').update({ is_published: false }).in('id', toDraftIds);
+    } catch (err) {
+      console.warn('Lỗi bulk draft posts:', err);
+    }
   };
 
   // PAGES HANDLERS
