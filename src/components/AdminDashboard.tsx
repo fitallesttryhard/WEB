@@ -3437,76 +3437,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* ─── CẤU HÌNH & XEM TRƯỚC HEADER (LIVE HEADER PREVIEW) ─── */}
-                  <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-6">
-                    <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                          <LayoutDashboard size={20} className="text-indigo-600" />
-                          <span>Xem Trước Header Trên Website (Live Header Preview)</span>
-                        </h3>
-                        <p className="text-xs text-gray-500 font-medium mt-1">Bản xem trước trực quan thanh Menu Header dựa trên nút tích vị trí Header đã chọn.</p>
-                      </div>
-                      <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Live Header</span>
-                    </div>
 
-                    {/* LIVE HEADER CONTAINER */}
-                    <div className="bg-[#050A14] p-4 sm:p-6 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden text-slate-100">
-                      <div className="flex items-center justify-between gap-4">
-                        {/* Logo / Brand Name */}
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-white font-black text-xs shadow-md">
-                            F
-                          </div>
-                          <span className="font-black text-sm text-white tracking-tight">
-                            {settingsForm.companyName || 'Fi.tallest'}
-                          </span>
-                        </div>
-
-                        {/* Menu Nav Links Mock */}
-                        <div className="hidden sm:flex items-center gap-3 text-xs font-semibold text-slate-300">
-                          <span className="text-white bg-cyan-500/20 px-3 py-1 rounded-full border border-cyan-500/40">Trang Chủ</span>
-                          <span className="hover:text-white">Dịch Vụ</span>
-                          <span className="hover:text-white">Dự Án Mẫu</span>
-                          <span className="hover:text-white">Tin Tức</span>
-                        </div>
-
-                        {/* Header Contact Buttons (Based on Admin Checkboxes) */}
-                        <div className="flex items-center gap-2">
-                          {settingsForm.enableHotlineHeader !== false && (
-                            <span className="text-[11px] font-bold text-slate-200 bg-white/10 px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
-                              📞 {settingsForm.hotline || '0909 876 817'}
-                            </span>
-                          )}
-
-                          {settingsForm.enableZaloHeader !== false && (
-                            <span className="text-[11px] font-bold text-blue-400 bg-blue-500/20 px-2.5 py-1 rounded-full border border-blue-500/30 flex items-center gap-1">
-                              Zalo
-                            </span>
-                          )}
-
-                          {settingsForm.enableMessengerHeader !== false && (
-                            <span className="text-[11px] font-bold text-indigo-400 bg-indigo-500/20 px-2.5 py-1 rounded-full border border-indigo-500/30 flex items-center gap-1">
-                              Messenger
-                            </span>
-                          )}
-
-                          {settingsForm.enableTelegramHeader === true && (
-                            <span className="text-[11px] font-bold text-sky-400 bg-sky-500/20 px-2.5 py-1 rounded-full border border-sky-500/30 flex items-center gap-1">
-                              Telegram
-                            </span>
-                          )}
-
-                          <span 
-                            className="text-[11px] font-black text-white px-3 py-1 rounded-full shadow-md shrink-0"
-                            style={{ backgroundColor: settingsForm.brandColor || '#dc2626' }}
-                          >
-                            Báo Giá Ngay
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* ─── CẤU HÌNH & XEM TRƯỚC FOOTER (LIVE FOOTER PREVIEW) ─── */}
                   <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-8">
