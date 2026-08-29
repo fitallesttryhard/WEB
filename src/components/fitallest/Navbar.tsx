@@ -120,10 +120,6 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
                     className="h-9 max-w-[200px] object-contain relative z-10"
                     onError={() => setLogoFailed(true)}
                   />
-                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 z-20">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
-                  </span>
                 </div>
               </div>
             ) : (

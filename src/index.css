@@ -82,7 +82,8 @@
   overflow: hidden;
   border-radius: 1rem;
   padding: 1.5px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
 }
 
 .logo-border-beam-box::before {
@@ -95,14 +96,16 @@
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    transparent 260deg,
-    #06b6d4 290deg,
-    #3b82f6 320deg,
-    #a855f7 345deg,
-    #ec4899 355deg,
+    transparent 100deg,
+    rgba(6, 182, 212, 0.3) 140deg,
+    #06b6d4 180deg,
+    #38bdf8 230deg,
+    #818cf8 280deg,
+    #c084fc 330deg,
+    #f472b6 350deg,
     transparent 360deg
   );
-  animation: border-beam-spin 3.5s linear infinite;
+  animation: border-beam-spin 4.5s linear infinite;
   z-index: 1;
 }
 
