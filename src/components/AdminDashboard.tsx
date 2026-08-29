@@ -2192,7 +2192,7 @@ export default function AdminDashboard() {
                         <th className="px-6 py-4">Chuyên mục</th>
                         <th className="px-6 py-4 text-center">Trạng thái</th>
                         <th className="px-6 py-4 text-right">Lượt xem</th>
-                        <th className="px-6 py-4 text-right sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">Hành động</th>
+                        <th className="px-6 py-4 text-right sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)] whitespace-nowrap min-w-[210px] w-[210px]">Hành động</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -2245,11 +2245,12 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 text-right">
                             <span className="text-sm font-bold text-gray-500">{post.views?.toLocaleString() || 0}</span>
                           </td>
-                          <td className="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-gray-50/90 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)]">
-                            <div className="flex items-center justify-end gap-2">
+                          <td className="px-6 py-4 text-right sticky right-0 bg-white group-hover:bg-gray-50/90 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.03)] whitespace-nowrap min-w-[210px] w-[210px]">
+                            <div className="flex items-center justify-end gap-1.5 shrink-0">
                               <button 
                                 onClick={() => window.open(`#article?id=${post.id}`, '_blank')}
-                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
+                                className="p-2 text-emerald-600 hover:text-emerald-800 bg-emerald-50/80 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
+                                title="Xem trước bài viết"
                               >
                                 <Eye size={16} />
                               </button>
@@ -2263,22 +2264,23 @@ export default function AdminDashboard() {
                                   window.open(gscInspectionUrl, '_blank');
                                   showToast('🚀 Đã sao chép URL bài viết! Hãy dán vào ô kiểm tra trên Google Search Console vừa mở và bấm "Yêu cầu lập chỉ mục"!');
                                 }}
-                                className="p-1.5 px-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold border border-indigo-100"
+                                className="p-1.5 px-2 text-indigo-600 hover:text-indigo-800 bg-indigo-50/80 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold border border-indigo-200 shrink-0"
                                 title="Khai báo Index Google Siêu Tốc (1-Click)"
                               >
                                 <Globe size={14} />
-                                <span className="hidden xl:inline">Index Google</span>
+                                <span className="hidden xl:inline whitespace-nowrap">Index Google</span>
                               </button>
                               <button 
                                 onClick={() => handleEditPost(post)}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
+                                className="p-2 text-blue-600 hover:text-blue-800 bg-blue-50/80 hover:bg-blue-100 rounded-lg transition-colors shrink-0" 
+                                title="Chỉnh sửa bài viết"
                               >
                                 <Edit size={16} />
                               </button>
                               <button 
                                 onClick={() => handleDeletePost(post.id)}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Xóa"
+                                className="p-2 text-red-600 hover:text-red-800 bg-red-50/80 hover:bg-red-100 rounded-lg transition-colors shrink-0"
+                                title="Xóa bài viết"
                               >
                                 <Trash2 size={16} />
                               </button>
