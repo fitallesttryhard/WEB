@@ -112,17 +112,19 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
             {!logoFailed ? (
-              <div className="relative group/logo px-3.5 py-1.5 rounded-2xl bg-[#050A14]/80 border border-cyan-500/30 backdrop-blur-xl transition-all duration-500 aurora-bg-gradient">
-                <img 
-                  src={settings.logoUrl || '/assets/images/logo.png'} 
-                  alt={companyName} 
-                  className="h-9 max-w-[200px] object-contain relative z-10 aurora-logo-glow group-hover/logo:scale-105 transition-transform duration-300"
-                  onError={() => setLogoFailed(true)}
-                />
-                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 z-20">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
-                </span>
+              <div className="logo-border-beam-box group/logo cursor-pointer transition-transform duration-300 hover:scale-[1.03]">
+                <div className="logo-border-beam-inner">
+                  <img 
+                    src={settings.logoUrl || '/assets/images/logo.png'} 
+                    alt={companyName} 
+                    className="h-9 max-w-[200px] object-contain relative z-10"
+                    onError={() => setLogoFailed(true)}
+                  />
+                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 z-20">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
+                  </span>
+                </div>
               </div>
             ) : (
               <>

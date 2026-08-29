@@ -67,22 +67,54 @@
   }
 }
 
-.aurora-logo-glow {
-  animation: aurora-contour 5s infinite ease-in-out;
-  transition: all 0.3s ease;
+/* --- CRISP LASER BORDER BEAM FOR LOGO --- */
+@keyframes border-beam-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.aurora-logo-glow:hover {
-  filter: 
-    drop-shadow(0 0 8px rgba(6, 182, 212, 1)) 
-    drop-shadow(0 0 20px rgba(16, 185, 129, 0.9)) 
-    drop-shadow(0 0 35px rgba(168, 85, 247, 0.8)) !important;
+.logo-border-beam-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 1.5px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.aurora-bg-gradient {
-  background: linear-gradient(120deg, rgba(6,182,212,0.15), rgba(16,185,129,0.15), rgba(168,85,247,0.15), rgba(236,72,153,0.15));
-  background-size: 300% 300%;
-  animation: aurora-wave-bg 6s ease infinite;
+.logo-border-beam-box::before {
+  content: '';
+  position: absolute;
+  top: -75%;
+  left: -75%;
+  width: 250%;
+  height: 250%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 260deg,
+    #06b6d4 290deg,
+    #3b82f6 320deg,
+    #a855f7 345deg,
+    #ec4899 355deg,
+    transparent 360deg
+  );
+  animation: border-beam-spin 3.5s linear infinite;
+  z-index: 1;
+}
+
+.logo-border-beam-inner {
+  position: relative;
+  z-index: 2;
+  background: #050a14;
+  border-radius: calc(1rem - 1.5px);
+  padding: 0.35rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Dynamic Theme Helpers */
