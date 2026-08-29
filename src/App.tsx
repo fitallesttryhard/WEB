@@ -39,6 +39,20 @@ function AdminArea() {
   return <AdminDashboard />;
 }
 
+function recordPageVisit(tabName: string) {
+  if (['admin', 'super-admin'].includes(tabName)) return;
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const raw = localStorage.getItem('fitallest_daily_analytics');
+    const analytics = raw ? JSON.parse(raw) : {};
+    analytics[today] = (analytics[today] || 0) + 1;
+    localStorage.setItem('fitallest_daily_analytics', JSON.stringify(analytics));
+    window.dispatchEvent(new Event('fitallest_analytics_updated'));
+  } catch (e) {
+    console.warn('Analytics record error:', e);
+  }
+}
+
 export default function App() {
   useEffect(() => {
     // Auto-clear old cached SBUILD keys from browser localStorage
@@ -74,6 +88,7 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    recordPageVisit(currentTab);
   }, [currentTab]);
 
   const changeTab = (tab: string) => {
