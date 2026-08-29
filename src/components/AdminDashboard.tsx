@@ -1814,30 +1814,58 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-8 flex-shrink-0 z-10 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
-          {/* Hamburger Menu (Mobile) */}
-          <button 
-            className="lg:hidden p-2 -ml-2 text-gray-500 hover:text-red-600 transition-colors"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            <Menu size={24} />
-          </button>
+        <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-8 flex-shrink-0 z-10 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+          {/* Left: Mobile Menu & Breadcrumb */}
+          <div className="flex items-center gap-3">
+            <button 
+              className="lg:hidden p-2 -ml-2 text-gray-500 hover:text-red-600 transition-colors"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={22} />
+            </button>
+            <div className="hidden md:flex items-center gap-2 text-xs font-medium text-gray-400">
+              <span className="text-gray-900 font-bold">Admin Portal</span>
+              <span>/</span>
+              <span className="text-gray-600 font-bold">
+                {activeMenu === 'dashboard' ? 'Tổng quan' :
+                 activeMenu === 'products' ? 'Sản phẩm & Dịch vụ' :
+                 activeMenu === 'posts' ? 'Bài viết công nghệ' :
+                 activeMenu === 'projects' ? 'Dự án thi công' :
+                 activeMenu === 'pages' ? 'Trang tĩnh' :
+                 activeMenu === 'categories' ? 'Danh mục sản phẩm' :
+                 activeMenu === 'post_categories' ? 'Chuyên mục bài viết' :
+                 activeMenu === 'orders' ? 'Khách hàng & Báo giá' :
+                 activeMenu === 'banners' ? 'Banner & Slider' : 'Giao diện & Cài đặt'}
+              </span>
+            </div>
+          </div>
           
-          <div className="flex items-center gap-2 lg:gap-4 ml-auto">
+          {/* Right: Actions & Admin Profile */}
+          <div className="flex items-center gap-3 ml-auto">
+            {/* Status indicator */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-[11px] font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Hệ thống trực tuyến</span>
+            </div>
+
+            {/* View Live Website Link */}
             <a 
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 lg:gap-2 text-sm font-bold text-gray-600 hover:text-red-600 transition-colors px-2 lg:px-4 py-2 rounded-lg hover:bg-red-50"
+              className="flex items-center gap-1.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-red-50 hover:text-red-600 transition-all px-3 py-1.5 rounded-xl border border-gray-200/80 active:scale-95 cursor-pointer"
             >
-              <ExternalLink size={16} />
+              <ExternalLink size={14} />
               <span className="hidden sm:inline">Xem Website thực tế</span>
             </a>
-            <div className="w-px h-6 bg-gray-200"></div>
-            <button className="flex items-center gap-1.5 lg:gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors px-2 lg:px-4 py-2">
-              <LogOut size={16} />
-              <span className="hidden sm:inline">Đăng xuất</span>
-            </button>
+
+            {/* Admin User Profile */}
+            <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
+              <div className="w-8 h-8 rounded-full bg-red-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                A
+              </div>
+              <span className="hidden md:inline text-xs font-bold text-gray-800">Ban Quản Trị</span>
+            </div>
           </div>
         </header>
 
