@@ -3572,6 +3572,7 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Cơ bản */}
+                    {/* Thông tin Doanh nghiệp */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2">
                         <label className="block text-sm font-bold text-gray-700 mb-1.5">Tên công ty</label>
@@ -3585,18 +3586,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Hotline</label>
-                        <input 
-                          type="text" 
-                          value={settingsForm.hotline}
-                          onChange={(e) => setSettingsForm({...settingsForm, hotline: e.target.value})}
-                          placeholder="1900 xxxx"
-                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
-                        />
-                      </div>
-
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Địa chỉ</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Địa chỉ trụ sở</label>
                         <input 
                           type="text" 
                           value={settingsForm.address}
@@ -3607,7 +3597,7 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Email liên hệ</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Email liên hệ chính</label>
                         <input 
                           type="email" 
                           value={settingsForm.email || ''}
@@ -3645,7 +3635,7 @@ export default function AdminDashboard() {
 
                     <hr className="border-gray-100" />
 
-                    {/* Quản lý Bộ Nút Liên Hệ & MXH Trượt Màn Hình */}
+                    {/* Quản lý Kênh Liên Hệ & Mạng Xã Hội Hợp Nhất */}
                     <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
                       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                         <div className="flex items-center gap-3">
@@ -3653,14 +3643,14 @@ export default function AdminDashboard() {
                             <PhoneCall size={20} />
                           </div>
                           <div>
-                            <h3 className="text-lg font-bold text-slate-900">Nút Liên Hệ & Mạng Xã Hội Trượt Màn Hình (Floating Widgets)</h3>
-                            <p className="text-xs text-slate-500 font-medium">Bật/Tắt và điền thông tin đường dẫn các nút trượt bên góc màn hình (Hotline, Zalo, Messenger, Telegram...)</p>
+                            <h3 className="text-lg font-bold text-slate-900">Quản Lý Kênh Liên Hệ & Mạng Xã Hội Hợp Nhất</h3>
+                            <p className="text-xs text-slate-500 font-medium">Nhập thông tin 1 lần duy nhất và linh hoạt chọn vị trí hiển thị (Header, Nút trượt cạnh bên, Footer)</p>
                           </div>
                         </div>
 
                         {/* Master Switch */}
                         <label className="flex items-center gap-2.5 cursor-pointer select-none bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-xs">
-                          <span className="text-xs font-bold text-slate-700">Hiển thị nút nổi</span>
+                          <span className="text-xs font-bold text-slate-700">Hiển thị nút trượt nổi</span>
                           <input 
                             type="checkbox"
                             checked={settingsForm.enableFloatingWidgets !== false}
@@ -3670,101 +3660,195 @@ export default function AdminDashboard() {
                         </label>
                       </div>
 
-                      {settingsForm.enableFloatingWidgets !== false && (
-                        <div className="space-y-4 pt-2">
-                          {/* Nút Hotline */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                            <div className="flex items-center gap-3">
-                              <input 
-                                type="checkbox"
-                                checked={settingsForm.enableHotlineWidget !== false}
-                                onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineWidget: e.target.checked })}
-                                className="w-4 h-4 accent-indigo-600 cursor-pointer"
-                              />
-                              <div>
-                                <span className="text-sm font-bold text-slate-800 block">Nút Gọi Hotline Nhanh</span>
-                                <span className="text-[11px] text-slate-400">Nút gọi trực tiếp tới số Hotline</span>
-                              </div>
+                      <div className="space-y-5 pt-2">
+                        {/* Nút Hotline */}
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                              <span className="text-sm font-bold text-slate-900">Hotline / Số điện thoại</span>
                             </div>
                             <input 
                               type="text"
                               value={settingsForm.hotline || ''}
                               onChange={(e) => setSettingsForm({ ...settingsForm, hotline: e.target.value })}
-                              placeholder="Số hotline (ví dụ: 0909 876 817)"
-                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                              placeholder="Ví dụ: 0909 876 817"
+                              className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
                             />
                           </div>
-
-                          {/* Nút Zalo */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                            <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                            <span className="text-slate-400">Vị trí hiển thị:</span>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
                               <input 
                                 type="checkbox"
-                                checked={settingsForm.enableZaloWidget !== false}
-                                onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloWidget: e.target.checked })}
-                                className="w-4 h-4 accent-blue-600 cursor-pointer"
+                                checked={settingsForm.enableHotlineHeader !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineHeader: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-indigo-600"
                               />
-                              <div>
-                                <span className="text-sm font-bold text-slate-800 block">Nút Chat Zalo</span>
-                                <span className="text-[11px] text-slate-400">Nút nhấp chat Zalo báo giá</span>
-                              </div>
+                              <span>Header (Thanh trên)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableHotlineWidget !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineWidget: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-indigo-600"
+                              />
+                              <span>Cạnh bên (Nút trượt)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableHotlineFooter !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableHotlineFooter: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-indigo-600"
+                              />
+                              <span>Footer (Chân trang)</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Nút Zalo */}
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                              <span className="text-sm font-bold text-slate-900">Kênh Zalo Chat & Báo Giá</span>
                             </div>
                             <input 
                               type="text"
                               value={settingsForm.zaloUrl || ''}
                               onChange={(e) => setSettingsForm({ ...settingsForm, zaloUrl: e.target.value })}
                               placeholder="Link Zalo (ví dụ: https://zalo.me/0909876817)"
-                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                              className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
                             />
                           </div>
-
-                          {/* Nút Messenger */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                            <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                            <span className="text-slate-400">Vị trí hiển thị:</span>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
                               <input 
                                 type="checkbox"
-                                checked={settingsForm.enableMessengerWidget !== false}
-                                onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerWidget: e.target.checked })}
-                                className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                                checked={settingsForm.enableZaloHeader !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloHeader: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-blue-600"
                               />
-                              <div>
-                                <span className="text-sm font-bold text-slate-800 block">Nút Chat Messenger (Facebook)</span>
-                                <span className="text-[11px] text-slate-400">Nút chat Fanpage Facebook</span>
-                              </div>
+                              <span>Header (Thanh trên)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableZaloWidget !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloWidget: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-blue-600"
+                              />
+                              <span>Cạnh bên (Nút trượt)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableZaloFooter !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableZaloFooter: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-blue-600"
+                              />
+                              <span>Footer (Chân trang)</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Nút Messenger */}
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span>
+                              <span className="text-sm font-bold text-slate-900">Facebook Messenger</span>
                             </div>
                             <input 
                               type="text"
                               value={settingsForm.messengerUrl || ''}
                               onChange={(e) => setSettingsForm({ ...settingsForm, messengerUrl: e.target.value })}
                               placeholder="Link Messenger (ví dụ: https://m.me/fitallest.tech)"
-                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                              className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
                             />
                           </div>
-
-                          {/* Nút Telegram */}
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                            <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                            <span className="text-slate-400">Vị trí hiển thị:</span>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
                               <input 
                                 type="checkbox"
-                                checked={settingsForm.enableTelegramWidget === true}
-                                onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramWidget: e.target.checked })}
-                                className="w-4 h-4 accent-sky-500 cursor-pointer"
+                                checked={settingsForm.enableMessengerHeader !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerHeader: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-indigo-600"
                               />
-                              <div>
-                                <span className="text-sm font-bold text-slate-800 block">Nút Chat Telegram</span>
-                                <span className="text-[11px] text-slate-400">Nút chat hỗ trợ qua Telegram</span>
-                              </div>
+                              <span>Header (Thanh trên)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableMessengerWidget !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerWidget: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-indigo-600"
+                              />
+                              <span>Cạnh bên (Nút trượt)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableMessengerFooter !== false}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableMessengerFooter: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-indigo-600"
+                              />
+                              <span>Footer (Chân trang)</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Nút Telegram */}
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full bg-sky-400 inline-block"></span>
+                              <span className="text-sm font-bold text-slate-900">Kênh Telegram</span>
                             </div>
                             <input 
                               type="text"
                               value={settingsForm.telegramUrl || ''}
                               onChange={(e) => setSettingsForm({ ...settingsForm, telegramUrl: e.target.value })}
                               placeholder="Link Telegram (ví dụ: https://t.me/fitallest)"
-                              className="w-full sm:w-72 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-mono"
+                              className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
                             />
                           </div>
+                          <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                            <span className="text-slate-400">Vị trí hiển thị:</span>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-sky-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableTelegramHeader === true}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramHeader: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-sky-500"
+                              />
+                              <span>Header (Thanh trên)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-sky-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableTelegramWidget === true}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramWidget: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-sky-500"
+                              />
+                              <span>Cạnh bên (Nút trượt)</span>
+                            </label>
+                            <label className="flex items-center gap-1.5 cursor-pointer hover:text-sky-600">
+                              <input 
+                                type="checkbox"
+                                checked={settingsForm.enableTelegramFooter === true}
+                                onChange={(e) => setSettingsForm({ ...settingsForm, enableTelegramFooter: e.target.checked })}
+                                className="w-3.5 h-3.5 accent-sky-500"
+                              />
+                              <span>Footer (Chân trang)</span>
+                            </label>
+                          </div>
                         </div>
-                      )}
+                      </div>
                     </div>
 
                     <hr className="border-gray-100" />
