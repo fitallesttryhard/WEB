@@ -16,6 +16,7 @@ import { AdminProjectsPage } from './pages/AdminProjectsPage';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import SeoAnalyticsInjector from './components/SeoAnalyticsInjector';
+import FloatingWidgets from './components/FloatingWidgets';
 
 // Dynamic imports for Admin Core
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
@@ -195,6 +196,9 @@ export default function App() {
                 {renderContent()}
               </main>
               <FitallestFooter setCurrentTab={changeTab} />
+              {!['admin', 'super-admin'].includes(currentTab) && (
+                <FloatingWidgets onOpenCatalogModal={() => changeTab('quote')} />
+              )}
             </div>
           </div>
         </AuthProvider>

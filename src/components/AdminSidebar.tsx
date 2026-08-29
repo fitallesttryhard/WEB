@@ -292,24 +292,13 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
             </li>
             <li>
               <button
-                onClick={() => setActiveMenu('company_info')}
+                onClick={() => setActiveMenu('settings')}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium ${
-                  activeMenu === 'company_info' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  activeMenu === 'settings' || activeMenu === 'company_info' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
                 <Building2 size={18} className="text-indigo-400" />
                 <span>Thông tin Doanh nghiệp & MXH</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setActiveMenu('settings')}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium ${
-                  activeMenu === 'settings' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Settings size={18} className="text-indigo-400" />
-                <span>Cài đặt Hệ thống</span>
               </button>
             </li>
           </ul>
