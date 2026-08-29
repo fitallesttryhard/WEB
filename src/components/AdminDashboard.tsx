@@ -3215,6 +3215,28 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="md:col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Email liên hệ</label>
+                        <input 
+                          type="email" 
+                          value={settingsForm.email || ''}
+                          onChange={(e) => setSettingsForm({...settingsForm, email: e.target.value})}
+                          placeholder="contact@company.com"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Mô tả ngắn ở Footer (Chân trang)</label>
+                        <textarea 
+                          value={settingsForm.companyDescription || ''}
+                          onChange={(e) => setSettingsForm({...settingsForm, companyDescription: e.target.value})}
+                          placeholder="Nhập mô tả ngắn về công ty hiển thị dưới chân trang..."
+                          rows={3}
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium resize-none"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-bold text-gray-700 mb-1.5">Google Maps Embed URL (Link nhúng bản đồ)</label>
                         <input 
                           type="text" 
@@ -3449,7 +3471,7 @@ export default function AdminDashboard() {
                                 </span>
                               </div>
                               <p className="text-[12px] opacity-80 leading-relaxed mb-6 font-medium">
-                                Nhà cung cấp chuyên nghiệp các giải pháp vật tư, phụ kiện và dụng cụ thi công xây dựng với chất lượng hàng đầu tại Việt Nam.
+                                {settingsForm.companyDescription || 'Fitallest là đơn vị chuyên nghiệp trong lĩnh vực Thiết kế Website, Ứng dụng di động, UI/UX Design, Dịch vụ SEO Google và Hạ tầng Cloud Hosting. Cam kết mang đến giải pháp công nghệ hiệu quả và thẩm mỹ hàng đầu.'}
                               </p>
                               <div className="flex items-center gap-2 flex-wrap">
                                 {(settingsForm.socialLinks || []).map((link: any, idx: number) => (

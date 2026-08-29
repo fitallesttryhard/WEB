@@ -32,9 +32,10 @@ interface SettingsContextType {
 
 const defaultSettings: TenantSettings = {
   companyName: 'Công ty TNHH Công Nghệ Fi.tallest',
-  hotline: '0901 234 567',
+  hotline: '0909 876 817',
   address: 'Tòa nhà Công Nghệ Fi.tallest, Quận 1, TP. Hồ Chí Minh',
   email: 'contact@fitallest.com',
+  companyDescription: 'Fitallest là đơn vị chuyên nghiệp trong lĩnh vực Thiết kế Website, Ứng dụng di động, UI/UX Design, Dịch vụ SEO Google và Hạ tầng Cloud Hosting. Cam kết mang đến giải pháp công nghệ hiệu quả và thẩm mỹ hàng đầu.',
   logoUrl: '',
   brandColor: '#dc2626',
   fontFamily: "'Inter', 'Be Vietnam Pro', sans-serif",
@@ -130,6 +131,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             hotline: data.hotline || fc.hotline || prev.hotline,
             address: data.address || fc.address || prev.address,
             email: data.email || fc.email || prev.email,
+            companyDescription: fc.companyDescription || prev.companyDescription,
             mapUrl: fc.mapUrl || prev.mapUrl,
             gaMeasurementId: fc.gaMeasurementId || localCustomSettings.gaMeasurementId || prev.gaMeasurementId || '',
             gscVerificationCode: fc.gscVerificationCode || localCustomSettings.gscVerificationCode || prev.gscVerificationCode || '',
@@ -216,6 +218,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
               hotline: updated.hotline,
               address: updated.address,
               email: updated.email,
+              companyDescription: updated.companyDescription,
               mapUrl: updated.mapUrl,
               gaMeasurementId: updated.gaMeasurementId,
               gscVerificationCode: updated.gscVerificationCode,

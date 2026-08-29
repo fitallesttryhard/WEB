@@ -88,7 +88,7 @@ export const FitallestFooter: React.FC<FooterProps> = ({ setCurrentTab }) => {
           </div>
 
           <p className="text-slate-400 text-sm leading-relaxed max-w-md">
-            {companyName} là đơn vị chuyên nghiệp trong lĩnh vực Thiết kế Website, Ứng dụng di động, UI/UX Design, Dịch vụ SEO Google và Hạ tầng Cloud Hosting. Cam kết mang đến giải pháp công nghệ hiệu quả và thẩm mỹ hàng đầu.
+            {settings.companyDescription || `${companyName} là đơn vị chuyên nghiệp trong lĩnh vực Thiết kế Website, Ứng dụng di động, UI/UX Design, Dịch vụ SEO Google và Hạ tầng Cloud Hosting. Cam kết mang đến giải pháp công nghệ hiệu quả và thẩm mỹ hàng đầu.`}
           </p>
 
           <div className="space-y-3 text-sm text-slate-400">
