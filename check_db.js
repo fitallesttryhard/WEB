@@ -1,12 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY);
+const supabaseUrl = 'https://lovnvngvvojmxhywctpq.supabase.co';
+const supabaseKey = 'sb_publishable_CVFmneYHaqcm_yvMsiIueA_bebes4Vs';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const { data, error } = await supabase.from('products').select('*').limit(1);
-  if (error) console.error("Error:", error);
-  else console.log("Columns:", Object.keys(data[0] || {}));
+  const tables = ['products', 'categories', 'posts', 'orders', 'leads', 'tenant_settings', 'tenants'];
+  for (const t of tables) {
+    const { data, error } = await supabase.from(t).select('*').limit(1);
+    if (error) {
+      console.log(`Table ${t}: Error ->`, error.message);
+    } else {
+      console.log(`Table ${t}: Success. Columns ->`, Object.keys(data[0] || {}));
+    }
+  }
 }
 run();

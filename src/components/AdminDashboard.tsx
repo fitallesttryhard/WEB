@@ -115,7 +115,7 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(''), 4000);
   };
 
-  const [activeMenu, setActiveMenu] = useState('products');
+  const [activeMenu, setActiveMenu] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -152,11 +152,12 @@ export default function AdminDashboard() {
   const [isCategorySlugEdited, setIsCategorySlugEdited] = useState(false);
   const [postCategoryForm, setPostCategoryForm] = useState({ id: null as any, name: '', slug: '', description: '' });
   const [isPostCategorySlugEdited, setIsPostCategorySlugEdited] = useState(false);
-  const [orders, setOrders] = useState<any[]>(initialOrders);
+  const [orders, setOrders] = useState<any[]>([]);
   const [orderFilter, setOrderFilter] = useState('all');
   const [orderSearch, setOrderSearch] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [orderSubTab, setOrderSubTab] = useState<'leads' | 'cart_orders'>('leads');
 
   // Search & Filter States
   const [productSearch, setProductSearch] = useState('');
@@ -216,6 +217,30 @@ export default function AdminDashboard() {
     return () => {
       window.removeEventListener('storage', loadLeads);
       window.removeEventListener('admin_leads_updated', loadLeads);
+    };
+  }, []);
+
+  useEffect(() => {
+    const loadOrders = () => {
+      try {
+        const stored = localStorage.getItem('admin_leads');
+        if (stored) {
+          const allLeads = JSON.parse(stored);
+          const cartOrders = allLeads.filter((l: any) => Array.isArray(l.items) && l.items.length > 0);
+          setOrders(cartOrders);
+        } else {
+          setOrders(initialOrders);
+        }
+      } catch (e) {
+        setOrders(initialOrders);
+      }
+    };
+    loadOrders();
+    window.addEventListener('storage', loadOrders);
+    window.addEventListener('admin_leads_updated', loadOrders);
+    return () => {
+      window.removeEventListener('storage', loadOrders);
+      window.removeEventListener('admin_leads_updated', loadOrders);
     };
   }, []);
 
@@ -565,76 +590,87 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      // 1. Products
-      let prods = INITIAL_PRODUCTS;
-      const storedProds = localStorage.getItem('fitallest_admin_products');
-      if (storedProds) {
-        try { prods = JSON.parse(storedProds); } catch (e) {}
-      } else {
-        localStorage.setItem('fitallest_admin_products', JSON.stringify(INITIAL_PRODUCTS));
-      }
-      setProducts(prods);
-
-      // 2. Categories
+      // 1. Categories
       let cats = INITIAL_CATEGORIES;
-      const storedCats = localStorage.getItem('fitallest_admin_categories');
-      if (storedCats) {
-        try { cats = JSON.parse(storedCats); } catch (e) {}
-      } else {
-        localStorage.setItem('fitallest_admin_categories', JSON.stringify(INITIAL_CATEGORIES));
+      try {
+        const { data: dbCats } = await supabase.from('categories').select('*');
+        if (dbCats && dbCats.length > 0) {
+          cats = dbCats.map(c => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            description: c.description || ''
+          }));
+        }
+      } catch (e) {
+        console.warn('Lỗi tải categories từ Supabase:', e);
       }
       setCategories(cats);
+      localStorage.setItem('fitallest_admin_categories', JSON.stringify(cats));
+
+      // 2. Products
+      let prods = INITIAL_PRODUCTS;
+      try {
+        const { data: dbProds } = await supabase.from('products').select('*');
+        if (dbProds && dbProds.length > 0) {
+          prods = dbProds.map(p => ({
+            id: p.id,
+            name: p.name,
+            categoryId: p.category_id,
+            category: cats.find(c => c.id === p.category_id)?.name || 'Chưa phân loại',
+            isHot: p.is_hot,
+            is_hot: p.is_hot,
+            specs: p.specs,
+            thumbnailUrl: p.thumbnail_url,
+            galleryUrls: p.gallery_urls,
+            sku: p.sku,
+            regularPrice: p.regular_price,
+            salePrice: p.sale_price,
+            stockStatus: p.stock_status,
+            tags: p.tags,
+            description: p.description,
+            status: p.status,
+            image: p.thumbnail_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=150&auto=format&fit=crop'
+          }));
+        }
+      } catch (e) {
+        console.warn('Lỗi tải products từ Supabase:', e);
+      }
+      setProducts(prods);
+      localStorage.setItem('fitallest_admin_products', JSON.stringify(prods));
 
       // 3. Posts / Articles
-      const storedPosts = localStorage.getItem('fitallest_admin_posts');
-      if (storedPosts) {
-        try { 
-          const parsed = JSON.parse(storedPosts);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setPosts(parsed);
-          }
-        } catch (e) {}
+      let dbPostsList = [];
+      try {
+        const { data: dbPosts } = await supabase.from('posts').select('*');
+        if (dbPosts && dbPosts.length > 0) {
+          dbPostsList = dbPosts.map(p => ({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            category: 'Tin tức chung',
+            categoryId: '1',
+            status: p.is_published ? 'published' : 'draft',
+            image: p.cover_image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=150&auto=format&fit=crop',
+            views: p.views || 0,
+            excerpt: p.excerpt || '',
+            content: p.html_content || ''
+          }));
+        }
+      } catch (e) {
+        console.warn('Lỗi tải posts từ Supabase:', e);
+      }
+      if (dbPostsList.length > 0) {
+        setPosts(dbPostsList);
+        localStorage.setItem('fitallest_admin_posts', JSON.stringify(dbPostsList));
       } else {
-        const initialPosts = [
-          { 
-            id: '1', 
-            title: 'Top 10 Xu Hướng Thiết Kế Website & Apps Dẫn Đầu 2026', 
-            category: 'Thiết kế Web', 
-            categoryId: '1', 
-            status: 'published', 
-            image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop', 
-            views: 350, 
-            slug: 'top-10-xu-huong-thiet-ke-website-2026',
-            excerpt: 'Khám phá các tiêu chuẩn UI/UX, AI Design, tốc độ PageSpeed 95+ và kiến trúc headless web mới nhất.',
-            content: 'Nội dung chi tiết về xu hướng thiết kế web và mobile app chuẩn hiện đại năm 2026...'
-          },
-          { 
-            id: '2', 
-            title: 'Chiến Lược SEO Tổng Thể Thống Trị Top 1 Google Năm 2026', 
-            category: 'SEO Google', 
-            categoryId: '2', 
-            status: 'published', 
-            image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=800&auto=format&fit=crop', 
-            views: 280, 
-            slug: 'chien-luoc-seo-tong-the-top-1-google',
-            excerpt: 'Bí quyết tối ưu SEO Entity, cấu trúc dữ liệu Schema và chiến lược Content AI giúp lên Top 1 bền vững.',
-            content: 'Chi tiết lộ trình triển khai SEO tổng thể...'
-          },
-          { 
-            id: '3', 
-            title: 'Ứng Dụng Trí Tuệ Nhân Tạo (AI) Trong Tự Động Hóa Giao Diện Website', 
-            category: 'Trí tuệ Nhân tạo AI', 
-            categoryId: '1', 
-            status: 'published', 
-            image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=800&auto=format&fit=crop', 
-            views: 410, 
-            slug: 'ung-dung-ai-tu-dong-hoa-giao-dien',
-            excerpt: 'Tích hợp AI phân tích hành vi người dùng, cá nhân hóa trải nghiệm và tối đa hóa tỷ lệ chuyển đổi.',
-            content: 'Phân tích các mô hình AI UI/UX hàng đầu...'
-          }
-        ];
-        localStorage.setItem('fitallest_admin_posts', JSON.stringify(initialPosts));
-        setPosts(initialPosts);
+        const storedPosts = localStorage.getItem('fitallest_admin_posts');
+        if (storedPosts) {
+          try { 
+            const parsed = JSON.parse(storedPosts);
+            if (Array.isArray(parsed) && parsed.length > 0) setPosts(parsed);
+          } catch (e) {}
+        }
       }
 
       // 4. Projects
@@ -3656,135 +3692,7 @@ export default function AdminDashboard() {
               </div>
             )}
             
-            {activeMenu === 'orders' && (
-              <div className="animate-in fade-in duration-300">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                  <div>
-                    <h1 className="text-2xl font-black text-gray-900">Quản lý Đơn hàng</h1>
-                    <p className="text-sm text-gray-500 mt-1 font-medium">Theo dõi và cập nhật trạng thái đơn hàng.</p>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row items-center gap-3">
-                    <div className="relative w-full sm:w-64">
-                      <Search size={16} className="absolute left-3.5 top-3 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Tìm theo tên, SĐT, mã đơn..."
-                        value={orderSearch}
-                        onChange={(e) => setOrderSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition shadow-xs"
-                      />
-                    </div>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <Filter size={16} />
-                      </div>
-                      <select 
-                        value={orderFilter}
-                        onChange={(e) => setOrderFilter(e.target.value)}
-                        className="pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 appearance-none shadow-xs cursor-pointer"
-                      >
-                        <option value="all">Tất cả trạng thái ({orders.length})</option>
-                        <option value="pending">Chờ xử lý</option>
-                        <option value="paid">Đã thanh toán</option>
-                        <option value="shipped">Đang giao</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                        <th className="px-6 py-4">Mã đơn</th>
-                        <th className="px-6 py-4">Khách hàng</th>
-                        <th className="px-6 py-4">Ngày tạo</th>
-                        <th className="px-6 py-4">Tổng tiền</th>
-                        <th className="px-6 py-4">Trạng thái</th>
-                        <th className="px-6 py-4 text-right">Thao tác</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {orders
-                        .filter(o => (orderFilter === 'all' || o.status === orderFilter) && (
-                          o.customer.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                          o.id.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                          (o.phone && o.phone.includes(orderSearch))
-                        ))
-                        .map((order) => (
-                        <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-bold text-gray-900">{order.id}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="text-sm font-bold text-gray-900">{order.customer}</p>
-                            {order.phone && <p className="text-[11px] text-gray-400 font-medium">{order.phone}</p>}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-medium text-gray-500">{order.date}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-bold text-gray-900">
-                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.amount)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <select
-                              value={order.status}
-                              onChange={(e) => {
-                                setOrders(orders.map(o => o.id === order.id ? { ...o, status: e.target.value } : o));
-                                showToast(`Đã cập nhật trạng thái đơn ${order.id}`);
-                              }}
-                              className={`text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-0 cursor-pointer focus:ring-2 focus:ring-red-500/20 outline-none transition-colors ${
-                                order.status === 'pending' ? 'bg-orange-100 text-orange-700' :
-                                order.status === 'paid' ? 'bg-blue-100 text-blue-700' :
-                                'bg-green-100 text-green-700'
-                              }`}
-                            >
-                              <option value="pending" className="bg-white text-gray-900">Chờ xử lý</option>
-                              <option value="paid" className="bg-white text-gray-900">Đã thanh toán</option>
-                              <option value="shipped" className="bg-white text-gray-900">Đang giao</option>
-                            </select>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                onClick={() => {
-                                  setSelectedOrder(order);
-                                  setIsOrderModalOpen(true);
-                                }}
-                                className="text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 border border-gray-200 hover:border-red-100 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
-                              >
-                                <Eye size={14} />
-                                Chi tiết
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (confirm(`Bạn có chắc muốn xóa đơn hàng #${order.id}?`)) {
-                                    setOrders(orders.filter(o => o.id !== order.id));
-                                    showToast(`Đã xóa đơn hàng #${order.id}`);
-                                  }
-                                }}
-                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                title="Xóa đơn hàng"
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                      {orders.filter(o => orderFilter === 'all' || o.status === orderFilter).length === 0 && (
-                        <tr>
-                          <td colSpan={5} className="px-6 py-12 text-center text-gray-500 font-medium">Không tìm thấy đơn hàng nào.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </main>

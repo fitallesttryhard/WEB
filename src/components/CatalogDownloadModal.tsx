@@ -39,6 +39,28 @@ export default function CatalogDownloadModal({ isOpen, onClose }: CatalogDownloa
         notes: `[TẢI CATALOGUE 2026] Loại công trình: ${formData.projectType}`,
         payment_method: 'Nhận Catalogue PDF'
       }]);
+
+      // Persist to localStorage so it works locally and is visible in Admin
+      try {
+        const localLeads = JSON.parse(localStorage.getItem('admin_leads') || '[]');
+        localLeads.unshift({
+          id: `LEAD-${Date.now()}`,
+          customer: formData.fullName,
+          phone: formData.phone,
+          email: formData.email,
+          address: formData.projectType,
+          amount: 0,
+          status: 'new',
+          date: new Date().toISOString().replace('T', ' ').slice(0, 16),
+          notes: `[TẢI CATALOGUE 2026] Loại công trình: ${formData.projectType}`,
+          paymentMethod: 'Nhận Catalogue PDF',
+          items: []
+        });
+        localStorage.setItem('admin_leads', JSON.stringify(localLeads));
+        window.dispatchEvent(new Event('admin_leads_updated'));
+      } catch (e) {
+        console.warn('Lưu lead vào localStorage:', e);
+      }
     } catch (err) {
       console.warn('Lưu lead nhận catalogue:', err);
     } finally {

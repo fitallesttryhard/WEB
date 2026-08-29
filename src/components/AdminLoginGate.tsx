@@ -127,15 +127,7 @@ export default function AdminLoginGate() {
           </button>
         </form>
 
-        {/* Demo Hint */}
-        <div className="mt-8 p-4 rounded-2xl bg-slate-950/40 border border-slate-800/60 text-xs text-slate-400 leading-relaxed">
-          <div className="flex items-center gap-2 text-amber-400 font-bold mb-1">
-            <ShieldCheck size={14} />
-            <span>Xác thực Quản trị viên:</span>
-          </div>
-          Email: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-white font-mono">admin@fitallest.com</code><br/>
-          Mật khẩu: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-white font-mono">admin123</code>
-        </div>
+
 
       </div>
 

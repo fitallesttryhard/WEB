@@ -66,6 +66,28 @@ export default function CartDrawer() {
       };
 
       await supabase.from('orders').insert([dbPayload]);
+      
+      // Persist to localStorage so it works locally and is visible in Admin
+      try {
+        const localLeads = JSON.parse(localStorage.getItem('admin_leads') || '[]');
+        localLeads.unshift({
+          id: dbPayload.id || `ORD-${Date.now()}`,
+          customer: dbPayload.customer,
+          phone: dbPayload.phone,
+          email: dbPayload.email,
+          address: dbPayload.address,
+          amount: dbPayload.amount,
+          status: 'new',
+          date: new Date().toISOString().replace('T', ' ').slice(0, 16),
+          notes: dbPayload.notes,
+          paymentMethod: dbPayload.payment_method,
+          items: dbPayload.items
+        });
+        localStorage.setItem('admin_leads', JSON.stringify(localLeads));
+        window.dispatchEvent(new Event('admin_leads_updated'));
+      } catch (e) {
+        console.warn('Lưu lead vào localStorage:', e);
+      }
     } catch (err) {
       console.warn('Lưu đơn hàng vào DB:', err);
     } finally {
