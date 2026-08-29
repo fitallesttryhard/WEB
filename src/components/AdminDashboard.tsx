@@ -2280,13 +2280,12 @@ export default function AdminDashboard() {
                                       }
                                       const gscInspectionUrl = `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(window.location.origin + '/')}`;
                                       window.open(gscInspectionUrl, '_blank');
-                                      showToast('🚀 Đã sao chép URL bài viết! Hãy dán vào ô kiểm tra trên Google Search Console vừa mở và bấm "Yêu cầu lập chỉ mục"!');
+                                      showToast('📋 Đã sao chép liên kết bài viết! Bạn có thể dán vào Google Search Console vừa mở.');
                                     }}
-                                    className="p-1.5 px-2 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold border border-indigo-200 shrink-0"
-                                    title="Khai báo Index Google Siêu Tốc (1-Click)"
+                                    className="p-1.5 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors shrink-0"
+                                    title="Sao chép link bài viết & Khai báo Index Google"
                                   >
-                                    <Globe size={14} />
-                                    <span className="whitespace-nowrap">Index Google</span>
+                                    <Globe size={16} />
                                   </button>
                                   <button 
                                     onClick={() => handleEditPost(post)}
