@@ -19,7 +19,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
   const [selectedProject, setSelectedProject] = useState<any>(null);
 
   // Dynamic projects from Admin
-  const [projects] = useState<any[]>(() => {
+  const [projects, setProjects] = useState<any[]>(() => {
     try {
       const stored = localStorage.getItem('fitallest_admin_projects');
       if (stored) {
@@ -29,6 +29,27 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
     } catch (e) {}
     return projectsData;
   });
+
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const stored = localStorage.getItem('fitallest_admin_projects');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setProjects(parsed);
+          }
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('fitallest_projects_updated', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('fitallest_projects_updated', handleSync);
+    };
+  }, []);
 
   const categories = ['Tất cả', ...Array.from(new Set(projects.map(p => p.category).filter(Boolean)))];
 

@@ -205,28 +205,137 @@ export default function AdminDashboard() {
   const [categorySearch, setCategorySearch] = useState('');
 
   // Projects State
-  const [adminProjects, setAdminProjects] = useState<any[]>([
-    {
-      id: 1,
-      title: 'Tổ Hợp Tòa Nhà Cao Tầng S-Sky Tower',
-      category: 'Chung cư cao cấp',
-      location: 'Quận 2, TP. Hồ Chí Minh',
-      scale: '38 Tầng - 1,200 Căn hộ',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop',
-      materials: ['Nẹp nhôm nẹp góc âm/dương T20', 'Băng cản nước PVC V200', 'Phụ kiện giàn giáo khoá giáo xoay'],
-      description: 'Cung cấp toàn bộ giải pháp nẹp chỉ trang trí nhôm cao cấp Mạ Anode chống oxy hóa cho 38 tầng căn hộ hạng sang.'
-    },
-    {
-      id: 2,
-      title: 'Trung Tâm Thương Mại & Văn Phòng Central Plaza',
-      category: 'Trung tâm thương mại',
-      location: 'Quận Cầu Giấy, Hà Nội',
-      scale: '5 Tầng hầm - 28 Tầng nổi',
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
-      materials: ['Nẹp Inox 304 mạ PVD vàng mờ', 'Nẹp thảm gạch đá', 'Ty ren & Bát chuồn D12/D16'],
-      description: 'Giải pháp nẹp mạ PVD vàng mờ sang trọng tạo điểm nhấn kiến trúc cho sảnh chính và hệ thang máy.'
-    }
-  ]);
+  const [adminProjects, setAdminProjects] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem('fitallest_admin_projects');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [
+      {
+        id: 1,
+        title: "Website Kiến Trúc Phong Thủy Kỳ Nam",
+        category: "Xây dựng",
+        location: "TP. Hồ Chí Minh",
+        scale: "Portfolio 50+ Công trình",
+        image: "/assets/images/da/ptkn.webp",
+        materials: ["Website độc bản", "Thước Lỗ Ban 3D", "Chuẩn SEO"],
+        description: "Portfolio 50+ dự án hoàn thành, công cụ thước lỗ ban, blog chia sẻ xu hướng kiến trúc và kiến thức phong thủy."
+      },
+      {
+        id: 2,
+        title: "Website Tập Đoàn Máy Làm Đá Viên Việt An",
+        category: "Thương mại điện tử",
+        location: "Toàn quốc & Quốc tế",
+        scale: "4 Ngôn ngữ, ERP ISO",
+        image: "/assets/images/da/va.png",
+        materials: ["Đa ngôn ngữ", "Thanh toán VNPay", "Tích hợp ERP"],
+        description: "Website thương mại điện tử với 4 ngôn ngữ siêu chuẩn, Tích hợp thanh toán VNPAY, tối ưu SEO Local, tích hợp Google Analytics, Tích hợp ERP quản lý đơn hàng và thi công."
+      },
+      {
+        id: 3,
+        title: "Website Công Ty Xây Dựng Happy House",
+        category: "Xây dựng",
+        location: "Bình Dương",
+        scale: "Biệt thự & Nhà phố",
+        image: "/assets/images/da/hph.webp",
+        materials: ["Dự toán tự động", "Portfolio 3D", "UX/UI Độc bản"],
+        description: "Portfolio 50+ dự án hoàn thành, công cụ ước tính chi phí thi công, blog chia sẻ xu hướng kiến trúc."
+      },
+      {
+        id: 4,
+        title: "Website BS. Tuấn - Giám Đốc BV Phương Nam",
+        category: "Y tế",
+        location: "TP. Hồ Chí Minh",
+        scale: "Cổng y tế & Đặt lịch",
+        image: "/assets/images/da/bst.png",
+        materials: ["Đặt lịch Online", "Bảo mật Y Khoa", "SMS Notification"],
+        description: "Website giới thiệu chuyên khoa, đặt lịch khám online, tra cứu bác sĩ. Tích hợp thanh toán VNPAY, tối ưu SEO Local, tích hợp Google Analytics."
+      },
+      {
+        id: 5,
+        title: "Website BS. Hiếu - Trưởng Khoa BV Quân Y 7A",
+        category: "Y tế",
+        location: "TP. Hồ Chí Minh",
+        scale: "Top 3 Google (15 từ khóa)",
+        image: "/assets/images/da/bsh.webp",
+        materials: ["SEO Top Google", "PageSpeed 95/100", "Schema Y tế"],
+        description: "Website giới thiệu chuyên khoa, đặt lịch khám online, theo dõi tiến độ. Tối ưu SEO Local, tích hợp Google Analytics. Tối ưu SEO đạt top 3 Google với 15 từ khóa chính, tốc độ tải 95/100 PageSpeed."
+      },
+      {
+        id: 6,
+        title: "Website Sơn Thương Hiệu Haky & Alpes - Trường Thịnh",
+        category: "Xây dựng",
+        location: "Toàn Quốc",
+        scale: "Hệ thống nhà phân phối",
+        image: "/assets/images/da/sonth.png",
+        materials: ["Thử màu AI", "Bảng màu 3D", "Tính lượng sơn"],
+        description: "Giới thiệu thương hiệu Haky, Alpes, Maslai, tích hợp sơn thử bằng trí tuệ nhân tạo, bảng màu, công cụ ước tính lượng sơn cần dùng."
+      },
+      {
+        id: 7,
+        title: "Website Nguyên Liệu Pha Chế Thành Huy",
+        category: "Thương mại điện tử",
+        location: "TP. Hồ Chí Minh",
+        scale: "Kênh TMĐT Chính Chủ 0%",
+        image: "/assets/images/da/nlth.png",
+        materials: ["TMĐT Chính Chủ", "1000+ Sản phẩm", "Quản lý đơn hàng"],
+        description: "Kênh thương mại chính chủ không mất phí qua trung gian như Shopee, Lazada, Amazon. Đảm bảo lợi nhuận và thương hiệu Thành Huy"
+      },
+      {
+        id: 8,
+        title: "Website Công Ty Cổ Phần Thiết Bị Xây Dựng HD",
+        category: "Thiết bị & Máy móc",
+        location: "Hà Nội & TP.HCM",
+        scale: "Catalog Công Nghiệp",
+        image: "/assets/images/da/tbhd.png",
+        materials: ["Tốc độ < 2s", "Catalog PDF", "Báo giá cấp tốc"],
+        description: "Trang website giới thiệu sản phẩm, tối ưu lazy loading. Tốc độ tải < 2 giây."
+      },
+      {
+        id: 9,
+        title: "Website Công Ty Giấy Cúng An Thành Phát",
+        category: "Thương mại điện tử",
+        location: "Toàn Quốc",
+        scale: "Top Google Ngành Hàng",
+        image: "/assets/images/da/atp.webp",
+        materials: ["SEO Local", "SEO Ngành Hàng", "Sỉ & Lẻ"],
+        description: "Trang website giới thiệu sản phẩm, Sở hữu nhiều từ khóa top từ khu vực cho đến toàn quốc, tìm là ra, tối ưu lazy loading."
+      },
+      {
+        id: 10,
+        title: "Website Công Ty Cơ Khí Chính Xác DHT",
+        category: "Cơ Khí",
+        location: "Bình Dương & Đồng Nai",
+        scale: "Hồ Sơ Năng Lực CNC",
+        image: "/assets/images/da/dht.png",
+        materials: ["Hồ sơ năng lực", "Đối tác CNC", "Tiêu chuẩn ISO"],
+        description: "Website giới thiệu Hồ sơ năng lực, tìm kiếm nhà đầu tư, đối tác sản xuất trong lĩnh vực CNC."
+      },
+      {
+        id: 11,
+        title: "Website Nội Thất Cũ Xưa Tịnh Quang",
+        category: "Nội thất",
+        location: "TP. Hồ Chí Minh",
+        scale: "Showroom Ảo 360°",
+        image: "/assets/images/da/chu-tinh.webp",
+        materials: ["Showroom 360°", "Phối cảnh 3D", "Tích hợp ERP"],
+        description: "Showroom ảo 360°, công cụ thiết kế phòng 3D, tư vấn phong thủy. Tích hợp ERP quản lý đơn hàng và thi công."
+      },
+      {
+        id: 12,
+        title: "Website Đại Long Bình Phước",
+        category: "Giới thiệu việc làm",
+        location: "Bình Phước",
+        scale: "Dịch vụ Xe nâng & HR",
+        image: "/assets/images/da/dlbp.webp",
+        materials: ["Thuê Xe Nâng", "Cổng Việc Làm", "Bình Phước"],
+        description: "Website giới thiệu việc làm và cho thuê xe nâng của anh Long - Công an tỉnh Bình Phước cũ."
+      }
+    ];
+  });
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [projectForm, setProjectForm] = useState({
     id: null as any,
