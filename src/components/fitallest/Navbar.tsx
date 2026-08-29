@@ -93,11 +93,11 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
   ];
 
   return (
-    <header className="sticky top-0 z-50 transition-all duration-300 py-3 px-3 sm:px-6 bg-[#050A14]/80 backdrop-blur-md border-b border-white/[0.04]">
-      <div className={`max-w-7xl mx-auto rounded-2xl sm:rounded-full transition-all duration-300 border ${
+    <header className="sticky top-0 z-50 transition-all duration-300 py-3 px-3 sm:px-6 bg-transparent pointer-events-none">
+      <div className={`max-w-7xl mx-auto rounded-2xl sm:rounded-full transition-all duration-300 border pointer-events-auto ${
         scrolled 
           ? 'bg-[#050A14]/95 backdrop-blur-2xl border-cyan-500/30 shadow-[0_10px_35px_rgba(0,0,0,0.8)]' 
-          : 'bg-[#070D1D]/85 backdrop-blur-xl border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.6)]'
+          : 'bg-[#070D1D]/60 hover:bg-[#070D1D]/80 backdrop-blur-xl border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.4)]'
       }`}>
         <div className="px-4 sm:px-6 py-2.5 flex items-center justify-between">
           
@@ -298,7 +298,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
 
       {/* ─── MOBILE MENU MODAL ─── */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-3 top-20 z-50 bg-[#050A14]/95 backdrop-blur-2xl rounded-2xl border border-cyan-500/30 p-5 space-y-4 shadow-[0_20px_60px_rgba(0,0,0,0.9)] animate-in slide-in-from-top-4 duration-300 max-h-[85vh] overflow-y-auto">
+        <div className="lg:hidden fixed inset-x-3 top-20 z-50 pointer-events-auto bg-[#050A14]/95 backdrop-blur-2xl rounded-2xl border border-cyan-500/30 p-5 space-y-4 shadow-[0_20px_60px_rgba(0,0,0,0.9)] animate-in slide-in-from-top-4 duration-300 max-h-[85vh] overflow-y-auto">
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => navigate('home')}
