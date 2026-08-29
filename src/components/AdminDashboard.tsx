@@ -6,7 +6,7 @@ import {
   CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
   UploadCloud, Copy, Image as ImageIcon, Loader2, Save, Sparkles,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
-  Menu, X, Search, FileText, ShoppingCart, PhoneCall
+  Menu, X, Search, FileText, ShoppingCart, PhoneCall, LayoutDashboard
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
