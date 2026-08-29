@@ -21,6 +21,7 @@ import AdminSidebar from './AdminSidebar';
 import OrderDetailModal from './OrderDetailModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { seedTrimDatabase } from '../seedData';
+import { parseMultiContact } from '../utils/contactParser';
 
 const mockCategories = [
   { id: '1', name: 'Nẹp nhôm & Inox', slug: 'nep-nhom-inox', count: 12, description: 'Các loại nẹp trang trí hợp kim nhôm và inox 304.' },
@@ -3950,19 +3951,46 @@ export default function AdminDashboard() {
                     <div className="space-y-5 pt-2">
                       {/* Nút Hotline */}
                       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                          <div className="flex items-center gap-2 pt-1">
                             <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
-                            <span className="text-sm font-bold text-slate-900">Hotline / Số điện thoại</span>
+                            <div>
+                              <span className="text-sm font-bold text-slate-900 block">Hotline / Số điện thoại (Đa kênh/Phòng ban)</span>
+                              <span className="text-[11px] text-slate-500 font-medium">Nhập 1 hoặc nhiều SĐT phân tách bằng dấu phẩy (,). Có thể ghi kèm tên phòng ban trong ngoặc đơn ( ).</span>
+                            </div>
                           </div>
-                          <input 
-                            type="text"
+                          <textarea 
                             value={settingsForm.hotline || ''}
                             onChange={(e) => setSettingsForm({ ...settingsForm, hotline: e.target.value })}
-                            placeholder="Ví dụ: 0909 876 817"
-                            className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                            placeholder="Ví dụ: 0909.876.817 (Phòng Kinh Doanh & Báo Giá), 0912.345.678 (Tư Vấn Kỹ Thuật 24/7)"
+                            rows={2}
+                            className="w-full sm:w-96 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold resize-none"
                           />
                         </div>
+
+                        {/* Live Badges Preview for Hotline */}
+                        {(() => {
+                          const hotlineItems = parseMultiContact(settingsForm.hotline, 'phone');
+                          if (hotlineItems.length === 0) return null;
+                          return (
+                            <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                              <div className="text-[11px] font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                                <Sparkles size={12} className="text-amber-500" />
+                                <span>Xem trước các Hotline phòng ban sẽ hiển thị: ({hotlineItems.length} số)</span>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {hotlineItems.map((item, idx) => (
+                                  <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-red-200 rounded-lg text-xs font-semibold text-slate-800 shadow-2xs">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                    <span className="font-mono font-bold text-red-600">{item.raw}</span>
+                                    <span className="bg-red-50 text-red-700 text-[10px] px-1.5 py-0.5 rounded border border-red-100 font-bold">{item.label}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
                         <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
                           <span className="text-slate-400">Vị trí hiển thị:</span>
                           <label className="flex items-center gap-1.5 cursor-pointer hover:text-indigo-600">
@@ -3997,19 +4025,46 @@ export default function AdminDashboard() {
 
                       {/* Nút Zalo */}
                       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                          <div className="flex items-center gap-2 pt-1">
                             <span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
-                            <span className="text-sm font-bold text-slate-900">Kênh Zalo Chat & Báo Giá</span>
+                            <div>
+                              <span className="text-sm font-bold text-slate-900 block">Kênh Zalo Chat & Báo Giá (Đa kênh)</span>
+                              <span className="text-[11px] text-slate-500 font-medium">Nhập 1 hoặc nhiều link Zalo phân tách bằng dấu phẩy (,). Có thể kèm tên phòng ban trong ngoặc đơn ( ).</span>
+                            </div>
                           </div>
-                          <input 
-                            type="text"
+                          <textarea 
                             value={settingsForm.zaloUrl || ''}
                             onChange={(e) => setSettingsForm({ ...settingsForm, zaloUrl: e.target.value })}
-                            placeholder="Link Zalo (ví dụ: https://zalo.me/0909876817)"
-                            className="w-full sm:w-80 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                            placeholder="Ví dụ: https://zalo.me/0909876817 (Zalo Kinh Doanh), https://zalo.me/0912345678 (Zalo Kỹ Thuật)"
+                            rows={2}
+                            className="w-full sm:w-96 px-3.5 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold resize-none"
                           />
                         </div>
+
+                        {/* Live Badges Preview for Zalo */}
+                        {(() => {
+                          const zaloItems = parseMultiContact(settingsForm.zaloUrl, 'zalo');
+                          if (zaloItems.length === 0) return null;
+                          return (
+                            <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                              <div className="text-[11px] font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                                <Sparkles size={12} className="text-blue-500" />
+                                <span>Xem trước các kênh Zalo sẽ hiển thị: ({zaloItems.length} kênh)</span>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {zaloItems.map((item, idx) => (
+                                  <span key={idx} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-xs font-semibold text-slate-800 shadow-2xs">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    <span className="font-mono font-bold text-blue-600">{item.raw}</span>
+                                    <span className="bg-blue-50 text-blue-700 text-[10px] px-1.5 py-0.5 rounded border border-blue-100 font-bold">{item.label}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
+
                         <div className="flex items-center gap-6 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
                           <span className="text-slate-400">Vị trí hiển thị:</span>
                           <label className="flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
