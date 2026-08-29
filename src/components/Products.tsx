@@ -6,19 +6,12 @@ import { getProducts } from '../productServices';
 
 const tags = ['Bán chạy', 'Khuyến mãi', 'Mới nhất', 'Cao cấp', 'Giá rẻ', 'Dự án'];
 
-const FALLBACK_TRIM_PRODUCTS = [
-  { id: '1', name: 'Nẹp Nhôm Chữ T T10mm Vàng Xước', category: 'Nẹp Nhôm Trang Trí', price: 95000, image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop', is_hot: true },
-  { id: '2', name: 'Nẹp Nhôm Góc V V20mm Bạc Mờ', category: 'Nẹp Nhôm Trang Trí', price: 85000, image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop', is_hot: true },
-  { id: '3', name: 'Nẹp Nhôm Chỉ Âm U12mm Nhôm Mờ', category: 'Nẹp Nhôm Trang Trí', price: 105000, image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '4', name: 'Nẹp Inox 304 Chữ T T15mm Vàng Gương PVD', category: 'Nẹp Inox 304 Cao Cấp', price: 185000, image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop', is_hot: true },
-  { id: '5', name: 'Nẹp Inox 304 V25mm Đen Phản Quang', category: 'Nẹp Inox 304 Cao Cấp', price: 210000, image: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '6', name: 'Nẹp Inox Lập Là Flat Bar 20x2mm Vàng Xước', category: 'Nẹp Inox 304 Cao Cấp', price: 160000, image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '7', name: 'Nẹp Nhựa PVC Bo Góc Tròn Gạch Men 10mm', category: 'Nẹp Nhựa PVC & Chống Thấm', price: 35000, image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '8', name: 'Nẹp Kết Thúc Sàn Gỗ Nhựa PVC L25mm', category: 'Nẹp Nhựa PVC & Chống Thấm', price: 40000, image: 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '9', name: 'Nẹp Cao Su Chống Trượt Cầu Thang Mũi Bậc', category: 'Nẹp Nhựa PVC & Chống Thấm', price: 65000, image: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=800&auto=format&fit=crop', is_hot: true },
-  { id: '10', name: 'Nẹp Đồng Thau Nguyên Chất Chữ T T20mm', category: 'Nẹp Đồng & Nẹp Nối Thảm', price: 295000, image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '11', name: 'Nẹp Đồng V25mm Nổi Gờ Chống Trượt', category: 'Nẹp Đồng & Nẹp Nối Thảm', price: 320000, image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '12', name: 'Nẹp Nối Thảm Nhôm Răng Cưa N20mm', category: 'Nẹp Đồng & Nẹp Nối Thảm', price: 125000, image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop', is_hot: false },
+const FALLBACK_FITALLEST_PRODUCTS = [
+  { id: '1', name: 'Thiết Kế Website Doanh Nghiệp Độc Bản', category: 'Thiết Kế Website & Apps', price: 12500000, image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop', is_hot: true },
+  { id: '2', name: 'Phát Triển Ứng Dụng Di Động iOS & Android', category: 'Thiết Kế Website & Apps', price: 25000000, image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800&auto=format&fit=crop', is_hot: true },
+  { id: '3', name: 'Cloud Hosting NVMe SSD 10GB Pro', category: 'Cloud Hosting & Server', price: 2400000, image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop', is_hot: false },
+  { id: '4', name: 'Gói Dịch Vụ SEO Google Đột Phá Chuyển Đổi', category: 'Dịch Vụ SEO & Marketing', price: 8500000, image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=800&auto=format&fit=crop', is_hot: true },
+  { id: '5', name: 'Giải Pháp SaaS & Web App Quản Trị Doanh Nghiệp', category: 'Giải Pháp AI & SaaS', price: 18000000, image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop', is_hot: false },
 ];
 
 export default function ProductsPage() {
@@ -62,12 +55,12 @@ export default function ProductsPage() {
     ? dbProducts.map((p) => ({
         id: p.id,
         name: p.name,
-        category: p.categories?.name || 'Vật tư xây dựng',
-        price: p.original_price || 0,
-        image: p.thumbnail_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop',
+        category: p.categories?.name || 'Dịch vụ Digital Agency',
+        price: p.regular_price || p.sale_price || p.original_price || 0,
+        image: p.thumbnail_url || p.image_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop',
         is_hot: p.is_hot,
       }))
-    : FALLBACK_TRIM_PRODUCTS;
+    : FALLBACK_FITALLEST_PRODUCTS;
 
   // Filtering
   const filteredProducts = rawProducts.filter((p) => {

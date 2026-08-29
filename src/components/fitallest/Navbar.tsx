@@ -110,31 +110,41 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             onClick={() => navigate('home')} 
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
-            <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-500 p-[1.5px] shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300">
-                <div className="w-full h-full bg-[#050A14] rounded-[10px] flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-cyan-400 group-hover:rotate-12 transition-transform duration-300" />
+            {settings.logoUrl ? (
+              <img 
+                src={settings.logoUrl} 
+                alt={companyName} 
+                className="h-9 max-w-[200px] object-contain group-hover:scale-105 transition-transform duration-300" 
+              />
+            ) : (
+              <>
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-500 p-[1.5px] shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300">
+                    <div className="w-full h-full bg-[#050A14] rounded-[10px] flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-cyan-400 group-hover:rotate-12 transition-transform duration-300" />
+                    </div>
+                  </div>
+                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
+                  </span>
                 </div>
-              </div>
-              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
-              </span>
-            </div>
 
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl font-black tracking-tight text-white group-hover:text-cyan-300 transition-colors">
-                  Fi<span className="text-cyan-400">.</span>tallest
-                </span>
-                <span className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-                  Tech
-                </span>
-              </div>
-              <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest -mt-0.5">
-                Digital Agency
-              </span>
-            </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xl font-black tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+                      Fi<span className="text-cyan-400">.</span>tallest
+                    </span>
+                    <span className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                      Tech
+                    </span>
+                  </div>
+                  <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest -mt-0.5">
+                    Digital Agency
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* ─── DESKTOP NAVIGATION ─── */}
