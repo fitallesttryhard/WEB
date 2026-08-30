@@ -17,6 +17,8 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import SeoAnalyticsInjector from './components/SeoAnalyticsInjector';
 import FloatingWidgets from './components/FloatingWidgets';
+import CartDrawer from './components/CartDrawer';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Dynamic imports for Admin Core
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
@@ -121,34 +123,38 @@ export default function App() {
 
   if (currentTab === 'super-admin') {
     return (
-      <HelmetProvider>
-        <Helmet>
-          <title>Super Admin Control Portal | Fi.tallest SaaS</title>
-        </Helmet>
-        <Suspense fallback={<PageLoader />}>
-          <SuperAdminDashboard />
-        </Suspense>
-      </HelmetProvider>
+      <ErrorBoundary>
+        <HelmetProvider>
+          <Helmet>
+            <title>Super Admin Control Portal | Fi.tallest SaaS</title>
+          </Helmet>
+          <Suspense fallback={<PageLoader />}>
+            <SuperAdminDashboard />
+          </Suspense>
+        </HelmetProvider>
+      </ErrorBoundary>
     );
   }
 
-    if (currentTab === 'admin') {
+  if (currentTab === 'admin') {
     return (
-      <HelmetProvider>
-        <Helmet>
-          <title>Quản trị hệ thống | Fi.tallest</title>
-        </Helmet>
-        <SettingsProvider>
-          <SeoAnalyticsInjector />
-          <AuthProvider>
-            <CartProvider>
-              <Suspense fallback={<PageLoader />}>
-                <AdminArea />
-              </Suspense>
-            </CartProvider>
-          </AuthProvider>
-        </SettingsProvider>
-      </HelmetProvider>
+      <ErrorBoundary>
+        <HelmetProvider>
+          <Helmet>
+            <title>Quản trị hệ thống | Fi.tallest</title>
+          </Helmet>
+          <SettingsProvider>
+            <SeoAnalyticsInjector />
+            <AuthProvider>
+              <CartProvider>
+                <Suspense fallback={<PageLoader />}>
+                  <AdminArea />
+                </Suspense>
+              </CartProvider>
+            </AuthProvider>
+          </SettingsProvider>
+        </HelmetProvider>
+      </ErrorBoundary>
     );
   }
 
@@ -177,32 +183,38 @@ export default function App() {
   };
 
   return (
-    <HelmetProvider>
-      <Helmet>
-        <title>Fi.tallest - Đỉnh Cao Công Nghệ Thiết Kế Website & Apps</title>
-        <meta name="description" content="Fi.tallest kiến tạo các sản phẩm Website và Ứng dụng di động độc bản, tối ưu chuẩn UX/UI." />
-      </Helmet>
-      <SettingsProvider>
-        <SeoAnalyticsInjector />
-        <AuthProvider>
-          <div className="min-h-screen flex flex-col bg-[#050A14] bg-cyber-grid text-slate-100 font-sans selection:bg-cyan-500 selection:text-white relative">
-            {/* Global background glow & dot matrix overlay */}
-            <div className="fixed inset-0 pointer-events-none z-0 bg-cyber-radial opacity-70" />
-            <div className="fixed inset-0 pointer-events-none z-0 bg-dot-matrix opacity-25" />
-            
-            <div className="relative z-10 flex flex-col min-h-screen flex-grow">
-              <FitallestNavbar currentTab={currentTab} setCurrentTab={changeTab} />
-              <main className="flex-grow">
-                {renderContent()}
-              </main>
-              <FitallestFooter setCurrentTab={changeTab} />
-              {!['admin', 'super-admin'].includes(currentTab) && (
-                <FloatingWidgets onOpenCatalogModal={() => changeTab('quote')} />
-              )}
-            </div>
-          </div>
-        </AuthProvider>
-      </SettingsProvider>
-    </HelmetProvider>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <Helmet>
+          <title>Fi.tallest - Đỉnh Cao Công Nghệ Thiết Kế Website & Apps</title>
+          <meta name="description" content="Fi.tallest kiến tạo các sản phẩm Website và Ứng dụng di động độc bản, tối ưu chuẩn UX/UI." />
+        </Helmet>
+        <SettingsProvider>
+          <SeoAnalyticsInjector />
+          <AuthProvider>
+            <CartProvider>
+              <div className="min-h-screen flex flex-col bg-[#050A14] bg-cyber-grid text-slate-100 font-sans selection:bg-cyan-500 selection:text-white relative">
+                {/* Global background glow & dot matrix overlay */}
+                <div className="fixed inset-0 pointer-events-none z-0 bg-cyber-radial opacity-70" />
+                <div className="fixed inset-0 pointer-events-none z-0 bg-dot-matrix opacity-25" />
+                
+                <div className="relative z-10 flex flex-col min-h-screen flex-grow">
+                  <FitallestNavbar currentTab={currentTab} setCurrentTab={changeTab} />
+                  <main className="flex-grow">
+                    {renderContent()}
+                  </main>
+                  <FitallestFooter setCurrentTab={changeTab} />
+                  {!['admin', 'super-admin'].includes(currentTab) && (
+                    <FloatingWidgets onOpenCatalogModal={() => changeTab('quote')} />
+                  )}
+                  <CartDrawer />
+                </div>
+              </div>
+            </CartProvider>
+          </AuthProvider>
+        </SettingsProvider>
+      </HelmetProvider>
+    </ErrorBoundary>
   );
 }
+

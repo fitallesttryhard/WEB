@@ -272,7 +272,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
   const regularPosts = filteredPosts.filter(p => p.id !== featuredPost?.id);
 
   return (
-    <div className="min-h-screen py-16 text-slate-100 relative overflow-hidden">
+    <div className="min-h-screen py-16 text-slate-100 relative overflow-x-clip">
       
       {/* Glow elements specific to blog page */}
       <div className="absolute top-1/4 left-1/10 w-[500px] h-[500px] rounded-full opacity-20 pointer-events-none filter blur-[120px]"

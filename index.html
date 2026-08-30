@@ -51,6 +51,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   </head>
   <body>
+    <script>
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        var root = document.getElementById('root');
+        if (root && !root.hasChildNodes()) {
+          root.innerHTML = '<div style="min-h-screen:100vh;background:#050A14;color:#f87171;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;">' +
+            '<div style="max-width:500px;background:#0A1020;border:1px solid rgba(239,68,68,0.3);padding:24px;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,0.8);">' +
+            '<h2 style="color:#ffffff;margin-top:0;font-size:18px;">⚠️ Lỗi Khởi Động Ứng Dụng</h2>' +
+            '<p style="font-size:13px;color:#cbd5e1;margin-bottom:16px;">Trình duyệt không thể tải script ứng dụng. Chi tiết lỗi:</p>' +
+            '<div style="background:#020617;color:#fca5a5;padding:12px;border-radius:8px;font-family:monospace;font-size:11px;text-align:left;overflow-x:auto;margin-bottom:16px;">' + (msg || 'Unknown Script Error') + '<br/><span style="color:#64748b;">' + (url || '') + ':' + (lineNo || 0) + '</span></div>' +
+            '<button onclick="location.reload()" style="background:linear-gradient(135deg,#0891b2,#06b6d4);color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:bold;cursor:pointer;font-size:12px;">Tải lại trang</button>' +
+            '</div></div>';
+        }
+        return false;
+      };
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
