@@ -200,7 +200,7 @@ export default function App() {
                 
                 <div className="relative z-10 flex flex-col min-h-screen flex-grow">
                   <FitallestNavbar currentTab={currentTab} setCurrentTab={changeTab} />
-                  <main className="flex-grow">
+                  <main className="flex-grow pb-16 sm:pb-0">
                     {renderContent()}
                   </main>
                   <FitallestFooter setCurrentTab={changeTab} />

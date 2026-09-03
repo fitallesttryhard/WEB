@@ -45,9 +45,11 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
 
   // Accordion toggle states for Bento Grid items
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
-    'seo': true,
-    'social': false,
-    'maps': false,
+    'seo-basic': true,
+    'seo-pro': true,
+    'social-short': true,
+    'social-story': true,
+    'maps': true,
     'analytics': true,
     'design': false,
     'logo': false,
@@ -244,18 +246,17 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Cơ bản */}
                       <div 
-                        onClick={() => toggleAccordion('seo')}
-                        onMouseEnter={() => setExpandedItems(prev => ({ ...prev, 'seo': true }))}
+                        onClick={() => toggleAccordion('seo-basic')}
                         className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-blue-500/40 cursor-pointer transition-all group"
                       >
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-bold text-slate-300 group-hover:text-blue-300 transition-colors flex items-center gap-1.5">
                             Gói Cơ bản 
-                            <ChevronDown className={`w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-transform ${expandedItems['seo'] ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-transform ${expandedItems['seo-basic'] ? 'rotate-180' : ''}`} />
                           </span>
                           <span className="text-blue-400 font-mono font-bold text-lg">150k</span>
                         </div>
-                        {expandedItems['seo'] && (
+                        {expandedItems['seo-basic'] && (
                           <ul className="text-xs text-slate-400 space-y-2 pt-3 border-t border-white/5 mt-3 animate-in fade-in">
                             <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-blue-400 shrink-0" /> ~1000 từ (Tiêu chuẩn)</li>
                             <li className="flex items-center gap-2"><Image className="w-3.5 h-3.5 text-blue-400 shrink-0" /> 2 ảnh minh họa</li>
@@ -266,19 +267,18 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
 
                       {/* Chuyên sâu */}
                       <div 
-                        onClick={() => toggleAccordion('seo')}
-                        onMouseEnter={() => setExpandedItems(prev => ({ ...prev, 'seo': true }))}
+                        onClick={() => toggleAccordion('seo-pro')}
                         className="bg-blue-900/10 p-4 rounded-xl border border-blue-500/30 hover:bg-blue-900/20 hover:border-blue-500/50 cursor-pointer transition-all relative overflow-hidden group"
                       >
                         <div className="absolute top-0 right-0 bg-blue-500/20 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">Khuyên dùng</div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-bold text-blue-400 group-hover:text-blue-300 transition-colors flex items-center gap-1.5">
                             Gói Chuyên sâu
-                            <ChevronDown className={`w-4 h-4 text-blue-400/60 group-hover:text-blue-400 transition-transform ${expandedItems['seo'] ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 text-blue-400/60 group-hover:text-blue-400 transition-transform ${expandedItems['seo-pro'] ? 'rotate-180' : ''}`} />
                           </span>
                           <span className="text-blue-400 font-mono font-bold text-lg">300k</span>
                         </div>
-                        {expandedItems['seo'] && (
+                        {expandedItems['seo-pro'] && (
                           <ul className="text-xs text-slate-300 space-y-2 pt-3 border-t border-blue-500/20 mt-3 animate-in fade-in">
                             <li className="flex items-center gap-2"><CheckCheck className="w-3.5 h-3.5 text-blue-400 shrink-0" /> 1500+ từ (Nghiên cứu kĩ)</li>
                             <li className="flex items-center gap-2"><ImagePlus className="w-3.5 h-3.5 text-blue-400 shrink-0" /> 5 ảnh (Có design layout)</li>
@@ -295,18 +295,17 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div 
-                        onClick={() => toggleAccordion('social')}
-                        onMouseEnter={() => setExpandedItems(prev => ({ ...prev, 'social': true }))}
+                        onClick={() => toggleAccordion('social-short')}
                         className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-pink-500/40 cursor-pointer transition-all group"
                       >
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-bold text-slate-300 group-hover:text-pink-300 transition-colors flex items-center gap-1.5">
                             Caption Ngắn 
-                            <ChevronDown className={`w-4 h-4 text-slate-500 group-hover:text-pink-400 transition-transform ${expandedItems['social'] ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 text-slate-500 group-hover:text-pink-400 transition-transform ${expandedItems['social-short'] ? 'rotate-180' : ''}`} />
                           </span>
                           <span className="text-pink-400 font-mono font-bold text-lg">80k</span>
                         </div>
-                        {expandedItems['social'] && (
+                        {expandedItems['social-short'] && (
                           <ul className="text-xs text-slate-400 space-y-2 pt-3 border-t border-white/5 mt-3 animate-in fade-in">
                             <li className="flex items-center gap-2"><AlignLeft className="w-3.5 h-3.5 text-pink-400 shrink-0" /> Dưới 300 từ, giật tít thu hút</li>
                             <li className="flex items-center gap-2"><Hash className="w-3.5 h-3.5 text-pink-400 shrink-0" /> Kèm bộ Hashtag chuẩn</li>
@@ -315,19 +314,18 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                       </div>
 
                       <div 
-                        onClick={() => toggleAccordion('social')}
-                        onMouseEnter={() => setExpandedItems(prev => ({ ...prev, 'social': true }))}
+                        onClick={() => toggleAccordion('social-story')}
                         className="bg-pink-900/10 p-4 rounded-xl border border-pink-500/30 hover:bg-pink-900/20 hover:border-pink-500/50 cursor-pointer transition-all relative overflow-hidden group"
                       >
                         <div className="absolute top-0 right-0 bg-pink-500/20 text-pink-300 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">Viral</div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-bold text-pink-400 group-hover:text-pink-300 transition-colors flex items-center gap-1.5">
                             Storytelling
-                            <ChevronDown className={`w-4 h-4 text-pink-400/60 group-hover:text-pink-400 transition-transform ${expandedItems['social'] ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 text-pink-400/60 group-hover:text-pink-400 transition-transform ${expandedItems['social-story'] ? 'rotate-180' : ''}`} />
                           </span>
                           <span className="text-pink-400 font-mono font-bold text-lg">150k</span>
                         </div>
-                        {expandedItems['social'] && (
+                        {expandedItems['social-story'] && (
                           <ul className="text-xs text-slate-300 space-y-2 pt-3 border-t border-pink-500/20 mt-3 animate-in fade-in">
                             <li className="flex items-center gap-2"><BookOpen className="w-3.5 h-3.5 text-pink-400 shrink-0" /> Kịch bản dài, lôi cuốn</li>
                             <li className="flex items-center gap-2"><Target className="w-3.5 h-3.5 text-pink-400 shrink-0" /> Đánh trúng tâm lý khách hàng</li>
@@ -352,7 +350,6 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                   {/* Google Maps */}
                   <div 
                     onClick={() => toggleAccordion('maps')}
-                    onMouseEnter={() => setExpandedItems(prev => ({ ...prev, 'maps': true }))}
                     className="border-b border-slate-800 pb-4 cursor-pointer group"
                   >
                     <div className="flex justify-between items-center">
@@ -383,7 +380,6 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                   {/* Analytics */}
                   <div 
                     onClick={() => toggleAccordion('analytics')}
-                    onMouseEnter={() => setExpandedItems(prev => ({ ...prev, 'analytics': true }))}
                     className="border-b border-slate-800 pb-4 cursor-pointer group"
                   >
                     <div className="flex justify-between items-center">
@@ -438,28 +434,28 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                 <h3 className="text-2xl font-bold mb-6 text-white">🎨 Thiết kế Đồ họa (Visual)</h3>
                 
                 <div className="space-y-4 text-xs">
-                  <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
-                    <div>
+                  <div className="border-b border-slate-800 pb-3 flex justify-between items-center gap-3">
+                    <div className="min-w-0">
                       <h4 className="font-bold text-slate-200 text-sm">Thiết kế Ấn phẩm Quảng cáo</h4>
                       <p className="text-slate-400 mt-0.5">Banner Facebook/Zalo, Standee, Flyer thương hiệu</p>
                     </div>
-                    <span className="font-mono text-pink-300 font-bold text-sm">Liên hệ</span>
+                    <span className="font-mono text-pink-300 font-bold text-sm shrink-0 whitespace-nowrap">Liên hệ</span>
                   </div>
 
-                  <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
-                    <div>
+                  <div className="border-b border-slate-800 pb-3 flex justify-between items-center gap-3">
+                    <div className="min-w-0">
                       <h4 className="font-bold text-slate-200 text-sm">Thiết kế Logo & Bộ nhận diện</h4>
                       <p className="text-slate-400 mt-0.5">Xuất file vector, quy chuẩn màu sắc font chữ</p>
                     </div>
-                    <span className="font-mono text-pink-300 font-bold text-sm">Liên hệ</span>
+                    <span className="font-mono text-pink-300 font-bold text-sm shrink-0 whitespace-nowrap">Liên hệ</span>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <div>
+                  <div className="flex justify-between items-center gap-3">
+                    <div className="min-w-0">
                       <h4 className="font-bold text-slate-200 text-sm">Nhạc Thương hiệu Độc quyền</h4>
                       <p className="text-slate-400 mt-0.5">Giai điệu 15s - 30s+, 100% bản quyền</p>
                     </div>
-                    <span className="font-mono text-pink-300 font-bold text-sm">Liên hệ</span>
+                    <span className="font-mono text-pink-300 font-bold text-sm shrink-0 whitespace-nowrap">Liên hệ</span>
                   </div>
                 </div>
               </div>
@@ -478,19 +474,19 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                 
                 <div className="space-y-4 text-xs">
                   <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-1">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-orange-200 text-sm">Dựng Video Ngắn (Shorts / Reel / TikTok)</h4>
-                      <span className="font-mono text-orange-300 font-bold text-sm">Liên hệ</span>
+                    <div className="flex justify-between items-center gap-3">
+                      <h4 className="font-bold text-orange-200 text-sm min-w-0">Dựng Video Ngắn (Shorts / Reel / TikTok)</h4>
+                      <span className="font-mono text-orange-300 font-bold text-sm shrink-0 whitespace-nowrap">Liên hệ</span>
                     </div>
                     <p className="text-slate-400">Dưới 60s, chèn phụ đề tự động, meme hiệu ứng nhịp điệu dồn dập.</p>
                   </div>
 
                   <div className="bg-orange-900/15 p-4 rounded-xl border border-orange-500/30 space-y-1">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-orange-400 text-sm flex items-center gap-1.5">
-                        <Bot className="w-4 h-4" /> Sản xuất Video AI MC Ảo
+                    <div className="flex justify-between items-center gap-3">
+                      <h4 className="font-bold text-orange-400 text-sm flex items-center gap-1.5 min-w-0">
+                        <Bot className="w-4 h-4 shrink-0" /> <span>Sản xuất Video AI MC Ảo</span>
                       </h4>
-                      <span className="font-mono text-orange-400 font-bold text-sm">Liên hệ</span>
+                      <span className="font-mono text-orange-400 font-bold text-sm shrink-0 whitespace-nowrap">Liên hệ</span>
                     </div>
                     <p className="text-slate-300">Tạo nhân vật MC ảo giống thật 99%, lồng tiếng AI sinh động, cảnh nền Midjourney.</p>
                   </div>
@@ -510,12 +506,12 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
                       <h4 className="font-bold text-cyan-300 text-lg">Thiết kế Landing Page</h4>
                       <p className="text-xs text-slate-400 mt-1">Tối ưu UI/UX tập trung vào chuyển đổi chốt đơn</p>
                     </div>
-                    <span className="font-mono text-cyan-400 font-bold text-sm">Liên hệ</span>
+                    <span className="font-mono text-cyan-400 font-bold text-sm shrink-0 whitespace-nowrap">Liên hệ</span>
                   </div>
                   <ul className="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
                     <li>Gói Template tối ưu sẵn: Tư vấn báo giá</li>
@@ -524,12 +520,12 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
                 </div>
 
                 <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0">
                       <h4 className="font-bold text-indigo-300 text-lg">Phần mềm (Web App / Mini App)</h4>
                       <p className="text-xs text-slate-400 mt-1">Hệ thống quản lý nội bộ doanh nghiệp & bán hàng</p>
                     </div>
-                    <span className="font-mono text-indigo-400 font-bold text-sm">Liên hệ</span>
+                    <span className="font-mono text-indigo-400 font-bold text-sm shrink-0 whitespace-nowrap">Liên hệ</span>
                   </div>
                   <ul className="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
                     <li>Quản trị cơ bản (CRM, Kho bãi, Báo cáo): Tư vấn báo giá</li>

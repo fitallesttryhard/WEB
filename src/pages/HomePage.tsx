@@ -394,17 +394,17 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 space-y-7">
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 backdrop-blur-md">
-                <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
-                <span className="text-[11px] font-mono font-black text-cyan-300 tracking-widest uppercase">[ SYS // 2026 ARCHITECTURE ]</span>
-                <span className="text-slate-600">•</span>
-                <span className="text-[11px] font-bold text-slate-300">REALTIME AI CORE</span>
+              <div className="inline-flex max-w-full items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 backdrop-blur-md">
+                <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping shrink-0" />
+                <span className="text-[10px] sm:text-[11px] font-mono font-black text-cyan-300 tracking-wider sm:tracking-widest uppercase whitespace-nowrap">[SYS // 2026 ARCHITECTURE]</span>
+                <span className="text-slate-600 shrink-0">•</span>
+                <span className="text-[10px] sm:text-[11px] font-bold text-slate-300 whitespace-nowrap">REALTIME AI CORE</span>
               </div>
-              <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black leading-[1.04] tracking-tight text-white text-balance">
-                BIẾN DỮ LIỆU & Ý&nbsp;TƯỞNG THÀNH<br />
+              <h1 className="text-3xl sm:text-6xl xl:text-7xl font-black leading-[1.12] sm:leading-[1.04] tracking-tight text-white text-balance">
+                BIẾN DỮ LIỆU & Ý&nbsp;TƯỞNG THÀNH<br className="hidden sm:inline" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 drop-shadow-[0_0_35px_rgba(6,182,212,0.4)]">
-                  LỢI THẾ CẠNH&nbsp;TRANH
-                </span><br />
+                  {" "}LỢI THẾ CẠNH&nbsp;TRANH{" "}
+                </span><br className="hidden sm:inline" />
                 ĐỘT&nbsp;PHÁ
               </h1>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-[54ch] font-normal">
