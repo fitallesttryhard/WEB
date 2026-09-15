@@ -63,7 +63,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
   }
 ];
 
-// Hàm gán icon và màu sắc phù hợp theo nhận diện ngành xây dựng
+// Hàm gán icon và màu sắc phù hợp theo nhận diện chuẩn thương hiệu SBUILD (Đỏ & Slate)
 function getCategoryVisuals(name: string, slug?: string, isConstruction = false) {
   const key = (slug || name || '').toLowerCase();
 
@@ -71,62 +71,62 @@ function getCategoryVisuals(name: string, slug?: string, isConstruction = false)
     if (key.includes('op-lat') || key.includes('ốp lát')) {
       return { 
         icon: LayoutGrid, 
-        color: 'from-blue-600 to-indigo-600', 
-        bg: 'bg-blue-50', 
-        text: 'text-blue-600', 
+        color: 'from-red-600 to-rose-600', 
+        bg: 'bg-slate-100', 
+        text: 'text-slate-800', 
         badge: 'Gạch men & Đá' 
       };
     }
     if (key.includes('trat') || key.includes('trát')) {
       return { 
         icon: Paintbrush, 
-        color: 'from-amber-500 to-orange-600', 
-        bg: 'bg-amber-50', 
-        text: 'text-amber-600', 
+        color: 'from-red-600 to-rose-600', 
+        bg: 'bg-slate-100', 
+        text: 'text-slate-800', 
         badge: 'Cạnh vữa & Mốc trát' 
       };
     }
     if (key.includes('thach-cao') || key.includes('thạch cao')) {
       return { 
         icon: Layers, 
-        color: 'from-cyan-600 to-blue-600', 
-        bg: 'bg-cyan-50', 
-        text: 'text-cyan-600', 
+        color: 'from-red-600 to-rose-600', 
+        bg: 'bg-slate-100', 
+        text: 'text-slate-800', 
         badge: 'Trần & Vách ngăn' 
       };
     }
     if (key.includes('noi-that') || key.includes('nội thất')) {
       return { 
         icon: Home, 
-        color: 'from-purple-600 to-indigo-600', 
-        bg: 'bg-purple-50', 
-        text: 'text-purple-600', 
+        color: 'from-red-600 to-rose-600', 
+        bg: 'bg-slate-100', 
+        text: 'text-slate-800', 
         badge: 'Sàn gỗ & Nẹp len' 
       };
     }
     if (key.includes('ngoai-that') || key.includes('ngoại thất')) {
       return { 
         icon: Building2, 
-        color: 'from-emerald-600 to-teal-600', 
-        bg: 'bg-emerald-50', 
-        text: 'text-emerald-600', 
+        color: 'from-red-600 to-rose-600', 
+        bg: 'bg-slate-100', 
+        text: 'text-slate-800', 
         badge: 'Ban công & Cửa sổ' 
       };
     }
     if (key.includes('den-led') || key.includes('đèn led')) {
       return { 
         icon: Lightbulb, 
-        color: 'from-yellow-500 to-amber-600', 
-        bg: 'bg-yellow-50', 
-        text: 'text-yellow-600', 
+        color: 'from-red-600 to-rose-600', 
+        bg: 'bg-slate-100', 
+        text: 'text-slate-800', 
         badge: 'Nẹp nhôm âm trần' 
       };
     }
     return { 
       icon: ShieldCheck, 
-      color: 'from-rose-600 to-red-600', 
-      bg: 'bg-rose-50', 
-      text: 'text-rose-600', 
+      color: 'from-red-600 to-rose-600', 
+      bg: 'bg-slate-100', 
+      text: 'text-slate-800', 
       badge: 'Cổ ống & Mạch ngừng' 
     };
   }
@@ -135,34 +135,34 @@ function getCategoryVisuals(name: string, slug?: string, isConstruction = false)
   if (key.includes('nhua') || key.includes('nhựa')) {
     return { 
       icon: Layers, 
-      color: 'from-emerald-600 to-teal-600', 
-      bg: 'bg-emerald-50', 
-      text: 'text-emerald-600', 
+      color: 'from-red-600 to-rose-600', 
+      bg: 'bg-slate-100', 
+      text: 'text-slate-800', 
       badge: 'Nhựa PVC cao cấp' 
     };
   }
   if (key.includes('nhom') || key.includes('nhôm')) {
     return { 
       icon: Ruler, 
-      color: 'from-blue-600 to-indigo-600', 
-      bg: 'bg-blue-50', 
-      text: 'text-blue-600', 
+      color: 'from-red-600 to-rose-600', 
+      bg: 'bg-slate-100', 
+      text: 'text-slate-800', 
       badge: 'Hợp kim Anode' 
     };
   }
   if (key.includes('inox')) {
     return { 
       icon: Sparkles, 
-      color: 'from-amber-500 to-rose-600', 
-      bg: 'bg-amber-50', 
-      text: 'text-amber-600', 
+      color: 'from-red-600 to-rose-600', 
+      bg: 'bg-slate-100', 
+      text: 'text-slate-800', 
       badge: 'Inox 304 mạ PVD' 
     };
   }
   if (key.includes('dung-cu') || key.includes('dụng cụ')) {
     return { 
       icon: Wrench, 
-      color: 'from-slate-700 to-slate-900', 
+      color: 'from-red-600 to-rose-600', 
       bg: 'bg-slate-100', 
       text: 'text-slate-800', 
       badge: 'Thi công chuyên nghiệp' 
@@ -172,17 +172,17 @@ function getCategoryVisuals(name: string, slug?: string, isConstruction = false)
     return { 
       icon: Boxes, 
       color: 'from-red-600 to-rose-600', 
-      bg: 'bg-red-50', 
-      text: 'text-red-600', 
+      bg: 'bg-slate-100', 
+      text: 'text-slate-800', 
       badge: 'Ke cân bằng & Cốp pha' 
     };
   }
   if (key.includes('hoa-chat') || key.includes('hóa chất')) {
     return { 
       icon: Droplets, 
-      color: 'from-violet-600 to-purple-600', 
-      bg: 'bg-violet-50', 
-      text: 'text-violet-600', 
+      color: 'from-red-600 to-rose-600', 
+      bg: 'bg-slate-100', 
+      text: 'text-slate-800', 
       badge: 'Keo dán & Chà ron' 
     };
   }
@@ -329,11 +329,11 @@ export default function Categories() {
               onClick={() => setActiveTab('construction')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                 activeTab === 'construction'
-                  ? 'bg-white text-purple-950 shadow-md shadow-purple-900/10'
-                  : 'text-slate-600 hover:text-purple-950'
+                  ? 'bg-white text-slate-900 shadow-md shadow-slate-900/10'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Layers size={15} className={activeTab === 'construction' ? 'text-purple-600' : 'text-slate-400'} />
+              <Layers size={15} className={activeTab === 'construction' ? 'text-red-600' : 'text-slate-400'} />
               <span>Hạng mục thi công ({constructionCategories.length})</span>
             </button>
           </div>
@@ -351,7 +351,7 @@ export default function Categories() {
                 <a
                   key={cat.id || index}
                   href={`/products?cat=${encodeURIComponent(cat.name)}`}
-                  className="group relative flex flex-col justify-between p-7 rounded-2xl border border-slate-200/80 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.12)] hover:-translate-y-1.5 overflow-hidden"
+                  className="group relative flex flex-col justify-between p-7 rounded-2xl border border-slate-200/80 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(220,38,38,0.12)] hover:-translate-y-1.5 overflow-hidden"
                 >
                   {/* Subtle Background Glow Accent */}
                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-red-50 to-rose-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
@@ -359,7 +359,7 @@ export default function Categories() {
                   <div>
                     {/* Header: Icon + Count Badge */}
                     <div className="flex items-center justify-between mb-5">
-                      <div className={`w-13 h-13 rounded-2xl ${visuals.bg} text-slate-800 flex items-center justify-center group-hover:bg-gradient-to-tr ${visuals.color} group-hover:text-white transition-all duration-300 shadow-sm border border-slate-100`}>
+                      <div className={`w-13 h-13 rounded-2xl ${visuals.bg} ${visuals.text} flex items-center justify-center group-hover:bg-gradient-to-tr ${visuals.color} group-hover:text-white transition-all duration-300 shadow-sm border border-slate-200/60 group-hover:border-transparent`}>
                         <Icon size={24} strokeWidth={2.2} />
                       </div>
                       <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/70 px-3 py-1 rounded-full text-[11px] font-bold text-slate-700 group-hover:border-red-200 group-hover:text-red-600 transition-colors">
@@ -407,26 +407,27 @@ export default function Categories() {
                 <a
                   key={cc.id || index}
                   href={`/products?construction=${encodeURIComponent(cc.name)}`}
-                  className="group relative flex flex-col justify-between p-6 rounded-2xl border border-purple-100 bg-white transition-all duration-300 hover:border-purple-400 hover:shadow-[0_16px_35px_rgba(147,51,234,0.12)] hover:-translate-y-1.5 overflow-hidden"
+                  className="group relative flex flex-col justify-between p-6 rounded-2xl border border-slate-200/80 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(220,38,38,0.12)] hover:-translate-y-1.5 overflow-hidden"
                 >
-                  <div className="absolute -top-10 -right-10 w-28 h-28 bg-gradient-to-br from-purple-50 to-indigo-100/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                  <div className="absolute -top-10 -right-10 w-28 h-28 bg-gradient-to-br from-red-50 to-rose-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
                   <div>
                     {/* Header: Icon + Count Badge */}
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-2xl ${visuals.bg} ${visuals.text} flex items-center justify-center group-hover:bg-gradient-to-tr ${visuals.color} group-hover:text-white transition-all duration-300 shadow-sm border border-purple-100`}>
+                      <div className={`w-12 h-12 rounded-2xl ${visuals.bg} ${visuals.text} flex items-center justify-center group-hover:bg-gradient-to-tr ${visuals.color} group-hover:text-white transition-all duration-300 shadow-sm border border-slate-200/60 group-hover:border-transparent`}>
                         <Icon size={22} strokeWidth={2.2} />
                       </div>
-                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200/60">
-                        {count > 0 ? `${count} sản phẩm` : 'Đang cập nhật'}
-                      </span>
+                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/70 px-3 py-1 rounded-full text-[11px] font-bold text-slate-700 group-hover:border-red-200 group-hover:text-red-600 transition-colors">
+                        <span className={`w-1.5 h-1.5 rounded-full ${count > 0 ? 'bg-red-500' : 'bg-slate-400'}`}></span>
+                        <span>{count > 0 ? `${count} sản phẩm` : 'Đang cập nhật'}</span>
+                      </div>
                     </div>
 
-                    <span className="inline-block text-[10px] font-extrabold uppercase tracking-widest text-purple-600/80 mb-1">
+                    <span className="inline-block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
                       Công đoạn
                     </span>
 
-                    <h3 className="font-black text-lg text-slate-900 mb-2 group-hover:text-purple-700 transition-colors">
+                    <h3 className="font-black text-lg text-slate-900 mb-2 group-hover:text-red-600 transition-colors uppercase">
                       {cc.name}
                     </h3>
                     
@@ -436,7 +437,7 @@ export default function Categories() {
                   </div>
 
                   {/* Footer CTA Link */}
-                  <div className="mt-6 pt-3.5 border-t border-purple-50 flex items-center justify-between text-xs font-black text-purple-700 group-hover:text-purple-900 transition-colors uppercase tracking-wider">
+                  <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs font-black text-slate-500 group-hover:text-red-600 transition-colors uppercase tracking-wider">
                     <span>Lọc theo công đoạn</span>
                     <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform" />
                   </div>

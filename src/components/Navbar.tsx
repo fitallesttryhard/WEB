@@ -206,12 +206,12 @@ export default function Navbar() {
                 </div>
 
                 {/* Khối 2: Hạng mục thi công */}
-                <div className="flex flex-col bg-purple-50/40 rounded-xl p-3 border border-purple-100/70">
-                  <div className="flex items-center gap-2 mb-2 pb-2 border-b border-purple-200/60">
-                    <div className="w-5 h-5 rounded-md bg-purple-600 text-white flex items-center justify-center">
+                <div className="flex flex-col bg-slate-50/70 rounded-xl p-3 border border-slate-100">
+                  <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-200/80">
+                    <div className="w-5 h-5 rounded-md bg-slate-900 text-white flex items-center justify-center">
                       <Layers size={11} />
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-purple-950">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-800">
                       Hạng mục thi công
                     </span>
                   </div>
@@ -220,10 +220,10 @@ export default function Navbar() {
                       <a 
                         key={cc.id || cc.slug || cc.name}
                         href={`/products?construction=${encodeURIComponent(cc.name)}`} 
-                        className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-purple-700 hover:bg-white transition-colors text-xs font-semibold group/link"
+                        className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-red-600 hover:bg-white transition-colors text-xs font-semibold group/link"
                       >
                         <span className="group-hover/link:translate-x-0.5 transition-transform">{cc.name}</span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 group-hover/link:bg-purple-600 transition-colors"></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover/link:bg-red-600 transition-colors"></span>
                       </a>
                     ))}
                   </div>
@@ -323,15 +323,15 @@ export default function Navbar() {
             </div>
 
             {/* Hạng mục thi công */}
-            <div className="pl-3 flex flex-col gap-1.5 border-l-2 border-purple-500/30 ml-1 mt-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-purple-700 mt-1 mb-0.5 flex items-center gap-1">
+            <div className="pl-3 flex flex-col gap-1.5 border-l-2 border-slate-200 ml-1 mt-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-1 mb-0.5 flex items-center gap-1">
                 <Layers size={11} /> Hạng mục thi công
               </span>
               {(constructionCategories.length > 0 ? constructionCategories : DEFAULT_CONSTRUCTION_CATEGORIES).map((cc) => (
                 <a 
                   key={cc.id || cc.slug || cc.name} 
                   href={`/products?construction=${encodeURIComponent(cc.name)}`} 
-                  className="text-slate-600 py-1 text-xs font-semibold hover:text-purple-700"
+                  className="text-slate-600 py-1 text-xs font-semibold hover:text-red-600"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {cc.name}
