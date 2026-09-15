@@ -10,7 +10,7 @@ export default function Hero() {
   const activeBanners = banners.filter((b: any) => {
     if (b.status === false) return false;
     const str = `${b.heading || ''} ${b.subheading || ''} ${b.prop_1 || ''}`.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return !str.includes('fitallest') && !str.includes('kientaokhonggiansong') && !str.includes('0909876817');
+    return !str.includes('fitallest') && !str.includes('0909876817');
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,12 +18,12 @@ export default function Hero() {
 
   // Fallback banner if none configured or active
   const defaultBanner = {
-    image_url: "https://images.unsplash.com/photo-1541888086903-efdc749f1813?q=80&w=2000&auto=format&fit=crop",
-    heading: "Cung Cấp Phụ Kiện Xây Dựng Chuyên Nghiệp",
-    subheading: "Đồng hành cùng hàng nghìn công trình trên toàn quốc. Cam kết chất lượng chuẩn kiểm định, giao hàng tận nơi và tư vấn giải pháp kỹ thuật tối ưu chi phí.",
-    cta_text: "KHÁM PHÁ SẢN PHẨM",
-    cta_link: "/products",
-    prop_1: "CÔNG TY TNHH ĐẦU TƯ XÂY DỰNG SBUILD",
+    image_url: "/images/hero-banner.webp",
+    heading: "Kiến Tạo Không Gian Sống",
+    subheading: "Sbuild - Cùng bạn xây dựng tương lai vững chắc",
+    cta_text: "XEM DỰ ÁN",
+    cta_link: "/projects",
+    prop_1: "CHUẨN CO/CQ KIỂM ĐỊNH",
     prop_2: "Giao Hàng Công Trình 24/7",
     prop_3: "Bảo Hành Chính Hãng",
   };

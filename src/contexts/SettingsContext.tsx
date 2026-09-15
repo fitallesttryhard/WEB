@@ -33,14 +33,14 @@ interface SettingsContextType {
 const defaultSbuildBanners = [
   {
     id: 1,
-    image_url: 'https://images.unsplash.com/photo-1541888086903-efdc749f1813?q=80&w=2000&auto=format&fit=crop',
-    heading: 'CUNG CẤP PHỤ KIỆN XÂY DỰNG CHUYÊN NGHIỆP',
-    subheading: 'Đồng hành cùng hàng nghìn công trình trên toàn quốc. Cam kết chất lượng chuẩn kiểm định, giao hàng tận nơi và tư vấn giải pháp kỹ thuật tối ưu chi phí.',
-    cta_text: 'KHÁM PHÁ SẢN PHẨM',
-    cta_link: '/products',
-    prop_1: 'CÔNG TY TNHH ĐẦU TƯ XÂY DỰNG SBUILD',
-    prop_2: 'Giao Hàng Công Trình 24/7',
-    prop_3: 'Bảo Hành Chính Hãng',
+    image_url: '/images/hero-banner.webp',
+    heading: 'KIẾN TẠO KHÔNG GIAN SỐNG',
+    subheading: 'Sbuild - Cùng bạn xây dựng tương lai vững chắc',
+    cta_text: 'XEM DỰ ÁN',
+    cta_link: '/projects',
+    prop_1: 'CHUẨN CO/CQ KIỂM ĐỊNH',
+    prop_2: 'GIAO HÀNG CÔNG TRÌNH 24/7',
+    prop_3: 'BẢO HÀNH CHÍNH HÃNG',
     status: true,
     order: 1
   }
@@ -78,7 +78,6 @@ const isLegacyText = (val: any): boolean => {
   const normalized = str.toLowerCase().replace(/[^a-z0-9]/g, '');
   return (
     normalized.includes('fitallest') ||
-    normalized.includes('kientaokhonggiansong') ||
     normalized.includes('0909876817')
   );
 };
