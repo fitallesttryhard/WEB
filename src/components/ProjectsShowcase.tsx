@@ -28,7 +28,9 @@ export default function ProjectsShowcase() {
     loadProjects();
   }, []);
 
-  const categories = ['Tất cả công trình', 'Chung cư cao cấp', 'Trung tâm thương mại', 'Resort & Biệt thự', 'Nhà xưởng công nghiệp'];
+  const defaultCategories = ['Chung cư cao cấp', 'Trung tâm thương mại', 'Resort & Biệt thự', 'Nhà xưởng công nghiệp'];
+  const projectCategories = Array.from(new Set(projectsList.map(p => p.category).filter(Boolean)));
+  const categories = ['Tất cả công trình', ...Array.from(new Set([...projectCategories, ...defaultCategories]))];
 
   const filteredProjects = activeCategory === 'Tất cả công trình' 
     ? projectsList 

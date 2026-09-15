@@ -76,10 +76,12 @@ export default function StorefrontSections() {
   const displayArticles = posts.map((p) => ({
     id: p.id,
     title: p.title,
+    slug: p.slug,
+    category: p.category || 'Tin tức & Dự án',
     excerpt: p.excerpt || 'Bài viết thông tin dự án & kỹ thuật thi công.',
     image: p.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
     date: new Date(p.created_at).toLocaleDateString('vi-VN'),
-    author: 'Admin',
+    author: p.author || 'Ban Kỹ Thuật S-BUILD',
   }));
 
   return (

@@ -19,7 +19,8 @@ import AdminSidebar from './AdminSidebar';
 import OrderDetailModal from './OrderDetailModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { seedTrimDatabase } from '../seedData';
-import { SBUILD_TENANT_ID } from '../projectServices';
+import { SBUILD_TENANT_ID, getProjects, saveProject, deleteProject } from '../projectServices';
+import { getArticles, saveArticle, deleteArticle } from '../articleServices';
 import { 
   ConstructionCategory, 
   DEFAULT_CONSTRUCTION_CATEGORIES, 
@@ -98,12 +99,12 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [postCategories, setPostCategories] = useState<any[]>([
-    { id: '1', name: 'Tin tức chung' },
-    { id: '2', name: 'Kiến thức xây dựng' }
+    { id: '1', name: 'Dự Án & Công Nghệ', slug: 'du-an-cong-nghe' },
+    { id: '2', name: 'Kỹ Thuật Thi Công', slug: 'ky-thuat-thi-cong' },
+    { id: '3', name: 'Cẩm Nang Vật Tư', slug: 'cam-nang-vat-tu' },
+    { id: '4', name: 'Thị Trường & Báo Giá', slug: 'thi-truong-bao-gia' }
   ]);
-  const [posts, setPosts] = useState<any[]>([
-    { id: 1, title: 'Hướng dẫn thi công giàn giáo', category: 'Kiến thức xây dựng', categoryId: '2', status: 'published', image: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=150&auto=format&fit=crop', views: 125, slug: 'huong-dan-thi-cong' }
-  ]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [pages, setPages] = useState<any[]>([
     { id: 1, title: 'Giới thiệu công ty', slug: 'gioi-thieu', status: 'published', lastUpdated: '2026-08-13', template: 'default' },
     { id: 2, title: 'Liên hệ', slug: 'lien-he', status: 'published', lastUpdated: '2026-08-12', template: 'contact' },
@@ -141,28 +142,7 @@ export default function AdminDashboard() {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   // Projects State
-  const [adminProjects, setAdminProjects] = useState<any[]>([
-    {
-      id: 1,
-      title: 'Tổ Hợp Tòa Nhà Cao Tầng S-Sky Tower',
-      category: 'Chung cư cao cấp',
-      location: 'Quận 2, TP. Hồ Chí Minh',
-      scale: '38 Tầng - 1,200 Căn hộ',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop',
-      materials: ['Nẹp nhôm nẹp góc âm/dương T20', 'Băng cản nước PVC V200', 'Phụ kiện giàn giáo khoá giáo xoay'],
-      description: 'Cung cấp toàn bộ giải pháp nẹp chỉ trang trí nhôm cao cấp Mạ Anode chống oxy hóa cho 38 tầng căn hộ hạng sang.'
-    },
-    {
-      id: 2,
-      title: 'Trung Tâm Thương Mại & Văn Phòng Central Plaza',
-      category: 'Trung tâm thương mại',
-      location: 'Quận Cầu Giấy, Hà Nội',
-      scale: '5 Tầng hầm - 28 Tầng nổi',
-      image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
-      materials: ['Nẹp Inox 304 mạ PVD vàng mờ', 'Nẹp thảm gạch đá', 'Ty ren & Bát chuồn D12/D16'],
-      description: 'Giải pháp nẹp mạ PVD vàng mờ sang trọng tạo điểm nhấn kiến trúc cho sảnh chính và hệ thang máy.'
-    }
-  ]);
+  const [adminProjects, setAdminProjects] = useState<any[]>([]);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [projectForm, setProjectForm] = useState({
     id: null as any,
@@ -480,9 +460,46 @@ export default function AdminDashboard() {
         setProducts([]);
       }
 
+      // Nạp danh sách bài viết & tin tức từ Supabase
+      const articlesList = await getArticles();
+      if (articlesList && articlesList.length > 0) {
+        setPosts(articlesList.map(a => ({
+          id: a.id,
+          title: a.title,
+          slug: a.slug,
+          category: a.category,
+          categoryId: a.category,
+          image: a.cover_image,
+          thumbnailUrl: a.cover_image,
+          status: a.is_published ? 'published' : 'draft',
+          views: a.views || 0,
+          author: a.author,
+          excerpt: a.excerpt,
+          content: a.html_content,
+          created_at: a.created_at
+        })));
+
+        const uniqueCats = Array.from(new Set(articlesList.map(a => a.category).filter(Boolean)));
+        if (uniqueCats.length > 0) {
+          setPostCategories(uniqueCats.map((c, i) => ({
+            id: String(i + 1),
+            name: c,
+            slug: toSlug(c),
+            count: articlesList.filter(a => a.category === c).length
+          })));
+        }
+      }
+
+      // Nạp danh sách dự án thi công từ Supabase
+      const projectsList = await getProjects(SBUILD_TENANT_ID);
+      if (projectsList && projectsList.length > 0) {
+        setAdminProjects(projectsList);
+      }
+
       const { data: pageData } = await supabase.from('pages').select('*').eq('tenant_id', SBUILD_TENANT_ID).order('created_at', { ascending: false });
       if (pageData) {
-        setPages(pageData.map(p => ({
+        const staticPages = pageData.filter(p => p.template_type !== 'article' && p.template_type !== 'project');
+        setPages(staticPages.map(p => ({
           id: p.id,
           title: p.title,
           slug: p.slug,
@@ -751,86 +768,86 @@ export default function AdminDashboard() {
   };
 
   const handlePostSubmit = async (formData: any) => {
-    const selectedCat = postCategories.find(c => c.id.toString() === formData.categoryId);
-    const imageUrl = formData.thumbnailUrl || formData.image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=150&auto=format&fit=crop';
+    const selectedCat = postCategories.find(c => c.id.toString() === formData.categoryId || c.name === formData.categoryId);
+    const catName = selectedCat?.name || formData.category || formData.categoryId || 'Kỹ Thuật Thi Công';
+    const imageUrl = formData.thumbnailUrl || formData.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop';
     const slug = formData.slug || toSlug(formData.title || 'bai-viet');
 
-    if (formData.id) {
-      const updatedPost = {
-        ...formData,
-        category: selectedCat?.name || 'Chưa phân loại',
-        image: imageUrl,
-        views: editingPost?.views || 0
-      };
-      setPosts(posts.map(p => p.id === formData.id ? updatedPost : p));
-      showToast('Đã cập nhật bài viết thành công!');
+    const res = await saveArticle({
+      id: formData.id,
+      title: formData.title,
+      slug,
+      category: catName,
+      cover_image: imageUrl,
+      excerpt: formData.excerpt || formData.seoDescription || '',
+      html_content: formData.content || '',
+      is_published: formData.status === 'published' || formData.status === true,
+      views: editingPost?.views || 0,
+      author: formData.author || 'Ban Kỹ Thuật S-BUILD'
+    });
 
-      try {
-        await supabase.from('posts').update({
-          title: formData.title,
-          slug,
-          cover_image: imageUrl,
-          excerpt: formData.excerpt || formData.summary || '',
-          html_content: formData.content || '',
-          is_published: formData.status === 'published' || formData.is_published || true
-        }).eq('id', formData.id);
-      } catch (err) {
-        console.warn('Lỗi update post:', err);
+    if (res.success && res.data) {
+      const saved = res.data;
+      const mappedPost = {
+        id: saved.id,
+        title: saved.title,
+        slug: saved.slug,
+        category: saved.category,
+        categoryId: saved.category,
+        image: saved.cover_image,
+        thumbnailUrl: saved.cover_image,
+        status: saved.is_published ? 'published' : 'draft',
+        views: saved.views || 0,
+        author: saved.author,
+        excerpt: saved.excerpt,
+        content: saved.html_content,
+        created_at: saved.created_at
+      };
+
+      if (formData.id) {
+        setPosts(posts.map(p => p.id === formData.id ? mappedPost : p));
+        showToast('Đã cập nhật bài viết thành công!');
+      } else {
+        setPosts([mappedPost, ...posts]);
+        showToast('Đã thêm bài viết mới!');
       }
     } else {
-      const newId = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
-      const newPost = {
-        ...formData,
-        id: newId,
-        category: selectedCat?.name || 'Chưa phân loại',
-        image: imageUrl,
-        views: 0
-      };
-      setPosts([newPost, ...posts]);
-      showToast('Đã thêm bài viết mới!');
-
-      try {
-        const { data: tenant } = await supabase.from('tenants').select('id').limit(1).maybeSingle();
-        const payload: any = {
-          id: newId,
-          title: formData.title,
-          slug,
-          cover_image: imageUrl,
-          excerpt: formData.excerpt || formData.summary || '',
-          html_content: formData.content || '',
-          is_published: true
-        };
-        if (tenant?.id) payload.tenant_id = tenant.id;
-
-        await supabase.from('posts').insert([payload]);
-      } catch (err) {
-        console.warn('Lỗi insert post:', err);
-      }
+      showToast('Lỗi khi lưu bài viết: ' + (res.error || 'Vui lòng thử lại'));
     }
     setIsPostModalOpen(false);
   };
 
   const handleDeletePost = async (id: any) => {
     if (!confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return;
-    setPosts(posts.filter(p => p.id !== id));
-    setSelectedPosts(selectedPosts.filter(pId => pId !== id));
-    showToast('Đã xóa bài viết!');
-    try {
-      await supabase.from('posts').delete().eq('id', id);
-    } catch (err) {
-      console.warn('Lỗi delete post:', err);
+    const ok = await deleteArticle(id);
+    if (ok) {
+      setPosts(posts.filter(p => p.id !== id));
+      setSelectedPosts(selectedPosts.filter(pId => pId !== id));
+      showToast('Đã xóa bài viết thành công!');
+    } else {
+      showToast('Lỗi khi xóa bài viết!');
     }
   };
 
   const handleTogglePostStatus = async (id: any, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'draft' : 'published';
     const isPub = newStatus === 'published';
-    setPosts(posts.map(p => p.id === id ? { ...p, status: newStatus } : p));
-    showToast(`Đã đổi trạng thái thành ${isPub ? 'Xuất bản' : 'Bản nháp'}!`);
-    try {
-      await supabase.from('posts').update({ is_published: isPub }).eq('id', id);
-    } catch (err) {
-      console.warn('Lỗi toggle post status:', err);
+    const targetPost = posts.find(p => p.id === id);
+    if (!targetPost) return;
+
+    const res = await saveArticle({
+      ...targetPost,
+      id,
+      is_published: isPub,
+      cover_image: targetPost.image || targetPost.thumbnailUrl,
+      html_content: targetPost.content
+    });
+
+    if (res.success) {
+      setPosts(posts.map(p => p.id === id ? { ...p, status: newStatus } : p));
+      showToast(`Đã đổi trạng thái thành ${isPub ? 'Xuất bản' : 'Bản nháp'}!`);
+    } else {
+      showToast('Lỗi cập nhật trạng thái bài viết!');
     }
   };
 
@@ -844,14 +861,29 @@ export default function AdminDashboard() {
     else setSelectedPosts([...selectedPosts, id]);
   };
 
-  const handleBulkDeletePosts = () => {
+  const handleBulkDeletePosts = async () => {
     if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedPosts.length} bài viết?`)) return;
+    for (const id of selectedPosts) {
+      await deleteArticle(id);
+    }
     setPosts(posts.filter(p => !selectedPosts.includes(p.id)));
     setSelectedPosts([]);
     showToast(`Đã xóa ${selectedPosts.length} bài viết thành công!`);
   };
 
-  const handleBulkDraftPosts = () => {
+  const handleBulkDraftPosts = async () => {
+    for (const id of selectedPosts) {
+      const p = posts.find(item => item.id === id);
+      if (p) {
+        await saveArticle({
+          ...p,
+          id,
+          is_published: false,
+          cover_image: p.image || p.thumbnailUrl,
+          html_content: p.content
+        });
+      }
+    }
     setPosts(posts.map(p => selectedPosts.includes(p.id) ? { ...p, status: 'draft' } : p));
     setSelectedPosts([]);
     showToast(`Đã chuyển ${selectedPosts.length} bài viết về bản nháp!`);
@@ -1687,12 +1719,15 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
-                              <button 
-                                onClick={() => showToast('Tính năng Xem trước đang được phát triển.')}
-                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
+                              <a 
+                                href={`/bai-viet/${post.slug || post.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" 
+                                title="Xem bài viết trên website"
                               >
                                 <Eye size={16} />
-                              </button>
+                              </a>
                               <button 
                                 onClick={() => handleEditPost(post)}
                                 className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
@@ -2431,10 +2466,15 @@ export default function AdminDashboard() {
                                 <Edit size={16} />
                               </button>
                               <button 
-                                onClick={() => {
+                                onClick={async () => {
                                   if (confirm(`Bạn có chắc muốn xóa dự án "${proj.title}"?`)) {
-                                    setAdminProjects(prev => prev.filter(p => p.id !== proj.id));
-                                    showToast('Đã xóa dự án thành công.');
+                                    const ok = await deleteProject(proj.id);
+                                    if (ok) {
+                                      setAdminProjects(prev => prev.filter(p => p.id !== proj.id));
+                                      showToast('Đã xóa dự án thành công.');
+                                    } else {
+                                      showToast('Lỗi khi xóa dự án!');
+                                    }
                                   }
                                 }}
                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -3443,13 +3483,18 @@ export default function AdminDashboard() {
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
         initialData={projectForm}
-        onSubmit={(data) => {
-          if (projectForm.id) {
-            setAdminProjects(prev => prev.map(p => p.id === data.id ? data : p));
-            showToast('Đã cập nhật dự án thành công.');
+        onSubmit={async (data) => {
+          const saved = await saveProject(data, SBUILD_TENANT_ID);
+          if (saved) {
+            if (projectForm.id) {
+              setAdminProjects(prev => prev.map(p => p.id === saved.id ? saved : p));
+              showToast('Đã cập nhật dự án thành công.');
+            } else {
+              setAdminProjects(prev => [saved, ...prev]);
+              showToast('Đã thêm dự án mới thành công.');
+            }
           } else {
-            setAdminProjects(prev => [data, ...prev]);
-            showToast('Đã thêm dự án mới thành công.');
+            showToast('Lỗi lưu dự án vào cơ sở dữ liệu.');
           }
           setIsProjectModalOpen(false);
         }}

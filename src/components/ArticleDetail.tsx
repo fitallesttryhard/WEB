@@ -66,8 +66,8 @@ export default function ArticleDetail({ slug: propSlug }: { slug?: string }) {
           <ArrowLeft size={16} /> Quay lại danh sách bài viết
         </a>
         
-        <span className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">
-          Tin tức & Sự kiện
+        <span className="block text-sm font-bold text-red-600 uppercase tracking-widest mb-6">
+          {post.category || 'Tin tức & Dự án'}
         </span>
         
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-[1.1] mb-10 max-w-4xl mx-auto">
@@ -75,7 +75,7 @@ export default function ArticleDetail({ slug: propSlug }: { slug?: string }) {
         </h1>
         
         <div className="flex items-center justify-center gap-6 text-sm font-medium text-gray-500">
-          <span className="font-bold text-gray-900">Ban Biên Tập Sbuild</span>
+          <span className="font-bold text-gray-900">{post.author || 'Ban Kỹ Thuật S-BUILD'}</span>
           <span className="w-1 h-1 rounded-full bg-gray-300"></span>
           <span>{postDate}</span>
         </div>
