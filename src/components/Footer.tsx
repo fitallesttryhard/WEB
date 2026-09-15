@@ -54,7 +54,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium max-w-sm">
-              Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.
+              {settings.companyDescription || 'Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.'}
             </p>
 
             {/* Social Links */}
@@ -76,31 +76,45 @@ export default function Footer() {
 
           {/* Dynamic Blocks or Default Links */}
           {footerBlocks.length > 0 ? (
-            footerBlocks.map((block: any, index: number) => (
-              <div key={block.id || index} className="lg:col-span-3">
-                <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                  {block.title || 'Liên kết'}
-                </h3>
-                {block.type === 'links' && block.items && (
-                  <ul className="flex flex-col gap-3 font-medium text-xs">
-                    {block.items.map((item: any, i: number) => (
-                      <li key={i}>
-                        <a href={item.url || '#'} className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
-                          <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                          <span>{item.label || item.title}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {block.type === 'text' && (
-                  <p className="text-xs text-slate-400 leading-relaxed font-medium">
-                    {block.content}
-                  </p>
-                )}
-              </div>
-            ))
+            footerBlocks.map((block: any, index: number) => {
+              // Dynamic column span based on total blocks
+              const blockSpan = footerBlocks.length === 1 
+                ? 'lg:col-span-3' 
+                : block.type === 'text' 
+                  ? 'lg:col-span-3' 
+                  : 'lg:col-span-2';
+
+              return (
+                <div key={block.id || index} className={blockSpan}>
+                  <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                    {block.title || 'Thông tin'}
+                  </h3>
+                  {block.type === 'links' && block.items && (
+                    <ul className="flex flex-col gap-3 font-medium text-xs">
+                      {block.items.map((item: any, i: number) => (
+                        <li key={i}>
+                          <a href={item.url || '#'} className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                            <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <span>{item.label || item.title}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {block.type === 'text' && (
+                    <p className="text-xs text-slate-400 leading-relaxed font-medium whitespace-pre-line">
+                      {block.content}
+                    </p>
+                  )}
+                  {block.type === 'image' && block.url && (
+                    <div className="mt-2">
+                      <img src={block.url} alt={block.title || 'Footer image'} style={{ maxWidth: `${block.width || 120}px` }} className="rounded-lg object-contain bg-slate-900 p-2 border border-slate-800" />
+                    </div>
+                  )}
+                </div>
+              );
+            })
           ) : (
             <div className="lg:col-span-3">
               <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
@@ -110,7 +124,7 @@ export default function Footer() {
               <ul className="flex flex-col gap-3 font-medium text-xs">
                 <li>
                   <a href="/" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
-                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Trống & Trang chủ
+                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Trang chủ
                   </a>
                 </li>
                 <li>
@@ -138,7 +152,7 @@ export default function Footer() {
           )}
 
           {/* Col Contact */}
-          <div className="lg:col-span-5">
+          <div className={footerBlocks.length >= 2 ? "lg:col-span-3" : "lg:col-span-5"}>
             <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-6 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
               Thông Tin Trụ Sở & Liên Hệ

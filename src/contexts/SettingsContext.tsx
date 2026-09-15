@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 
 export interface TenantSettings {
   companyName: string;
+  companyDescription?: string;
   hotline: string;
   address: string;
   email: string;
@@ -46,8 +47,31 @@ const defaultSbuildBanners = [
   }
 ];
 
+export const DEFAULT_FOOTER_BLOCKS = [
+  {
+    id: 'block-default-1',
+    type: 'links',
+    title: 'Liên kết nhanh',
+    items: [
+      { id: '1', label: 'Trang chủ', url: '/' },
+      { id: '2', label: 'Giới thiệu công ty', url: '/about' },
+      { id: '3', label: 'Danh mục sản phẩm', url: '/products' },
+      { id: '4', label: 'Dự án đã thi công', url: '/projects' },
+      { id: '5', label: 'Tin tức & Sự kiện', url: '/blog' },
+      { id: '6', label: 'Liên hệ', url: '/contact' }
+    ]
+  },
+  {
+    id: 'block-default-2',
+    type: 'text',
+    title: 'Chính sách chất lượng',
+    content: 'SBUILD cam kết cung cấp giải pháp vật tư, phụ kiện giàn giáo và dụng cụ thi công chất lượng chuẩn CO/CQ với chi phí tối ưu nhất.'
+  }
+];
+
 const defaultSettings: TenantSettings = {
   companyName: 'Công ty TNHH Đầu tư Xây dựng Sbuild',
+  companyDescription: 'Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.',
   hotline: '0901 234 567',
   address: 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP. Hồ Chí Minh',
   email: 'contact@sbuild.vn',
@@ -62,7 +86,7 @@ const defaultSettings: TenantSettings = {
   plan: 'Enterprise',
   paymentStatus: 'Paid',
   socialLinks: [],
-  footerBlocks: [],
+  footerBlocks: DEFAULT_FOOTER_BLOCKS,
   banners: defaultSbuildBanners,
 };
 
@@ -200,11 +224,15 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             } catch (e) {}
           }
 
+          const rawBlocks = Array.isArray(fc) ? fc : (fc.blocks || []);
+          const finalBlocks = Array.isArray(rawBlocks) && rawBlocks.length > 0 ? rawBlocks : DEFAULT_FOOTER_BLOCKS;
+
           setSettings((prev) => ({
             ...prev,
             brandColor: (data.brand_color && data.brand_color !== '#6366f1') ? data.brand_color : '#dc2626',
             logoUrl: data.logo_url || prev.logoUrl,
             companyName,
+            companyDescription: fc.companyDescription || prev.companyDescription,
             hotline,
             address: data.address || fc.address || prev.address,
             email,
@@ -215,8 +243,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             status: tenantStatus,
             subdomain: tenantSubdomain,
             plan: tenantPlan,
-            socialLinks: Array.isArray(soc) ? soc : (soc.links || prev.socialLinks),
-            footerBlocks: Array.isArray(fc) ? fc : (fc.blocks || prev.footerBlocks),
+            socialLinks: Array.isArray(soc) && soc.length > 0 ? soc : (soc.links || prev.socialLinks),
+            footerBlocks: finalBlocks,
             banners: cleanBanners,
             ...localCustomSettings,
           }));
@@ -238,6 +266,12 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     fetchTenantSettings();
 
+    // Listen for custom settings update event across the app
+    const handleCustomSettingsUpdate = () => {
+      fetchTenantSettings();
+    };
+    window.addEventListener('sbuild_settings_updated', handleCustomSettingsUpdate);
+
     // Listen for storage changes across tabs for instant multi-tenant status updates
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'saas_tenants_data' && e.newValue) {
@@ -253,9 +287,15 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           }
         } catch (err) {}
       }
+      if (e.key === 'sbuild_site_custom_settings') {
+        fetchTenantSettings();
+      }
     };
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('sbuild_settings_updated', handleCustomSettingsUpdate);
+    };
   }, []);
 
   const updateSettings = async (newSettings: Partial<TenantSettings>) => {
@@ -269,11 +309,14 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           gscVerificationCode: updated.gscVerificationCode,
           customHeaderScripts: updated.customHeaderScripts,
           companyName: updated.companyName,
+          companyDescription: updated.companyDescription,
           hotline: updated.hotline,
           address: updated.address,
           email: updated.email,
           mapUrl: updated.mapUrl,
+          footerBlocks: updated.footerBlocks,
         }));
+        window.dispatchEvent(new Event('sbuild_settings_updated'));
       } catch (e) {}
 
       // Async sync to Supabase in background
@@ -305,6 +348,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             footer_config: {
               ...existingFc,
               companyName: updated.companyName,
+              companyDescription: updated.companyDescription,
               hotline: updated.hotline,
               address: updated.address,
               email: updated.email,
@@ -312,7 +356,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
               gaMeasurementId: updated.gaMeasurementId,
               gscVerificationCode: updated.gscVerificationCode,
               customHeaderScripts: updated.customHeaderScripts,
-              blocks: updated.footerBlocks || existingFc.blocks || [],
+              blocks: updated.footerBlocks || existingFc.blocks || DEFAULT_FOOTER_BLOCKS,
               banners: updated.banners || existingFc.banners || [],
             },
           };

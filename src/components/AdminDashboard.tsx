@@ -4,7 +4,7 @@ import {
   CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
   UploadCloud, Copy, Image as ImageIcon, Loader2, Save,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
-  Menu, X, Layers
+  Menu, X, Layers, MapPin, Phone, Mail, ChevronRight
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -442,6 +442,7 @@ export default function AdminDashboard() {
         }));
         setSettingsForm(prev => ({
           companyName: settingsData.company_name || fc.companyName || prev.companyName,
+          companyDescription: fc.companyDescription || prev.companyDescription || 'Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.',
           hotline: settingsData.hotline || fc.hotline || prev.hotline,
           address: settingsData.address || fc.address || prev.address,
           email: settingsData.email || fc.email || prev.email,
@@ -554,6 +555,7 @@ export default function AdminDashboard() {
         footer_config: {
           ...existingFc,
           companyName: settingsForm.companyName,
+          companyDescription: settingsForm.companyDescription,
           hotline: settingsForm.hotline,
           address: settingsForm.address,
           email: settingsForm.email,
@@ -2883,6 +2885,17 @@ export default function AdminDashboard() {
                       </div>
 
                       <div className="md:col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Mô tả giới thiệu công ty (hiển thị dưới Logo ở chân trang Footer)</label>
+                        <textarea 
+                          rows={3}
+                          value={settingsForm.companyDescription || ''}
+                          onChange={(e) => setSettingsForm({...settingsForm, companyDescription: e.target.value})}
+                          placeholder="Nhà cung cấp chuyên nghiệp các giải pháp vật tư..."
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium resize-none"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-bold text-gray-700 mb-1.5">Hotline</label>
                         <input 
                           type="text" 
@@ -3040,91 +3053,132 @@ export default function AdminDashboard() {
                           <span className="text-xs text-gray-500 font-medium italic">* Bản xem trước giống 100% giao diện thực tế khách nhìn thấy</span>
                         </div>
                         <div 
-                          style={{ backgroundColor: settingsForm.brandColor || appearanceForm.primary_color || '#dc2626' }}
-                          className="text-white p-8 sm:p-10 rounded-2xl shadow-xl space-y-10 transition-colors duration-300"
+                          className="bg-slate-950 text-slate-300 p-6 sm:p-10 rounded-2xl shadow-2xl border border-slate-800/80 relative overflow-hidden transition-colors duration-300"
                         >
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
+                          {/* Top Red Accent Line */}
+                          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-rose-600 to-red-600"></div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 mb-8">
                             {/* Col 1: Thông tin công ty & Logo */}
                             <div className="lg:col-span-4">
-                              <div className="flex flex-col gap-2 mb-4">
+                              <div className="flex flex-col gap-3 mb-4">
                                 {(settingsForm.logoUrl || appearanceForm.logo_url) ? (
-                                  <img src={settingsForm.logoUrl || appearanceForm.logo_url} alt="Logo" className="h-10 w-auto object-contain self-start bg-white/10 p-1 rounded" />
+                                  <img 
+                                    src={settingsForm.logoUrl || appearanceForm.logo_url} 
+                                    alt="Logo" 
+                                    className="h-10 w-auto object-contain self-start bg-slate-900 border border-slate-800 p-1.5 rounded-xl shadow-xs" 
+                                  />
                                 ) : null}
-                                <span className="text-sm font-black uppercase tracking-widest text-white">
-                                  {settingsForm.companyName || 'Công ty TNHH Đầu tư Xây dựng Sbuild'}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2 h-2 rounded-full bg-red-600"></span>
+                                  <span className="text-sm font-black uppercase tracking-wider text-white">
+                                    {settingsForm.companyName || 'Công ty TNHH Đầu tư Xây dựng Sbuild'}
+                                  </span>
+                                </div>
                               </div>
-                              <p className="text-[12px] opacity-80 leading-relaxed mb-6 font-medium">
-                                Nhà cung cấp chuyên nghiệp các giải pháp vật tư, phụ kiện và dụng cụ thi công xây dựng với chất lượng hàng đầu tại Việt Nam.
+                              <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium max-w-sm">
+                                {settingsForm.companyDescription || 'Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.'}
                               </p>
-                              <div className="flex items-center gap-2 flex-wrap">
+                              <div className="flex items-center gap-2.5 flex-wrap">
                                 {(settingsForm.socialLinks || []).map((link: any, idx: number) => (
-                                  <div key={`preview-soc-${idx}`} className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center text-white">
+                                  <div key={`preview-soc-${idx}`} className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800/80 text-slate-400 flex items-center justify-center hover:text-white transition-all uppercase shadow-xs">
                                     {getSocialIcon(link.platform)}
                                   </div>
                                 ))}
                                 {(!settingsForm.socialLinks || settingsForm.socialLinks.length === 0) && (
-                                  <span className="text-xs opacity-60 italic">(Chưa có liên kết MXH)</span>
+                                  <span className="text-xs text-slate-500 italic">(Chưa có liên kết MXH)</span>
                                 )}
                               </div>
                             </div>
 
                             {/* Dynamic Blocks */}
-                            <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                              {settingsForm.footerBlocks.map((block: any, index: number) => (
-                                <div key={`preview-block-${block.id || index}`}>
-                                  <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-4">
-                                    {block.title || 'Block tiêu đề'}
+                            {settingsForm.footerBlocks.map((block: any, index: number) => {
+                              const blockSpan = settingsForm.footerBlocks.length === 1 
+                                ? 'lg:col-span-3' 
+                                : block.type === 'text' 
+                                  ? 'lg:col-span-3' 
+                                  : 'lg:col-span-2';
+
+                              return (
+                                <div key={`preview-block-${block.id || index}`} className={blockSpan}>
+                                  <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-4 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                                    {block.title || 'Thông tin'}
                                   </h3>
                                   {block.type === 'links' && (
-                                    <ul className="flex flex-col gap-2 font-medium text-[12px] opacity-90">
+                                    <ul className="flex flex-col gap-2.5 font-medium text-xs">
                                       {block.items?.map((item: any, i: number) => (
-                                        <li key={i}>{item.label || item.title || 'Tên liên kết'}</li>
+                                        <li key={i} className="text-slate-400 flex items-center gap-1.5">
+                                          <ChevronRight size={12} className="text-red-500" />
+                                          <span>{item.label || item.title || 'Tên liên kết'}</span>
+                                        </li>
                                       ))}
-                                      {(!block.items || block.items.length === 0) && <li className="italic opacity-60">(Trống)</li>}
+                                      {(!block.items || block.items.length === 0) && <li className="italic text-slate-500 text-xs">(Trống)</li>}
                                     </ul>
                                   )}
                                   {block.type === 'text' && (
-                                    <p className="text-[12px] opacity-80 leading-relaxed font-medium whitespace-pre-line">
+                                    <p className="text-xs text-slate-400 leading-relaxed font-medium whitespace-pre-line">
                                       {block.content || 'Nội dung văn bản...'}
                                     </p>
                                   )}
                                   {block.type === 'image' && block.url && (
-                                    <img src={block.url} alt="Block img" style={{ width: `${block.width || 100}px` }} className="rounded" />
+                                    <div className="mt-2">
+                                      <img src={block.url} alt="Block img" style={{ maxWidth: `${block.width || 120}px` }} className="rounded-lg bg-slate-900 p-2 border border-slate-800 object-contain" />
+                                    </div>
                                   )}
                                 </div>
-                              ))}
-                              {settingsForm.footerBlocks.length === 0 && (
-                                <div className="text-xs opacity-60 italic">Bấm "Thêm Block" ở trên để bổ sung cột nội dung.</div>
-                              )}
-                            </div>
+                              );
+                            })}
+                            {settingsForm.footerBlocks.length === 0 && (
+                              <div className="lg:col-span-5 text-xs text-slate-500 italic p-4 border border-dashed border-slate-800 rounded-xl">
+                                Chưa có Block nào. Bấm "Thêm Block" ở trên để bổ sung cột nội dung.
+                              </div>
+                            )}
 
                             {/* Col Contact */}
-                            <div className="lg:col-span-4">
-                              <h3 className="text-[11px] font-bold uppercase opacity-60 tracking-widest mb-4">Thông tin liên hệ</h3>
-                              <ul className="flex flex-col gap-3 text-[12px] font-medium opacity-90">
-                                <li className="flex items-start gap-2.5">
-                                  <span className="shrink-0 mt-0.5">📍</span>
-                                  <span>{settingsForm.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP.HCM'}</span>
+                            <div className={settingsForm.footerBlocks.length >= 2 ? "lg:col-span-3" : "lg:col-span-5"}>
+                              <h3 className="text-[11px] font-extrabold uppercase text-slate-400 tracking-widest mb-4 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                                Thông Tin Liên Hệ
+                              </h3>
+                              <ul className="flex flex-col gap-3.5 text-xs font-medium">
+                                <li className="flex items-start gap-3">
+                                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800/80 text-red-500 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                                    <MapPin size={15} />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Địa chỉ văn phòng</span>
+                                    <span className="text-slate-300 font-semibold">{settingsForm.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP.HCM'}</span>
+                                  </div>
                                 </li>
-                                <li className="flex items-center gap-2.5">
-                                  <span className="shrink-0">📞</span>
-                                  <span>{settingsForm.hotline || '0901 234 567'}</span>
+                                <li className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800/80 text-red-500 flex items-center justify-center shrink-0 shadow-xs">
+                                    <Phone size={15} />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Hotline tư vấn</span>
+                                    <span className="text-white font-extrabold">{settingsForm.hotline || '0901 234 567'}</span>
+                                  </div>
                                 </li>
-                                <li className="flex items-center gap-2.5">
-                                  <span className="shrink-0">✉️</span>
-                                  <span>{settingsForm.email || 'contact@sbuild.vn'}</span>
+                                <li className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800/80 text-red-500 flex items-center justify-center shrink-0 shadow-xs">
+                                    <Mail size={15} />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Email tiếp nhận</span>
+                                    <span className="text-slate-300">{settingsForm.email || 'contact@sbuild.vn'}</span>
+                                  </div>
                                 </li>
                               </ul>
                             </div>
                           </div>
 
                           {/* Bottom Bar */}
-                          <div className="border-t border-white/20 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-medium opacity-75">
-                            <p>&copy; {new Date().getFullYear()} {settingsForm.companyName || 'SBUILD'}. Tất cả quyền được bảo lưu.</p>
-                            <div className="flex gap-4">
+                          <div className="border-t border-slate-800/80 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-medium text-slate-500">
+                            <p>&copy; {new Date().getFullYear()} <span className="text-slate-300 font-bold">{settingsForm.companyName || 'S-BUILD Việt Nam'}</span>. Tất cả quyền được bảo lưu.</p>
+                            <div className="flex gap-4 text-slate-400">
                               <span>Điều khoản dịch vụ</span>
-                              <span>Hỗ trợ khách hàng</span>
+                              <span>Hỗ trợ đối tác B2B</span>
                             </div>
                           </div>
                         </div>
