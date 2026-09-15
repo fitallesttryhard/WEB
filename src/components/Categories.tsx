@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Ruler, Sparkles, Droplets, Wrench, Package, 
   Layers, LayoutGrid, Paintbrush, Home, Building2, 
-  Lightbulb, ShieldCheck, ArrowRight, Loader2,
-  CheckCircle2, Hammer, Boxes
+  Lightbulb, ShieldCheck, ArrowRight,
+  CheckCircle2, Boxes
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { 
@@ -13,12 +13,57 @@ import {
   DEFAULT_CONSTRUCTION_CATEGORIES,
   extractConstructionCategories 
 } from '../constructionServices';
-import { DEFAULT_MATERIAL_CATEGORIES } from './Navbar';
 
 const SBUILD_TENANT_ID = '00000000-0000-0000-0000-000000000002';
 const STANDARD_MATERIAL_ORDER = ['Nẹp nhựa', 'Nẹp nhôm', 'Nẹp inox', 'Dụng cụ', 'Phụ kiện', 'Hóa chất'];
 
-// Hàm gán icon và màu chủ đạo phù hợp theo tên hoặc slug
+// Dữ liệu khởi tạo chuẩn xác 100% khớp với Database để HTML sinh ra từ Server/lần đầu không bị giật hay đổi text sau 0.5s
+export const INITIAL_MATERIAL_CATEGORIES = [
+  {
+    id: 'b1111111-0000-0000-0000-000000000003',
+    name: 'Nẹp nhựa',
+    slug: 'nep-nhua',
+    description: 'Nẹp nhựa PVC bo góc gạch men, nẹp chỉ ngắt nước và nẹp trát tường chuyên dụng.',
+    count: 2
+  },
+  {
+    id: 'b1111111-0000-0000-0000-000000000001',
+    name: 'Nẹp nhôm',
+    slug: 'nep-nhom',
+    description: 'Nẹp nhôm chữ T, V, U, L mạ Anode cao cấp chống ăn mòn và tạo đường chỉ sắc nét cho công trình.',
+    count: 3
+  },
+  {
+    id: 'b1111111-0000-0000-0000-000000000002',
+    name: 'Nẹp inox',
+    slug: 'nep-inox',
+    description: 'Nẹp inox 304 mạ PVD vàng gương, vàng xước, đen bóng đạt chuẩn sang trọng và chịu lực va đập tốt.',
+    count: 2
+  },
+  {
+    id: 'b1111111-0000-0000-0000-000000000004',
+    name: 'Dụng cụ',
+    slug: 'dung-cu',
+    description: 'Dụng cụ thi công ốp lát, bay răng cưa, búa cao su, kìm siết ke cân bằng.',
+    count: 2
+  },
+  {
+    id: 'b1111111-0000-0000-0000-000000000005',
+    name: 'Phụ kiện',
+    slug: 'phu-kien',
+    description: 'Ke cân bằng, nêm chêm gạch, nút bịt đầu nẹp, phụ kiện liên kết và đỡ giàn giáo.',
+    count: 7
+  },
+  {
+    id: 'b1111111-0000-0000-0000-000000000006',
+    name: 'Hóa chất',
+    slug: 'hoa-chat',
+    description: 'Keo dán gạch, keo chà ron, keo dán nẹp chuyên dụng và phụ gia chống thấm.',
+    count: 2
+  }
+];
+
+// Hàm gán icon và màu sắc phù hợp theo nhận diện ngành xây dựng
 function getCategoryVisuals(name: string, slug?: string, isConstruction = false) {
   const key = (slug || name || '').toLowerCase();
 
@@ -153,11 +198,27 @@ function getCategoryVisuals(name: string, slug?: string, isConstruction = false)
 
 export default function Categories() {
   const [activeTab, setActiveTab] = useState<'material' | 'construction'>('material');
-  const [dbCategories, setDbCategories] = useState<any[]>(DEFAULT_MATERIAL_CATEGORIES);
+  
+  // Khởi tạo state bằng đúng nội dung chuẩn từ DB để triệt tiêu hiện tượng giật/đổi text sau 0.5s
+  const [dbCategories, setDbCategories] = useState<any[]>(INITIAL_MATERIAL_CATEGORIES);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
-  const [productCounts, setProductCounts] = useState<{ [key: string]: number }>({});
-  const [constructionCounts, setConstructionCounts] = useState<{ [key: string]: number }>({});
-  const [loading, setLoading] = useState(false);
+  const [productCounts, setProductCounts] = useState<{ [key: string]: number }>({
+    'b1111111-0000-0000-0000-000000000003': 2,
+    'b1111111-0000-0000-0000-000000000001': 3,
+    'b1111111-0000-0000-0000-000000000002': 2,
+    'b1111111-0000-0000-0000-000000000004': 2,
+    'b1111111-0000-0000-0000-000000000005': 7,
+    'b1111111-0000-0000-0000-000000000006': 2,
+  });
+  const [constructionCounts, setConstructionCounts] = useState<{ [key: string]: number }>({
+    'Ốp lát gạch': 8,
+    'Trát tường': 2,
+    'Thạch cao': 1,
+    'Hoàn thiện nội thất': 9,
+    'Hoàn thiện ngoại thất': 3,
+    'Thi công đèn LED': 0,
+    'Chống thấm': 2,
+  });
 
   useEffect(() => {
     async function loadDynamicTaxonomy() {
@@ -224,8 +285,6 @@ export default function Categories() {
         }
       } catch (err) {
         console.warn('Lỗi khi nạp dữ liệu danh mục từ Supabase:', err);
-      } finally {
-        setLoading(false);
       }
     }
 
@@ -286,7 +345,7 @@ export default function Categories() {
             {dbCategories.map((cat, index) => {
               const visuals = getCategoryVisuals(cat.name, cat.slug, false);
               const Icon = visuals.icon;
-              const count = productCounts[cat.id] || 0;
+              const count = productCounts[cat.id] ?? cat.count ?? 0;
 
               return (
                 <a
@@ -303,9 +362,9 @@ export default function Categories() {
                       <div className={`w-13 h-13 rounded-2xl ${visuals.bg} text-slate-800 flex items-center justify-center group-hover:bg-gradient-to-tr ${visuals.color} group-hover:text-white transition-all duration-300 shadow-sm border border-slate-100`}>
                         <Icon size={24} strokeWidth={2.2} />
                       </div>
-                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/70 px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-600 group-hover:border-red-200 group-hover:text-red-600 transition-colors">
+                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/70 px-3 py-1 rounded-full text-[11px] font-bold text-slate-700 group-hover:border-red-200 group-hover:text-red-600 transition-colors">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                        <span>{count > 0 ? `${count} sản phẩm` : 'Sẵn hàng'}</span>
+                        <span>{count} sản phẩm</span>
                       </div>
                     </div>
 
@@ -342,7 +401,7 @@ export default function Categories() {
             {constructionCategories.map((cc, index) => {
               const visuals = getCategoryVisuals(cc.name, cc.slug, true);
               const Icon = visuals.icon;
-              const count = constructionCounts[cc.name] || 0;
+              const count = constructionCounts[cc.name] ?? 0;
 
               return (
                 <a
@@ -359,7 +418,7 @@ export default function Categories() {
                         <Icon size={22} strokeWidth={2.2} />
                       </div>
                       <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200/60">
-                        {count > 0 ? `${count} vật tư` : 'Đang áp dụng'}
+                        {count > 0 ? `${count} sản phẩm` : 'Đang cập nhật'}
                       </span>
                     </div>
 
