@@ -4,7 +4,7 @@ import {
   CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
   UploadCloud, Copy, Image as ImageIcon, Loader2, Save,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
-  Menu, X
+  Menu, X, Layers
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -19,6 +19,15 @@ import AdminSidebar from './AdminSidebar';
 import OrderDetailModal from './OrderDetailModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { seedTrimDatabase } from '../seedData';
+import { SBUILD_TENANT_ID } from '../projectServices';
+import { 
+  ConstructionCategory, 
+  DEFAULT_CONSTRUCTION_CATEGORIES, 
+  getConstructionCategories, 
+  saveConstructionCategories, 
+  extractConstructionCategories, 
+  encodeProductTags 
+} from '../constructionServices';
 
 const mockCategories = [
   { id: '1', name: 'Nẹp nhôm & Inox', slug: 'nep-nhom-inox', count: 12, description: 'Các loại nẹp trang trí hợp kim nhôm và inox 304.' },
@@ -115,6 +124,15 @@ export default function AdminDashboard() {
   const [selectedPostCategories, setSelectedPostCategories] = useState<any[]>([]);
   const [categoryForm, setCategoryForm] = useState({ id: null as any, name: '', slug: '', description: '' });
   const [isCategorySlugEdited, setIsCategorySlugEdited] = useState(false);
+  const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
+  const [constructionCategoryForm, setConstructionCategoryForm] = useState<{ id: string | null; name: string; slug: string; description: string }>({
+    id: null,
+    name: '',
+    slug: '',
+    description: ''
+  });
+  const [selectedConstructionCategories, setSelectedConstructionCategories] = useState<string[]>([]);
+  const [isConstructionSlugEdited, setIsConstructionSlugEdited] = useState(false);
   const [postCategoryForm, setPostCategoryForm] = useState({ id: null as any, name: '', slug: '', description: '' });
   const [isPostCategorySlugEdited, setIsPostCategorySlugEdited] = useState(false);
   const [orders, setOrders] = useState<any[]>(initialOrders);
@@ -169,6 +187,7 @@ export default function AdminDashboard() {
   const { settings, updateSettings } = useSettings();
   const [settingsForm, setSettingsForm] = useState(settings);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isLogoMediaPickerOpen, setIsLogoMediaPickerOpen] = useState(false);
 
   // Media state
   const [mediaFiles, setMediaFiles] = useState<any[]>([]);
@@ -367,21 +386,24 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      let { data: catData } = await supabase.from('categories').select('*');
-      let { data: prodData } = await supabase.from('products').select('*, categories(name)').order('created_at', { ascending: false });
+      let { data: catData } = await supabase.from('categories').select('*').eq('tenant_id', SBUILD_TENANT_ID);
+      let { data: prodData } = await supabase.from('products').select('*, categories(name)').eq('tenant_id', SBUILD_TENANT_ID).order('created_at', { ascending: false });
 
       // Nếu chưa có sản phẩm/danh mục nào, tự động nạp 12 sản phẩm nẹp xây dựng thực tế vào DB
       if ((!catData || catData.length === 0) || (!prodData || prodData.length === 0)) {
         await seedTrimDatabase();
-        const resCat = await supabase.from('categories').select('*');
-        const resProd = await supabase.from('products').select('*, categories(name)').order('created_at', { ascending: false });
+        const resCat = await supabase.from('categories').select('*').eq('tenant_id', SBUILD_TENANT_ID);
+        const resProd = await supabase.from('products').select('*, categories(name)').eq('tenant_id', SBUILD_TENANT_ID).order('created_at', { ascending: false });
         catData = resCat.data;
         prodData = resProd.data;
       }
 
       setCategories(catData || []);
 
-      const { data: settingsData, error: settingsError } = await supabase.from('tenant_settings').select('*').limit(1).maybeSingle();
+      const ccList = await getConstructionCategories();
+      setConstructionCategories(ccList);
+
+      const { data: settingsData, error: settingsError } = await supabase.from('tenant_settings').select('*').eq('tenant_id', SBUILD_TENANT_ID).limit(1).maybeSingle();
       if (settingsData && !settingsError) {
         const config = settingsData.config || {};
         const theme = config.theme || {};
@@ -436,6 +458,7 @@ export default function AdminDashboard() {
           name: p.name,
           category: p.categories?.name || 'Chưa phân loại',
           categoryId: p.category_id,
+          construction_categories: extractConstructionCategories(p.tags, ccList),
           is_hot: p.is_hot,
           image: p.thumbnail_url || p.image_url,
           slug: p.slug,
@@ -456,7 +479,7 @@ export default function AdminDashboard() {
         setProducts([]);
       }
 
-      const { data: pageData } = await supabase.from('pages').select('*').order('created_at', { ascending: false });
+      const { data: pageData } = await supabase.from('pages').select('*').eq('tenant_id', SBUILD_TENANT_ID).order('created_at', { ascending: false });
       if (pageData) {
         setPages(pageData.map(p => ({
           id: p.id,
@@ -491,7 +514,7 @@ export default function AdminDashboard() {
         logoUrl: appearanceForm.logo_url,
       });
 
-      const { data: existing } = await supabase.from('tenant_settings').select('id').limit(1).maybeSingle();
+      const { data: existing } = await supabase.from('tenant_settings').select('id').eq('tenant_id', SBUILD_TENANT_ID).limit(1).maybeSingle();
 
       const payload = {
         brand_color: appearanceForm.primary_color,
@@ -521,7 +544,7 @@ export default function AdminDashboard() {
     try {
       await updateSettings(settingsForm); // Synchronously updates React Context for Navbar, Footer, ContactUs, etc.
 
-      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
+      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').eq('tenant_id', SBUILD_TENANT_ID).limit(1).maybeSingle();
       const existingFc = existing?.footer_config || {};
 
       const payload = {
@@ -574,6 +597,8 @@ export default function AdminDashboard() {
 
     const selectedCat = categories.find(c => c.id.toString() === formData.categoryId);
     const imageUrl = formData.thumbnailUrl || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=150&auto=format&fit=crop';
+    const constructionCats = formData.constructionCategories || [];
+    const encodedTags = encodeProductTags(formData.tags, constructionCats);
     
     if (formData.id) {
       // Update
@@ -581,6 +606,7 @@ export default function AdminDashboard() {
         ...formData,
         id: formData.id,
         category: selectedCat?.name || 'Chưa phân loại',
+        construction_categories: constructionCats,
         is_hot: formData.isHot,
         specs: formData.specs,
         image: imageUrl
@@ -606,7 +632,7 @@ export default function AdminDashboard() {
           regular_price: formData.regularPrice,
           sale_price: formData.salePrice,
           stock_status: formData.stockStatus,
-          tags: formData.tags,
+          tags: encodedTags,
           description: formData.description,
           status: formData.status
         }).eq('id', formData.id);
@@ -620,6 +646,7 @@ export default function AdminDashboard() {
         ...formData,
         id: Date.now(),
         category: selectedCat?.name || 'Chưa phân loại',
+        construction_categories: constructionCats,
         is_hot: formData.isHot,
         specs: formData.specs,
         image: imageUrl
@@ -645,7 +672,7 @@ export default function AdminDashboard() {
           regular_price: formData.regularPrice,
           sale_price: formData.salePrice,
           stock_status: formData.stockStatus,
-          tags: formData.tags,
+          tags: encodedTags,
           description: formData.description,
           status: formData.status
         }]);
@@ -927,7 +954,7 @@ export default function AdminDashboard() {
   const saveBannersToDb = async (updatedBanners: any[]) => {
     try {
       updateSettings({ banners: updatedBanners });
-      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
+      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').eq('tenant_id', SBUILD_TENANT_ID).limit(1).maybeSingle();
       const footerConfig = existing?.footer_config || {};
       const payload = {
         footer_config: {
@@ -1023,7 +1050,11 @@ export default function AdminDashboard() {
       setCategories(categories.map(c => c.id === categoryForm.id ? { ...categoryForm, count: c.count || 0 } : c));
       showToast('Đã cập nhật danh mục!');
       try {
-        await supabase.from('categories').update({ name: categoryForm.name, slug }).eq('id', categoryForm.id);
+        await supabase.from('categories').update({ 
+          name: categoryForm.name, 
+          slug,
+          description: categoryForm.description || ''
+        }).eq('id', categoryForm.id);
       } catch (err) {
         console.warn('Lỗi update category:', err);
       }
@@ -1039,10 +1070,13 @@ export default function AdminDashboard() {
       showToast('Đã thêm danh mục mới!');
 
       try {
-        const { data: tenant } = await supabase.from('tenants').select('id').limit(1).maybeSingle();
-        const payload: any = { id: newId, name: categoryForm.name, slug };
-        if (tenant?.id) payload.tenant_id = tenant.id;
-
+        const payload: any = { 
+          id: newId, 
+          tenant_id: SBUILD_TENANT_ID,
+          name: categoryForm.name, 
+          slug,
+          description: categoryForm.description || ''
+        };
         await supabase.from('categories').insert([payload]);
       } catch (err) {
         console.warn('Lỗi insert category:', err);
@@ -1088,6 +1122,94 @@ export default function AdminDashboard() {
     setCategories(categories.filter(c => !selectedCategories.includes(c.id)));
     setSelectedCategories([]);
     showToast(`Đã xóa ${selectedCategories.length} danh mục!`);
+  };
+
+  // CONSTRUCTION CATEGORIES (HẠNG MỤC THI CÔNG) HANDLERS
+  const handleConstructionFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (name === 'name' && !isConstructionSlugEdited) {
+      setConstructionCategoryForm(prev => ({ ...prev, name: value, slug: toSlug(value) }));
+    } else if (name === 'slug') {
+      setIsConstructionSlugEdited(true);
+      setConstructionCategoryForm(prev => ({ ...prev, slug: toSlug(value) }));
+    } else {
+      setConstructionCategoryForm(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleConstructionCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!constructionCategoryForm.name.trim()) {
+      showToast('Vui lòng nhập tên hạng mục thi công!');
+      return;
+    }
+    
+    const slug = constructionCategoryForm.slug.trim() || toSlug(constructionCategoryForm.name);
+    let updatedList: ConstructionCategory[] = [];
+
+    if (constructionCategoryForm.id) {
+      updatedList = constructionCategories.map(c => 
+        c.id === constructionCategoryForm.id 
+          ? { ...c, name: constructionCategoryForm.name.trim(), slug, description: constructionCategoryForm.description }
+          : c
+      );
+      showToast('Đã cập nhật hạng mục thi công!');
+    } else {
+      const newCategory: ConstructionCategory = {
+        id: 'cc-' + Date.now(),
+        name: constructionCategoryForm.name.trim(),
+        slug,
+        description: constructionCategoryForm.description
+      };
+      updatedList = [...constructionCategories, newCategory];
+      showToast('Đã thêm hạng mục thi công mới!');
+    }
+
+    setConstructionCategories(updatedList);
+    await saveConstructionCategories(updatedList);
+    setConstructionCategoryForm({ id: null, name: '', slug: '', description: '' });
+    setIsConstructionSlugEdited(false);
+  };
+
+  const handleEditConstructionCategory = (cat: ConstructionCategory) => {
+    setConstructionCategoryForm({
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug || toSlug(cat.name),
+      description: cat.description || ''
+    });
+    setIsConstructionSlugEdited(true);
+  };
+
+  const handleDeleteConstructionCategory = async (id: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa hạng mục thi công này?')) return;
+    const updatedList = constructionCategories.filter(c => c.id !== id);
+    setConstructionCategories(updatedList);
+    await saveConstructionCategories(updatedList);
+    showToast('Đã xóa hạng mục thi công!');
+  };
+
+  const handleBulkDeleteConstructionCategories = async () => {
+    if (selectedConstructionCategories.length === 0) return;
+    if (!confirm(`Bạn có chắc muốn xóa ${selectedConstructionCategories.length} hạng mục thi công đã chọn?`)) return;
+    const updatedList = constructionCategories.filter(c => !selectedConstructionCategories.includes(c.id));
+    setConstructionCategories(updatedList);
+    await saveConstructionCategories(updatedList);
+    setSelectedConstructionCategories([]);
+    showToast(`Đã xóa ${selectedConstructionCategories.length} hạng mục thi công!`);
+  };
+
+  const handleSelectAllConstructionCategories = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) setSelectedConstructionCategories(constructionCategories.map(c => c.id));
+    else setSelectedConstructionCategories([]);
+  };
+
+  const handleSelectConstructionCategory = (id: string) => {
+    if (selectedConstructionCategories.includes(id)) {
+      setSelectedConstructionCategories(selectedConstructionCategories.filter(cId => cId !== id));
+    } else {
+      setSelectedConstructionCategories([...selectedConstructionCategories, id]);
+    }
   };
 
   // POST CATEGORIES HANDLERS
@@ -1354,7 +1476,7 @@ export default function AdminDashboard() {
                         </th>
                         <th className="px-6 py-4 w-16">STT</th>
                         <th className="px-6 py-4">Sản phẩm</th>
-                        <th className="px-6 py-4">Danh mục</th>
+                        <th className="px-6 py-4">Phân loại & Hạng mục</th>
                         <th className="px-6 py-4 text-center">Trạng thái</th>
                         <th className="px-6 py-4 text-right">Hành động</th>
                       </tr>
@@ -1384,7 +1506,21 @@ export default function AdminDashboard() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="text-sm font-medium text-gray-600">{product.category}</span>
+                            <div className="flex flex-col gap-1.5 items-start">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                                {product.category}
+                              </span>
+                              {product.construction_categories && product.construction_categories.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-0.5">
+                                  {product.construction_categories.map((cc: string, cIdx: number) => (
+                                    <span key={cIdx} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-100">
+                                      <span className="w-1 h-1 rounded-full bg-purple-500"></span>
+                                      {cc}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <button
@@ -1714,6 +1850,178 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </>
+            )}
+
+            {activeMenu === 'construction_categories' && (
+              <div className="flex flex-col h-full animate-in fade-in duration-300">
+                <div className="mb-8">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                    <span className="text-xs font-bold text-purple-600 uppercase tracking-wider">Hệ Thống Phân Loại Kép (Dual-Taxonomy)</span>
+                  </div>
+                  <h1 className="text-2xl font-black text-gray-900">Quản lý Hạng mục Thi công</h1>
+                  <p className="text-sm text-gray-500 mt-1 font-medium">
+                    Tạo và quản lý các công đoạn, vị trí thi công áp dụng cho từng dòng vật tư S-BUILD (Ốp lát, Trát tường, Thạch cao...).
+                  </p>
+                </div>
+                
+                <div className="flex flex-col lg:flex-row gap-8 items-start">
+                  
+                  {/* Cột Trái: Form Thêm/Sửa */}
+                  <div className="w-full lg:w-1/3 bg-white p-6 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 shrink-0">
+                    <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                      {constructionCategoryForm.id ? 'Sửa hạng mục thi công' : 'Thêm hạng mục mới'}
+                    </h2>
+                    <form onSubmit={handleConstructionCategorySubmit} className="flex flex-col gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Tên hạng mục thi công <span className="text-red-500">*</span></label>
+                        <input 
+                          type="text" 
+                          name="name"
+                          required
+                          value={constructionCategoryForm.name}
+                          onChange={handleConstructionFormChange}
+                          placeholder="Ví dụ: Ốp lát gạch"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm font-medium transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Đường dẫn tĩnh (Slug)</label>
+                        <input 
+                          type="text" 
+                          name="slug"
+                          value={constructionCategoryForm.slug}
+                          onChange={handleConstructionFormChange}
+                          placeholder="op-lat-gach"
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm font-medium text-gray-600 transition-all"
+                        />
+                        <p className="text-xs text-gray-400 mt-1.5 font-medium">Định danh URL dùng cho bộ lọc hoặc trang chuyên đề.</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Mô tả chi tiết</label>
+                        <textarea 
+                          name="description"
+                          value={constructionCategoryForm.description}
+                          onChange={handleConstructionFormChange}
+                          rows={4}
+                          placeholder="Mô tả các sản phẩm hoặc vị trí áp dụng của hạng mục này..."
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm font-medium transition-all resize-none"
+                        />
+                      </div>
+                      <div className="pt-2 flex gap-2">
+                        {constructionCategoryForm.id && (
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              setConstructionCategoryForm({ id: null, name: '', slug: '', description: '' });
+                              setIsConstructionSlugEdited(false);
+                            }}
+                            className="flex-1 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer"
+                          >
+                            Hủy
+                          </button>
+                        )}
+                        <button 
+                          type="submit"
+                          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl font-bold text-sm transition-all shadow-[0_4px_12px_rgba(147,51,234,0.2)] cursor-pointer"
+                        >
+                          {constructionCategoryForm.id ? 'Cập nhật' : 'Thêm mới'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* Cột Phải: Bảng dữ liệu */}
+                  <div className="w-full lg:w-2/3 bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto flex flex-col">
+                    {/* Bulk Action Bar */}
+                    {selectedConstructionCategories.length > 0 && (
+                      <div className="bg-purple-50 border-b border-purple-100 p-3 flex items-center justify-between animate-in fade-in duration-200">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-purple-900 bg-white px-2 py-0.5 rounded shadow-sm">{selectedConstructionCategories.length}</span>
+                          <span className="text-sm font-bold text-purple-900">mục đang chọn</span>
+                        </div>
+                        <button onClick={handleBulkDeleteConstructionCategories} className="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer">
+                          <Trash2 size={14} /> Xóa đã chọn
+                        </button>
+                      </div>
+                    )}
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
+                          <th className="px-5 py-4 w-12">
+                            <input 
+                              type="checkbox" 
+                              checked={constructionCategories.length > 0 && selectedConstructionCategories.length === constructionCategories.length}
+                              onChange={handleSelectAllConstructionCategories}
+                              className="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer"
+                            />
+                          </th>
+                          <th className="px-5 py-4">Hạng mục thi công</th>
+                          <th className="px-5 py-4">Mô tả ứng dụng</th>
+                          <th className="px-5 py-4 text-center">Số sản phẩm</th>
+                          <th className="px-5 py-4 text-right">Hành động</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {constructionCategories.map((cat) => {
+                          const count = products.filter(p => Array.isArray(p.construction_categories) && p.construction_categories.includes(cat.name)).length;
+                          return (
+                            <tr key={cat.id} className={`transition-colors ${selectedConstructionCategories.includes(cat.id) ? 'bg-purple-50/50' : 'hover:bg-gray-50/50'}`}>
+                              <td className="px-5 py-4">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedConstructionCategories.includes(cat.id)}
+                                  onChange={() => handleSelectConstructionCategory(cat.id)}
+                                  className="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer"
+                                />
+                              </td>
+                              <td className="px-5 py-4">
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-sm text-gray-900 flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                    {cat.name}
+                                  </span>
+                                  <span className="text-[11px] font-medium text-gray-400 mt-0.5">{cat.slug}</span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-4 max-w-[240px]">
+                                <p className="text-xs font-medium text-gray-500 line-clamp-2">{cat.description || '—'}</p>
+                              </td>
+                              <td className="px-5 py-4 text-center">
+                                <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-black">
+                                  {count}
+                                </span>
+                              </td>
+                              <td className="px-5 py-4">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button 
+                                    onClick={() => handleEditConstructionCategory(cat)}
+                                    className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer" title="Chỉnh sửa"
+                                  >
+                                    <Edit size={15} />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteConstructionCategory(cat.id)}
+                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer" title="Xóa"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {constructionCategories.length === 0 && (
+                          <tr>
+                            <td colSpan={5} className="px-5 py-8 text-center text-gray-500 font-medium">Chưa có hạng mục thi công nào.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             )}
 
             {activeMenu === 'categories' && (
@@ -2486,6 +2794,83 @@ export default function AdminDashboard() {
                   <div className="space-y-12">
                     {/* Cơ bản */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {/* Logo Website */}
+                    <div className="md:col-span-2 p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
+                      <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
+                        Logo Website (Hiển thị trên Thanh điều hướng & Chân trang)
+                      </label>
+                      <div className="flex flex-col sm:flex-row items-center gap-5">
+                        {settingsForm.logoUrl ? (
+                          <div className="relative w-48 h-20 bg-slate-900 rounded-xl border border-slate-200 p-2 flex items-center justify-center shrink-0 shadow-sm group">
+                            <img src={settingsForm.logoUrl} alt="Logo Website" className="max-h-full max-w-full object-contain" />
+                            <button
+                              type="button"
+                              onClick={() => setSettingsForm(prev => ({ ...prev, logoUrl: '' }))}
+                              className="absolute -top-2 -right-2 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md transition-colors cursor-pointer"
+                              title="Xóa logo"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-48 h-20 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-slate-400 shrink-0">
+                            <ImageIcon size={24} />
+                            <span className="text-[11px] font-bold mt-1">Chưa cài logo</span>
+                          </div>
+                        )}
+
+                        <div className="flex-1 space-y-2 w-full">
+                          <div className="flex flex-wrap gap-2">
+                            <label className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-sm transition-colors cursor-pointer inline-flex items-center gap-1.5">
+                              <UploadCloud size={16} />
+                              <span>Tải logo từ máy</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  try {
+                                    const fileName = `logo-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                                    const { error } = await supabase.storage.from('product-media').upload(fileName, file);
+                                    if (!error) {
+                                      const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
+                                      setSettingsForm(prev => ({ ...prev, logoUrl: publicUrl }));
+                                    } else {
+                                      const reader = new FileReader();
+                                      reader.onload = (ev) => {
+                                        if (ev.target?.result) setSettingsForm(prev => ({ ...prev, logoUrl: ev.target!.result as string }));
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  } catch(err) {}
+                                }}
+                              />
+                            </label>
+
+                            <button
+                              type="button"
+                              onClick={() => setIsLogoMediaPickerOpen(true)}
+                              className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs shadow-sm transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <ImageIcon size={16} />
+                              <span>Chọn từ Thư viện</span>
+                            </button>
+                          </div>
+
+                          <input
+                            type="text"
+                            value={settingsForm.logoUrl || ''}
+                            onChange={(e) => setSettingsForm(prev => ({ ...prev, logoUrl: e.target.value }))}
+                            placeholder="Hoặc dán URL Logo: https://..."
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-red-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
                       <div className="md:col-span-2">
                         <label className="block text-sm font-bold text-gray-700 mb-1.5">Tên công ty</label>
                         <input 
@@ -2963,6 +3348,7 @@ export default function AdminDashboard() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleProductSubmit}
         categories={categories}
+        constructionCategories={constructionCategories}
         initialData={editingProduct}
       />
       

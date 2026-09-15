@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { X, Check, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -85,7 +86,7 @@ export default function ProductComparisonModal({
                   <td className="p-4 font-bold text-slate-700 bg-slate-50/50">Danh mục / Loại</td>
                   {products.map((prod) => (
                     <td key={prod.id} className="p-4 text-slate-600 border-l border-slate-100">
-                      {prod.categories?.name || 'Vật tư xây dựng'}
+                      {prod.categories?.name && prod.categories.name.trim().toLowerCase() !== 'vật tư xây dựng' ? prod.categories.name : '—'}
                     </td>
                   ))}
                 </tr>

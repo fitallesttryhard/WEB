@@ -1,77 +1,28 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Building2, MapPin, Sparkles, X, Send, ArrowUpRight, ShieldCheck, ChevronRight, ArrowRight } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
 
-export const defaultProjects = [
-  {
-    id: 1,
-    title: 'Tổ Hợp Tòa Nhà Cao Tầng S-Sky Tower',
-    category: 'Chung cư cao cấp',
-    location: 'Quận 2, TP. Hồ Chí Minh',
-    scale: '38 Tầng • 1,200 Căn hộ',
-    featured: true,
-    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop',
-    materials: ['Nẹp nhôm T20 Anode', 'Băng cản nước V200', 'Khoá giáo BS1139'],
-    description: 'Cung cấp toàn bộ giải pháp nẹp trang trí nhôm cao cấp mạ Anode chống oxy hóa cho 38 tầng căn hộ hạng sang, kết hợp băng cản nước chuẩn kiểm định chống thấm mạch ngừng móng.'
-  },
-  {
-    id: 2,
-    title: 'Trung Tâm Thương Mại Central Plaza',
-    category: 'Trung tâm thương mại',
-    location: 'Quận Cầu Giấy, Hà Nội',
-    scale: '5 Hầm • 28 Tầng nổi',
-    featured: false,
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop',
-    materials: ['Nẹp Inox 304 PVD', 'Nẹp thảm gạch đá', 'Ty ren & Bát chuồn D16'],
-    description: 'Giải pháp nẹp mạ PVD vàng mờ sang trọng tạo điểm nhấn kiến trúc cho sảnh chính và hệ thang máy trung tâm thương mại lớn bậc nhất Hà Nội.'
-  },
-  {
-    id: 3,
-    title: 'Khu Resort Sinh Thái Grand Pearl',
-    category: 'Resort & Biệt thự',
-    location: 'Phú Quốc, Kiên Giang',
-    scale: '120 Biệt thự Biển • Hotel 5★',
-    featured: false,
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000&auto=format&fit=crop',
-    materials: ['Nẹp nhựa PVC góc tường', 'Nẹp chống trượt cầu thang', 'Kích tăng D38'],
-    description: 'Cung cấp vật tư nẹp nhựa uPVC kháng mặn cho môi trường biển đảo Phú Quốc, đảm bảo không rỉ sét và bền màu vượt thời gian.'
-  },
-  {
-    id: 4,
-    title: 'Nhà Máy & Kho Vận S-Logistics',
-    category: 'Nhà xưởng công nghiệp',
-    location: 'VSIP II, Bình Dương',
-    scale: '50,000 m² Diện tích mái & Sàn',
-    featured: false,
-    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1000&auto=format&fit=crop',
-    materials: ['Băng cản nước PVC O300', 'Màng chống thấm', 'Phụ kiện cốp pha'],
-    description: 'Xử lý chống thấm mạch ngừng sàn bê tông chịu tải lực lớn của hệ thống kho vận công nghiệp hiện đại.'
-  }
-];
+import { getProjects, SBUILD_TENANT_ID } from '../projectServices';
 
 export default function ProjectsShowcase() {
-  const [projectsList, setProjectsList] = useState<any[]>(defaultProjects);
+  const [projectsList, setProjectsList] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState('Tất cả công trình');
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const { openDrawer } = useCart();
 
   useEffect(() => {
     async function loadProjects() {
       try {
-        const { data: dbProjects } = await supabase
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (dbProjects && dbProjects.length > 0) {
-          setProjectsList(dbProjects.map(p => ({
-            ...p,
-            materials: Array.isArray(p.materials) ? p.materials : typeof p.materials === 'string' ? p.materials.split(',').map(m => m.trim()) : []
-          })));
-        }
+        setLoading(true);
+        const data = await getProjects(SBUILD_TENANT_ID);
+        setProjectsList(data);
       } catch (err) {
         console.warn('Lỗi nạp dự án:', err);
+      } finally {
+        setLoading(false);
       }
     }
     loadProjects();

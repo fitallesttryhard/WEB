@@ -1,24 +1,41 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Upload, Search, CheckCircle2, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import MediaPickerModal from './MediaPickerModal';
+import { 
+  DEFAULT_CONSTRUCTION_CATEGORIES, 
+  ConstructionCategory, 
+  extractConstructionCategories 
+} from '../constructionServices';
 
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void;
   categories: { id: string; name: string }[];
+  constructionCategories?: ConstructionCategory[];
   initialData?: any;
 }
 
-export default function ProductFormModal({ isOpen, onClose, onSubmit, categories, initialData }: ProductFormModalProps) {
+export default function ProductFormModal({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  categories, 
+  constructionCategories = DEFAULT_CONSTRUCTION_CATEGORIES,
+  initialData 
+}: ProductFormModalProps) {
   const [previewMode, setPreviewMode] = useState<'off' | 'desktop' | 'mobile'>('desktop');
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  const availableConstructionCategories = constructionCategories.length > 0 ? constructionCategories : DEFAULT_CONSTRUCTION_CATEGORIES;
 
   const [formData, setFormData] = useState({
     id: undefined as number | undefined,
     name: '',
     categoryId: '',
+    constructionCategories: [] as string[],
     slug: '',
     description: '', specs: '',
     compareFields: [
@@ -44,7 +61,25 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
 
   const [tagInput, setTagInput] = useState('');
   const [isSlugEdited, setIsSlugEdited] = useState(false);
-  const [mediaPickerConfig, setMediaPickerConfig] = useState<{isOpen: boolean, type: 'thumbnail' | 'gallery'}>({ isOpen: false, type: 'thumbnail' });
+  const [mediaPickerConfig, setMediaPickerConfig] = useState<{isOpen: boolean, type: 'thumbnail' | 'gallery' | 'tinymce'}>({ isOpen: false, type: 'thumbnail' });
+  const [autoSyncSpecs, setAutoSyncSpecs] = useState(true);
+  const tinyMCECallbackRef = useRef<any>(null);
+
+  const buildSpecsFromCompareFields = (fields: { id?: string; key: string; value: string }[]) => {
+    const validFields = fields.filter(f => f && f.key && f.key.trim() && f.value && f.value.trim());
+    if (validFields.length === 0) return '';
+    return validFields
+      .map(f => `<p><strong>${f.key.trim()}:</strong> ${f.value.trim()}</p>`)
+      .join('\n');
+  };
+
+  const updateCompareFields = (newFields: { id: string; key: string; value: string }[]) => {
+    setFormData(prev => ({
+      ...prev,
+      compareFields: newFields,
+      specs: autoSyncSpecs ? buildSpecsFromCompareFields(newFields) : prev.specs
+    }));
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -74,13 +109,26 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
           ];
         }
 
+        const isAutoSync = initialData.autoSyncSpecs !== undefined ? initialData.autoSyncSpecs : true;
+        setAutoSyncSpecs(isAutoSync);
+
+        const initialSpecs = initialData.specs || (isAutoSync ? buildSpecsFromCompareFields(fields) : '');
+
+        // Trích xuất hạng mục thi công từ initialData
+        const initialCC: string[] = Array.isArray(initialData.constructionCategories) && initialData.constructionCategories.length > 0
+          ? initialData.constructionCategories
+          : (Array.isArray(initialData.construction_categories) && initialData.construction_categories.length > 0
+              ? initialData.construction_categories
+              : extractConstructionCategories(initialData.tags, availableConstructionCategories));
+
         setFormData({
           id: initialData.id,
           name: initialData.name || '',
           categoryId: initialData.categoryId || '',
+          constructionCategories: initialCC,
           slug: initialData.slug || '',
           description: initialData.description || '',
-          specs: initialData.specs || '',
+          specs: initialSpecs,
           compareFields: fields,
           seoTitle: initialData.seoTitle || '',
           seoDescription: initialData.seoDescription || '',
@@ -96,20 +144,26 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
         });
         setIsSlugEdited(!!initialData.slug);
       } else {
+        const defaultFields = [
+          { id: '1', key: 'Chất liệu', value: '' },
+          { id: '2', key: 'Quy cách / Kích thước', value: '' },
+          { id: '3', key: 'Màu sắc / Bề mặt', value: '' },
+          { id: '4', key: 'Xuất xứ', value: 'Chính hãng S-BUILD' },
+          { id: '5', key: 'Bảo hành', value: '12 - 24 tháng' },
+          { id: '6', key: 'Ứng dụng', value: '' }
+        ];
+
+        setAutoSyncSpecs(true);
+
         setFormData({
           id: undefined,
           name: '',
           categoryId: '',
+          constructionCategories: [],
           slug: '',
-          description: '', specs: '',
-          compareFields: [
-            { id: '1', key: 'Chất liệu', value: '' },
-            { id: '2', key: 'Quy cách / Kích thước', value: '' },
-            { id: '3', key: 'Màu sắc / Bề mặt', value: '' },
-            { id: '4', key: 'Xuất xứ', value: 'Chính hãng S-BUILD' },
-            { id: '5', key: 'Bảo hành', value: '12 - 24 tháng' },
-            { id: '6', key: 'Ứng dụng', value: '' }
-          ],
+          description: '',
+          specs: buildSpecsFromCompareFields(defaultFields),
+          compareFields: defaultFields,
           seoTitle: '',
           seoDescription: '',
           thumbnailUrl: '',
@@ -125,7 +179,7 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
         setIsSlugEdited(false);
       }
     }
-  }, [initialData, isOpen]);
+  }, [isOpen, initialData]);
 
   // Tự động cuộn đến phần tử trong Preview
   useEffect(() => {
@@ -206,7 +260,10 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
 
   const handleMediaSelected = (urls: string[]) => {
     if (urls.length === 0) return;
-    if (mediaPickerConfig.type === 'thumbnail') {
+    if (tinyMCECallbackRef.current) {
+      tinyMCECallbackRef.current(urls[0], { title: 'Hình ảnh từ thư viện S-BUILD' });
+      tinyMCECallbackRef.current = null;
+    } else if (mediaPickerConfig.type === 'thumbnail') {
       setFormData(prev => ({ ...prev, thumbnailUrl: urls[0] }));
     } else {
       setFormData(prev => ({ ...prev, galleryUrls: [...prev.galleryUrls, ...urls] }));
@@ -222,7 +279,10 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      autoSyncSpecs
+    });
   };
 
   const getHighlightClass = (fieldName: string) => {
@@ -233,7 +293,7 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
     return 'opacity-40 transition-all duration-300 pointer-events-none blur-[1px]';
   };
 
-  const categoryName = categories.find(c => c.id.toString() === formData.categoryId.toString())?.name || 'Danh mục sản phẩm';
+  const categoryName = categories.find(c => String(c.id || (c as any).slug || '') === String(formData.categoryId || ''))?.name || 'Danh mục sản phẩm';
 
   if (!isOpen) return null;
 
@@ -335,8 +395,20 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
                   {/* Screen Content */}
                   <div className="px-5 pb-5 pt-8 flex-1">
                     {/* Mockup Header */}
-                    <div id="preview-categoryId" className={`flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-6 ${getHighlightClass('categoryId')}`}>
-                      <span>Trang chủ</span> <span>/</span> <span className="font-medium text-gray-700">{categoryName}</span>
+                    <div id="preview-categoryId" className={`flex flex-col gap-1.5 mb-6 ${getHighlightClass('categoryId')} ${getHighlightClass('constructionCategories')}`}>
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+                        <span>Trang chủ</span> <span>/</span> <span className="font-medium text-gray-700">{categoryName}</span>
+                      </div>
+                      {formData.constructionCategories && formData.constructionCategories.length > 0 && (
+                        <div id="preview-constructionCategories" className="flex flex-wrap gap-1 mt-1">
+                          {formData.constructionCategories.map((cc, i) => (
+                            <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                              <span className="w-1 h-1 rounded-full bg-purple-500"></span>
+                              {cc}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
@@ -457,8 +529,21 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
 
                   <div className="p-10 flex-1">
                     {/* Mockup Header */}
-                    <div id="preview-categoryId" className={`flex items-center gap-2 text-sm text-gray-500 mb-8 ${getHighlightClass('categoryId')}`}>
-                      <span>Trang chủ</span> <span>/</span> <span className="font-medium text-gray-800">{categoryName}</span>
+                    <div id="preview-categoryId" className={`flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500 mb-8 pb-4 border-b border-gray-100 ${getHighlightClass('categoryId')} ${getHighlightClass('constructionCategories')}`}>
+                      <div className="flex items-center gap-2">
+                        <span>Trang chủ</span> <span>/</span> <span className="font-extrabold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-md">{categoryName}</span>
+                      </div>
+                      {formData.constructionCategories && formData.constructionCategories.length > 0 && (
+                        <div id="preview-constructionCategories" className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Hạng mục:</span>
+                          {formData.constructionCategories.map((cc, i) => (
+                            <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
+                              {cc}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-10">
@@ -618,13 +703,13 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
               
               <div className="flex flex-col gap-6 pl-11">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Danh mục <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Danh mục sản phẩm chính <span className="text-red-500">*</span></label>
                   <select 
                     required
                     value={formData.categoryId}
                     onChange={(e) => {
                       const newCatId = e.target.value;
-                      const selectedCat: any = categories.find(c => c.id.toString() === newCatId.toString());
+                      const selectedCat: any = categories.find(c => String(c.id || (c as any).slug || '') === String(newCatId || ''));
                       
                       let defaultKeys = ['Chất liệu', 'Quy cách / Kích thước', 'Màu sắc / Bề mặt', 'Xuất xứ', 'Bảo hành', 'Ứng dụng'];
                       if (selectedCat) {
@@ -646,21 +731,123 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
                         return { id: (idx + 1).toString(), key: keyName, value: existingVal };
                       });
 
-                      setFormData({
-                        ...formData,
+                      setFormData(prev => ({
+                        ...prev,
                         categoryId: newCatId,
-                        compareFields: newFields
-                      });
+                        compareFields: newFields,
+                        specs: autoSyncSpecs ? buildSpecsFromCompareFields(newFields) : prev.specs
+                      }));
                     }}
                     onFocus={() => setFocusedField('categoryId')}
                     onBlur={() => setFocusedField(null)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-base font-medium transition-all text-gray-700 bg-white"
                   >
-                    <option value="">-- Chọn danh mục --</option>
+                    <option value="">-- Chọn danh mục chính --</option>
                     {categories.map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Hạng mục thi công (Dual-Taxonomy: Multi-select) */}
+                <div 
+                  onFocus={() => setFocusedField('constructionCategories')}
+                  onBlur={() => setFocusedField(null)}
+                  className="p-4 rounded-xl border border-purple-200/80 bg-purple-50/40 transition-all hover:border-purple-300"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 flex items-center gap-2">
+                        <span>Hạng mục thi công áp dụng</span>
+                        <span className="text-[10px] font-extrabold uppercase bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">Chọn nhiều</span>
+                      </label>
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                        Tích chọn một hoặc nhiều công đoạn thi công tương thích với sản phẩm này.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            constructionCategories: availableConstructionCategories.map(c => c.name)
+                          }));
+                        }}
+                        className="text-xs font-bold text-purple-700 hover:text-purple-900 hover:underline cursor-pointer"
+                      >
+                        Chọn tất cả
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, constructionCategories: [] }));
+                        }}
+                        className="text-xs font-bold text-gray-500 hover:text-gray-700 hover:underline cursor-pointer"
+                      >
+                        Bỏ chọn
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                    {availableConstructionCategories.map((cc) => {
+                      const isSelected = formData.constructionCategories.includes(cc.name);
+                      return (
+                        <div
+                          key={cc.id || cc.slug}
+                          onClick={() => {
+                            setFocusedField('constructionCategories');
+                            setFormData(prev => {
+                              const exists = prev.constructionCategories.includes(cc.name);
+                              const nextList = exists
+                                ? prev.constructionCategories.filter(name => name !== cc.name)
+                                : [...prev.constructionCategories, cc.name];
+                              return { ...prev, constructionCategories: nextList };
+                            });
+                          }}
+                          className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                            isSelected
+                              ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20 ring-2 ring-purple-600/30'
+                              : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300 hover:bg-purple-50/60'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            readOnly
+                            className="w-4 h-4 rounded mt-0.5 text-purple-600 focus:ring-purple-500 border-gray-300 pointer-events-none"
+                          />
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                              {cc.name}
+                            </span>
+                            {cc.description && (
+                              <span className={`text-[10px] line-clamp-1 mt-0.5 ${isSelected ? 'text-purple-100' : 'text-gray-400'}`}>
+                                {cc.description}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {formData.constructionCategories.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-purple-200/60 flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <span className="text-gray-600 font-medium">
+                        Đã chọn: <strong className="text-purple-800 font-bold">{formData.constructionCategories.length}</strong> hạng mục
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {formData.constructionCategories.map((item, idx) => (
+                          <span key={idx} className="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -862,13 +1049,65 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
                         ].join(' | '),
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:15px; line-height: 1.6; }',
                         language: 'en',
+                        file_picker_callback: (callback, _value, meta) => {
+                          if (meta.filetype === 'image') {
+                            tinyMCECallbackRef.current = callback;
+                            setMediaPickerConfig({ isOpen: true, type: 'tinymce' });
+                          }
+                        }
                       }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">Thông số kỹ thuật</label>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                    <label className="block text-sm font-bold text-gray-700">Thông số kỹ thuật</label>
+
+                    <div className="flex items-center gap-2.5 bg-amber-50/80 px-3 py-1.5 rounded-xl border border-amber-200/60 shadow-xs">
+                      <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5 select-none">
+                        <span className={`w-2 h-2 rounded-full ${autoSyncSpecs ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
+                        Tự động đồng bộ từ Thuộc tính so sánh
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextState = !autoSyncSpecs;
+                          setAutoSyncSpecs(nextState);
+                          if (nextState) {
+                            setFormData(prev => ({
+                              ...prev,
+                              specs: buildSpecsFromCompareFields(prev.compareFields)
+                            }));
+                          }
+                        }}
+                        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+                          autoSyncSpecs ? 'bg-emerald-600' : 'bg-slate-300'
+                        }`}
+                        title={autoSyncSpecs ? 'Đang BẬT tự động đồng bộ' : 'Đang TẮT tự động đồng bộ'}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-md ${
+                            autoSyncSpecs ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {autoSyncSpecs && (
+                    <div className="mb-3 px-3.5 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 flex items-center justify-between">
+                      <span>⚡ Đang bật tự động đồng bộ. Thay đổi ở danh sách Thuộc tính so sánh phía dưới sẽ tự động cập nhật vào đây.</span>
+                      <button
+                        type="button"
+                        onClick={() => setAutoSyncSpecs(false)}
+                        className="text-[11px] underline text-emerald-900 hover:text-emerald-700 font-extrabold ml-2 shrink-0 cursor-pointer"
+                      >
+                        Tắt để sửa thủ công
+                      </button>
+                    </div>
+                  )}
+
                   <div 
                     className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all shadow-sm"
                   >
@@ -911,14 +1150,14 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
 
                 <button
                   type="button"
-                  onClick={() => setFormData({
-                    ...formData,
-                    compareFields: [
+                  onClick={() => {
+                    const newFields = [
                       ...formData.compareFields,
                       { id: Date.now().toString(), key: '', value: '' }
-                    ]
-                  })}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
+                    ];
+                    updateCompareFields(newFields);
+                  }}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
                 >
                   <Plus size={16} />
                   <span>+ Thêm trường so sánh</span>
@@ -941,7 +1180,7 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
                         onChange={(e) => {
                           const newFields = [...formData.compareFields];
                           newFields[index].key = e.target.value;
-                          setFormData({ ...formData, compareFields: newFields });
+                          updateCompareFields(newFields);
                         }}
                         placeholder="VD: Độ dày nhôm / Tiêu chuẩn / Màu sắc..."
                         className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-amber-500 text-xs font-bold text-gray-900 shadow-sm"
@@ -955,7 +1194,7 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
                         onChange={(e) => {
                           const newFields = [...formData.compareFields];
                           newFields[index].value = e.target.value;
-                          setFormData({ ...formData, compareFields: newFields });
+                          updateCompareFields(newFields);
                         }}
                         placeholder="VD: 1.2mm / ISO 9001 / Vàng xước..."
                         className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-amber-500 text-xs font-semibold text-gray-800 shadow-sm"
@@ -967,9 +1206,9 @@ export default function ProductFormModal({ isOpen, onClose, onSubmit, categories
                         type="button"
                         onClick={() => {
                           const newFields = formData.compareFields.filter((_, i) => i !== index);
-                          setFormData({ ...formData, compareFields: newFields });
+                          updateCompareFields(newFields);
                         }}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Xóa trường này"
                       >
                         <X size={16} strokeWidth={2.5} />

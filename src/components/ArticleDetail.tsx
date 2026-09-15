@@ -1,8 +1,9 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Share2, Facebook, Twitter, Linkedin, Link as LinkIcon, Loader2 } from 'lucide-react';
-import { supabase } from '../supabaseClient';
+import { getArticleByIdOrSlug } from '../articleServices';
 
-export default function ArticleDetail() {
+export default function ArticleDetail({ slug: propSlug }: { slug?: string }) {
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -11,34 +12,18 @@ export default function ArticleDetail() {
     async function fetchArticle() {
       setLoading(true);
       try {
-        const hash = window.location.hash || '';
-        const searchStr = hash.includes('?') ? hash.split('?')[1] : '';
+        let searchStr = window.location.search;
+        if (!searchStr && window.location.hash) {
+          searchStr = window.location.hash.includes('?') 
+            ? '?' + window.location.hash.split('?')[1] 
+            : '?' + window.location.hash.replace('#', '');
+        }
         const params = new URLSearchParams(searchStr);
         const postId = params.get('id');
+        const searchSlug = params.get('slug');
 
-        let postData = null;
-        if (postId) {
-          const { data } = await supabase
-            .from('posts')
-            .select('*')
-            .eq('id', postId)
-            .maybeSingle();
-          postData = data;
-        }
-
-        if (!postData) {
-          // Default to latest published post
-          const { data } = await supabase
-            .from('posts')
-            .select('*')
-            .eq('is_published', true)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          postData = data;
-        }
-
-        setPost(postData);
+        const article = await getArticleByIdOrSlug(propSlug || postId || searchSlug || '');
+        setPost(article);
       } catch (err) {
         console.error('Lỗi khi tải chi tiết bài viết:', err);
       } finally {
@@ -47,7 +32,7 @@ export default function ArticleDetail() {
     }
 
     fetchArticle();
-  }, []);
+  }, [propSlug]);
 
   if (loading) {
     return (
@@ -62,7 +47,7 @@ export default function ArticleDetail() {
       <div className="min-h-screen pt-32 text-center px-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Bài viết không tồn tại</h2>
         <p className="text-gray-500 mb-6">Bài viết bạn tìm kiếm chưa được xuất bản hoặc đã bị xóa.</p>
-        <a href="#blog" className="inline-block bg-red-600 text-white font-bold px-6 py-2.5 rounded-xl">
+        <a href="/blog" className="inline-block bg-red-600 text-white font-bold px-6 py-2.5 rounded-xl">
           Quay lại danh sách bài viết
         </a>
       </div>
@@ -77,7 +62,7 @@ export default function ArticleDetail() {
       
       {/* Hero Section */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center">
-        <a href="#blog" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors mb-10">
+        <a href="/blog" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors mb-10">
           <ArrowLeft size={16} /> Quay lại danh sách bài viết
         </a>
         
@@ -119,12 +104,12 @@ export default function ArticleDetail() {
         {/* Prose Content */}
         <div 
           className="prose prose-lg prose-gray max-w-none leading-relaxed prose-headings:font-black prose-a:text-red-600"
-          dangerouslySetInnerHTML={{ __html: post.content || post.excerpt || '<p>Nội dung chi tiết đang được cập nhật...</p>' }}
+          dangerouslySetInnerHTML={{ __html: post.html_content || post.content || post.excerpt || '<p>Nội dung chi tiết đang được cập nhật...</p>' }}
         />
 
         {/* Back to blog */}
         <div className="mt-16 pt-8 border-t border-gray-100 flex justify-between items-center">
-          <a href="#blog" className="inline-flex items-center gap-2 font-bold text-red-600 hover:underline">
+          <a href="/blog" className="inline-flex items-center gap-2 font-bold text-red-600 hover:underline">
             <ArrowLeft size={16} /> Xem các bài viết khác
           </a>
         </div>

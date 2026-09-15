@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, Lock, Mail, User, Building, Phone, ArrowRight, ShieldCheck, HardHat, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -186,7 +187,7 @@ export default function LoginModal() {
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
                     Mật khẩu
                   </label>
-                  <a href="#" className="text-[11px] font-bold text-red-600 hover:underline">
+                  <a href="/" className="text-[11px] font-bold text-red-600 hover:underline">
                     Quên mật khẩu?
                   </a>
                 </div>

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Ruler, Blocks, Droplet, Wrench, Package, Loader2, ArrowRight } from 'lucide-react';
 import { supabase } from '../supabaseClient';
@@ -9,7 +10,7 @@ export default function Categories() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const { data, error } = await supabase.from('categories').select('*').limit(8);
+        const { data, error } = await supabase.from('categories').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000002').limit(8);
         if (error) throw error;
         setCategories(data || []);
       } catch (error) {
@@ -41,7 +42,7 @@ export default function Categories() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-8 h-0.5 bg-red-600"></span>
+              <span className="w-8 h-0.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600"></span>
               <span className="text-red-600 font-extrabold text-xs uppercase tracking-[0.2em]">
                 DANH MỤC TIÊU BIỂU
               </span>
@@ -52,7 +53,7 @@ export default function Categories() {
           </div>
 
           <a
-            href="#products"
+            href="/products"
             className="inline-flex items-center gap-2 font-extrabold text-xs text-slate-700 hover:text-red-600 transition-colors uppercase tracking-widest group"
           >
             <span>Tất cả danh mục</span>
@@ -72,14 +73,15 @@ export default function Categories() {
               return (
                 <a
                   key={cat.id || index}
-                  href={`#products?cat=${cat.id}`}
-                  className="group relative flex flex-col justify-between p-8 rounded-2xl border border-slate-200/90 bg-white transition-all duration-300 hover:border-red-500/30 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 overflow-hidden"
+                  href={`/products?cat=${cat.id}`}
+                  style={{ animationDelay: `${index * 120}ms` }}
+                  className="group relative flex flex-col justify-between p-8 rounded-2xl border border-slate-200/90 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.1)] hover:-translate-y-1.5 overflow-hidden animate-fade-in-up"
                 >
                   {/* Subtle Background Accent */}
-                  <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-red-50/80 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-red-50 to-rose-50/20 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                   <div>
-                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 text-slate-800 flex items-center justify-center mb-6 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-600 transition-all duration-300 shadow-sm">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 text-slate-800 flex items-center justify-center mb-6 group-hover:bg-gradient-to-tr group-hover:from-red-600 group-hover:to-rose-600 group-hover:text-white group-hover:border-red-600 transition-all duration-300 shadow-sm">
                       <Icon size={24} strokeWidth={2} />
                     </div>
 

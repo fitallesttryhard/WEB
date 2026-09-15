@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { HardHat, Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -33,7 +34,7 @@ export default function AdminLoginGate() {
 
       {/* Back to Website Link */}
       <a
-        href="#"
+        href="/"
         className="absolute top-8 left-8 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors"
       >
         <ArrowLeft size={16} />
@@ -127,15 +128,7 @@ export default function AdminLoginGate() {
           </button>
         </form>
 
-        {/* Demo Hint */}
-        <div className="mt-8 p-4 rounded-2xl bg-slate-950/40 border border-slate-800/60 text-xs text-slate-400 leading-relaxed">
-          <div className="flex items-center gap-2 text-amber-400 font-bold mb-1">
-            <ShieldCheck size={14} />
-            <span>Xác thực Quản trị viên:</span>
-          </div>
-          Email: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-white font-mono">admin@sbuild.vn</code><br/>
-          Mật khẩu: <code className="bg-slate-800 px-1.5 py-0.5 rounded text-white font-mono">admin123</code>
-        </div>
+
 
       </div>
 

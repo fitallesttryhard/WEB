@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef } from 'react';
 import { X, Printer, CheckCircle2, Clock, Truck, Package, MapPin, Phone, Mail, User, Calendar, CreditCard } from 'lucide-react';
 

@@ -1,13 +1,15 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, Star, Heart, ShieldCheck, 
   Truck, CreditCard, Plus, Minus, ShoppingBag,
-  Facebook, Twitter, Link as LinkIcon, Loader2
+  Facebook, Twitter, Link as LinkIcon, Loader2, Layers, CheckCircle2
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
+import { extractConstructionCategories } from '../constructionServices';
 
-export default function ProductDetail() {
+export default function ProductDetail({ slug }: { slug?: string }) {
   const [product, setProduct] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,14 @@ export default function ProductDetail() {
         const productId = params.get('id');
 
         let prodData = null;
-        if (productId) {
+        if (slug) {
+          const { data } = await supabase
+            .from('products')
+            .select('*, categories(name)')
+            .eq('slug', slug)
+            .maybeSingle();
+          prodData = data;
+        } else if (productId) {
           const { data } = await supabase
             .from('products')
             .select('*, categories(name)')
@@ -68,7 +77,7 @@ export default function ProductDetail() {
     }
 
     loadProduct();
-  }, []);
+  }, [slug]);
 
   const formatPrice = (price: number) => {
     if (!price || price === 0) return 'Liên hệ báo giá';
@@ -88,7 +97,7 @@ export default function ProductDetail() {
       <div className="min-h-screen pt-32 text-center px-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Sản phẩm không tồn tại</h2>
         <p className="text-gray-500 mb-6">Sản phẩm bạn đang tìm kiếm hiện không có hoặc đã bị xóa.</p>
-        <a href="#products" className="inline-block bg-red-600 text-white font-bold px-6 py-2.5 rounded-xl">
+        <a href="/products" className="inline-block bg-red-600 text-white font-bold px-6 py-2.5 rounded-xl">
           Xem tất cả sản phẩm
         </a>
       </div>
@@ -100,7 +109,9 @@ export default function ProductDetail() {
     ...(Array.isArray(product.gallery_urls) ? product.gallery_urls : [])
   ].filter(Boolean);
 
-  const categoryName = product.categories?.name || 'Phụ kiện xây dựng';
+  const rawCat = product.categories?.name || '';
+  const categoryName = (rawCat && rawCat.trim().toLowerCase() !== 'vật tư xây dựng') ? rawCat : '';
+  const constructionCategories = extractConstructionCategories(product.tags);
   const price = product.sale_price || product.original_price || product.regular_price || 0;
   const oldPrice = product.sale_price ? (product.original_price || product.regular_price) : null;
 
@@ -120,11 +131,15 @@ export default function ProductDetail() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">{product.name}</h1>
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500 font-medium">
-            <a href="#" className="hover:text-red-600 transition-colors">Trang chủ</a>
+            <a href="/" className="hover:text-red-600 transition-colors">Trang chủ</a>
             <span>/</span>
-            <a href="#products" className="hover:text-red-600 transition-colors">Sản phẩm</a>
-            <span>/</span>
-            <span className="text-gray-900">{categoryName}</span>
+            <a href="/products" className="hover:text-red-600 transition-colors">Sản phẩm</a>
+            {categoryName && (
+              <>
+                <span>/</span>
+                <span className="text-gray-900">{categoryName}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -183,9 +198,11 @@ export default function ProductDetail() {
 
           {/* Right Column: Product Details */}
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">
-              {categoryName}
-            </span>
+            {categoryName ? (
+              <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">
+                {categoryName}
+              </span>
+            ) : null}
             
             <div className="flex items-center gap-4 mb-4">
               <h1 className="text-3xl md:text-4xl font-black text-gray-900">{product.name}</h1>
@@ -203,9 +220,39 @@ export default function ProductDetail() {
             </div>
 
             {/* Short Description */}
-            <p className="text-gray-600 mb-8 leading-relaxed">
+            <p className="text-gray-600 mb-6 leading-relaxed">
               {product.seo_description || product.description?.replace(/<[^>]*>?/gm, '').slice(0, 160) || 'Sản phẩm vật tư xây dựng cao cấp chuẩn kiểm định.'}
             </p>
+
+            {/* Ứng dụng thi công (Dual-Taxonomy) */}
+            {constructionCategories.length > 0 && (
+              <div className="mb-8 p-4.5 rounded-2xl bg-gradient-to-br from-purple-50/90 via-purple-50/50 to-indigo-50/30 border border-purple-100/90 shadow-sm">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-xs">
+                      <Layers size={13} />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-wider text-purple-950">
+                      Ứng dụng thi công
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-bold text-purple-700 bg-purple-100/80 px-2.5 py-0.5 rounded-full border border-purple-200/60">
+                    {constructionCategories.length} công đoạn
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {constructionCategories.map((cat, idx) => (
+                    <span 
+                      key={idx}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white text-purple-800 border border-purple-200/90 shadow-2xs hover:border-purple-300 transition-colors"
+                    >
+                      <CheckCircle2 size={13} className="text-purple-600 shrink-0" />
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Action Area */}
             <div className="flex flex-wrap items-center gap-4 mb-10 pb-10 border-b border-gray-100 relative">
@@ -246,7 +293,7 @@ export default function ProductDetail() {
                   Thêm vào danh sách báo giá
                 </button>
                 <a 
-                  href="#contact"
+                  href="/contact"
                   className="flex-1 h-12 px-6 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full transition-colors shadow-sm text-sm lg:text-base flex items-center justify-center whitespace-nowrap"
                 >
                   Liên hệ Báo giá
@@ -260,12 +307,17 @@ export default function ProductDetail() {
                 <span className="font-bold text-gray-900 w-16 inline-block">SKU:</span> 
                 <span className="text-gray-500">{product.sku || 'N/A'}</span>
               </p>
-              {product.tags && product.tags.length > 0 && (
-                <p>
-                  <span className="font-bold text-gray-900 w-16 inline-block">Tags:</span> 
-                  <span className="text-gray-500">{Array.isArray(product.tags) ? product.tags.join(', ') : product.tags}</span>
-                </p>
-              )}
+              {product.tags && product.tags.length > 0 && (() => {
+                const rawTags = Array.isArray(product.tags) ? product.tags : [product.tags];
+                const cleanTags = rawTags.filter((t: string) => !t.startsWith('hm:'));
+                if (cleanTags.length === 0) return null;
+                return (
+                  <p>
+                    <span className="font-bold text-gray-900 w-16 inline-block">Tags:</span> 
+                    <span className="text-gray-500">{cleanTags.join(', ')}</span>
+                  </p>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -307,6 +359,22 @@ export default function ProductDetail() {
 
                 {Array.isArray(product.compareFields) && product.compareFields.length > 0 ? (
                   <div className="bg-white rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
+                    {constructionCategories.length > 0 && (
+                      <div className="grid grid-cols-12 p-4 bg-purple-50/40 transition-colors">
+                        <div className="col-span-4 font-black text-xs uppercase tracking-wider text-purple-900 flex items-center gap-1.5">
+                          <Layers size={14} className="text-purple-600" />
+                          Ứng dụng thi công
+                        </div>
+                        <div className="col-span-8 font-bold text-sm text-slate-900 flex flex-wrap gap-1.5">
+                          {constructionCategories.map((cat, idx) => (
+                            <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white border border-purple-200 text-purple-800 text-xs font-semibold shadow-2xs">
+                              <CheckCircle2 size={11} className="text-purple-600" />
+                              {cat}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {product.compareFields.map((field: any, idx: number) => (
                       <div key={idx} className={`grid grid-cols-12 p-4 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
                         <div className="col-span-4 font-black text-xs uppercase tracking-wider text-slate-500 flex items-center">
@@ -319,10 +387,26 @@ export default function ProductDetail() {
                     ))}
                   </div>
                 ) : (
-                  <div 
-                    className="prose prose-lg max-w-none text-gray-600 bg-white p-6 rounded-xl border border-slate-200"
-                    dangerouslySetInnerHTML={{ __html: product.specs || '<p>Đang cập nhật thông số kỹ thuật cho sản phẩm này.</p>' }}
-                  />
+                  <div className="space-y-4">
+                    {constructionCategories.length > 0 && (
+                      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-black uppercase tracking-wider text-purple-900 flex items-center gap-1.5 mr-2">
+                          <Layers size={14} className="text-purple-600" />
+                          Hạng mục thi công phù hợp:
+                        </span>
+                        {constructionCategories.map((cat, idx) => (
+                          <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-purple-50 border border-purple-200 text-purple-800 text-xs font-semibold">
+                            <CheckCircle2 size={11} className="text-purple-600" />
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div 
+                      className="prose prose-lg max-w-none text-gray-600 bg-white p-6 rounded-xl border border-slate-200"
+                      dangerouslySetInnerHTML={{ __html: product.specs || '<p>Đang cập nhật thông số kỹ thuật cho sản phẩm này.</p>' }}
+                    />
+                  </div>
                 )}
               </div>
             )}
@@ -342,36 +426,56 @@ export default function ProductDetail() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((relProd) => (
-                <a 
-                  href={`#product?id=${relProd.id}`}
-                  key={relProd.id}
-                  onClick={() => window.location.hash = `#product?id=${relProd.id}`}
-                  className="group flex flex-col bg-white rounded-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative"
-                >
-                  <div className="aspect-[4/3] w-full overflow-hidden bg-gray-50 flex items-center justify-center">
-                    <img 
-                      src={relProd.thumbnail_url || relProd.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop'} 
-                      alt={relProd.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-
-                  <div className="p-5 flex flex-col flex-grow">
-                    <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest mb-1.5">{relProd.categories?.name || categoryName}</span>
-                    
-                    <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
-                      {relProd.name}
-                    </h3>
-                    
-                    <div className="mt-auto">
-                      <span className="text-red-600 font-black text-lg">
-                        {formatPrice(relProd.sale_price || relProd.original_price || relProd.regular_price || 0)}
-                      </span>
+              {relatedProducts.map((relProd) => {
+                const relConstCategories = extractConstructionCategories(relProd.tags);
+                return (
+                  <a 
+                    href={`/san-pham/${relProd.slug || relProd.id}`}
+                    key={relProd.id}
+                    onClick={() => window.location.href = `/san-pham/${relProd.slug || relProd.id}`}
+                    className="group flex flex-col bg-white rounded-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative"
+                  >
+                    <div className="aspect-[4/3] w-full overflow-hidden bg-gray-50 flex items-center justify-center relative">
+                      <img 
+                        src={relProd.thumbnail_url || relProd.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop'} 
+                        alt={relProd.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      {relConstCategories.length > 0 && (
+                        <div className="absolute top-2 right-2 flex flex-col items-end gap-1 pointer-events-none">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-600 text-white shadow-sm flex items-center gap-1 backdrop-blur-xs">
+                            <Layers size={10} />
+                            {relConstCategories[0]}
+                            {relConstCategories.length > 1 && ` +${relConstCategories.length - 1}`}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </a>
-              ))}
+
+                    <div className="p-5 flex flex-col flex-grow">
+                      {(() => {
+                        const rName = relProd.categories?.name || categoryName;
+                        if (!rName || rName.trim().toLowerCase() === 'vật tư xây dựng') return null;
+                        return (
+                          <div className="flex items-center justify-between gap-1 mb-1.5">
+                            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest truncate">{rName}</span>
+                          </div>
+                        );
+                      })()}
+                      
+                      <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
+                        {relProd.name}
+                      </h3>
+                      
+                      <div className="mt-auto pt-2">
+                        <span className="text-red-600 font-black text-lg">
+                          {formatPrice(relProd.sale_price || relProd.original_price || relProd.regular_price || 0)}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           </div>
         )}

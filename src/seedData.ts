@@ -1,25 +1,36 @@
 import { supabase } from './supabaseClient';
+import { encodeProductTags } from './constructionServices';
 
 export const SEED_CATEGORIES = [
   {
-    name: 'Nẹp Nhôm Trang Trí',
-    slug: 'nep-nhom-trang-tri',
+    name: 'Nẹp nhựa',
+    slug: 'nep-nhua',
+    description: 'Nẹp nhựa bo góc gạch men, nẹp chỉ ngắt nước, nẹp vát cạnh trát tường và chống thấm.'
+  },
+  {
+    name: 'Nẹp nhôm',
+    slug: 'nep-nhom',
     description: 'Nẹp nhôm chữ T, V, U, L mạ Anode cao cấp chống ăn mòn và tạo đường chỉ sắc nét cho công trình.'
   },
   {
-    name: 'Nẹp Inox 304 Cao Cấp',
-    slug: 'nep-inox-304-cao-cap',
+    name: 'Nẹp inox',
+    slug: 'nep-inox',
     description: 'Nẹp inox 304 mạ PVD vàng gương, vàng xước, đen bóng đạt chuẩn sang trọng và chịu lực va đập tốt.'
   },
   {
-    name: 'Nẹp Nhựa PVC & Chống Thấm',
-    slug: 'nep-nhua-pvc-chong-tham',
-    description: 'Nẹp nhựa bo góc gạch men, nẹp kết thúc sàn gỗ và nẹp cao su chống trượt bậc cầu thang.'
+    name: 'Dụng cụ',
+    slug: 'dung-cu',
+    description: 'Dụng cụ thi công ốp lát, bay răng cưa, búa cao su, kìm siết ke cân bằng chuyên nghiệp.'
   },
   {
-    name: 'Nẹp Đồng & Nẹp Nối Thảm',
-    slug: 'nep-dong-nep-noi-tham',
-    description: 'Nẹp đồng thau nguyên chất tân cổ điển và nẹp nhôm răng cưa giữ chắc mép thảm trải sàn.'
+    name: 'Phụ kiện',
+    slug: 'phu-kien',
+    description: 'Ke cân bằng, nêm chêm gạch, con kê bê tông, giàn giáo, cốp pha và phụ kiện liên kết.'
+  },
+  {
+    name: 'Hóa chất',
+    slug: 'hoa-chat',
+    description: 'Keo dán gạch, keo chà ron, keo dán nẹp chuyên dụng và hóa chất phụ gia chống thấm.'
   }
 ];
 
@@ -28,7 +39,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Nhôm Chữ T T10mm Vàng Xước',
     slug: 'nep-nhom-chu-t-t10mm-vang-xuoc',
-    category_slug: 'nep-nhom-trang-tri',
+    category_slug: 'nep-nhom',
     sku: 'NEP-T10-VX',
     original_price: 120000,
     sale_price: 95000,
@@ -37,6 +48,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp nhôm', 'Chữ T', 'Trang trí nội thất'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
     seo_description: 'Nẹp nhôm chữ T10mm xử lý khe hở giữa các mảng tường, sàn gỗ và gạch men. Mạ Anode chống phai màu.',
     description: `
       <h3>Nẹp Nhôm Chữ T T10mm Vàng Xước Cao Cấp</h3>
@@ -53,7 +65,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Nhôm Góc V V20mm Bạc Mờ',
     slug: 'nep-nhom-goc-v-v20mm-bac-mo',
-    category_slug: 'nep-nhom-trang-tri',
+    category_slug: 'nep-nhom',
     sku: 'NEP-V20-BM',
     original_price: 110000,
     sale_price: 85000,
@@ -62,6 +74,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp nhôm', 'Góc V', 'Bảo vệ góc'],
+    construction_categories: ['Trát tường', 'Hoàn thiện nội thất', 'Hoàn thiện ngoại thất'],
     seo_description: 'Nẹp V20mm bảo vệ góc tường, cạnh cột chống sứt mẻ và tạo đường gờ sắc nét cho công trình.',
     description: `
       <h3>Nẹp Nhôm Góc V20mm Bạc Mờ</h3>
@@ -72,7 +85,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Nhôm Chỉ Âm U12mm Nhôm Mờ',
     slug: 'nep-nhom-chi-am-u12mm-nhom-mo',
-    category_slug: 'nep-nhom-trang-tri',
+    category_slug: 'nep-nhom',
     sku: 'NEP-U12-NM',
     original_price: 135000,
     sale_price: 105000,
@@ -81,6 +94,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp nhôm', 'Chỉ âm', 'Vách thạch cao'],
+    construction_categories: ['Thạch cao', 'Hoàn thiện nội thất'],
     seo_description: 'Nẹp U12mm tạo chỉ âm trang trí vách tường thạch cao, vách gỗ nội thất cao cấp.',
     description: `
       <h3>Nẹp Nhôm Chỉ Âm U12mm</h3>
@@ -93,7 +107,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Inox 304 Chữ T T15mm Vàng Gương PVD',
     slug: 'nep-inox-304-chu-t-t15mm-vang-guong',
-    category_slug: 'nep-inox-304-cao-cap',
+    category_slug: 'nep-inox',
     sku: 'INOX-T15-VG',
     original_price: 220000,
     sale_price: 185000,
@@ -102,6 +116,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp Inox', 'Inox 304', 'Vàng gương'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
     seo_description: 'Nẹp inox 304 nhập khẩu mạ PVD vàng gương độ bền vượt trội, không rỉ sét, chịu lực va đập tốt.',
     description: `
       <h3>Nẹp Inox 304 Chữ T T15mm Vàng Gương PVD</h3>
@@ -112,7 +127,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Inox 304 V25mm Đen Phản Quang',
     slug: 'nep-inox-304-v25mm-den-phan-quang',
-    category_slug: 'nep-inox-304-cao-cap',
+    category_slug: 'nep-inox',
     sku: 'INOX-V25-BLACK',
     original_price: 250000,
     sale_price: 210000,
@@ -121,6 +136,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp Inox', 'Đen gương', 'Góc V'],
+    construction_categories: ['Trát tường', 'Ốp lát gạch', 'Hoàn thiện ngoại thất'],
     seo_description: 'Nẹp góc V25mm inox 304 màu đen xước/gương tạo vẻ đẹp hiện đại, tối giản sang trọng cho căn hộ.',
     description: `
       <h3>Nẹp Inox 304 V25mm Đen Phản Quang Modern Dark</h3>
@@ -131,7 +147,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Inox Lập Là Flat Bar 20x2mm Vàng Xước',
     slug: 'nep-inox-lap-la-flat-bar-20x2mm',
-    category_slug: 'nep-inox-304-cao-cap',
+    category_slug: 'nep-inox',
     sku: 'INOX-FLAT-202',
     original_price: 195000,
     sale_price: 160000,
@@ -140,6 +156,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp Inox', 'Lập là', 'Trang trí phẳng'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
     seo_description: 'Thanh inox lập là phẳng 20x2mm trang trí điểm nối đá hoa cương, kính cường lực và vách tivi.',
     description: `
       <h3>Nẹp Inox Lập Là Flat Bar 20x2mm</h3>
@@ -152,7 +169,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Nhựa PVC Bo Góc Tròn Gạch Men 10mm',
     slug: 'nep-nhua-pvc-bo-goc-tron-gach-men-10mm',
-    category_slug: 'nep-nhua-pvc-chong-tham',
+    category_slug: 'nep-nhua',
     sku: 'PVC-GOC-10',
     original_price: 45000,
     sale_price: 35000,
@@ -161,6 +178,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp nhựa', 'Bo góc gạch', 'Thi công gạch'],
+    construction_categories: ['Ốp lát gạch', 'Chống thấm'],
     seo_description: 'Nẹp nhựa bo tròn góc cột gạch men, thi công nhanh chóng, phối màu hoàn hảo với gạch ốp tường.',
     description: `
       <h3>Nẹp Nhựa PVC Bo Góc Tròn Ốp Gạch Men</h3>
@@ -171,7 +189,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Kết Thúc Sàn Gỗ Nhựa PVC L25mm',
     slug: 'nep-ket-thuc-san-go-nhua-pvc-l25mm',
-    category_slug: 'nep-nhua-pvc-chong-tham',
+    category_slug: 'nep-nhua',
     sku: 'PVC-SAN-L25',
     original_price: 55000,
     sale_price: 40000,
@@ -180,6 +198,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp nhựa', 'Sàn gỗ', 'Nẹp kết thúc'],
+    construction_categories: ['Hoàn thiện nội thất'],
     seo_description: 'Nẹp nhựa L25mm che mép sàn gỗ tại cửa ra vào, chân tường và mép thảm trải sàn.',
     description: `
       <h3>Nẹp Kết Thúc Sàn Gỗ Nhựa PVC L25mm</h3>
@@ -190,7 +209,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Cao Su Chống Trượt Cầu Thang Mũi Bậc',
     slug: 'nep-cao-su-chong-truot-cau-thang-mui-bac',
-    category_slug: 'nep-nhua-pvc-chong-tham',
+    category_slug: 'nep-nhua',
     sku: 'NEP-CAOSU-TRUOT',
     original_price: 85000,
     sale_price: 65000,
@@ -199,6 +218,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp cao su', 'Chống trượt', 'Cầu thang'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất', 'Chống thấm'],
     seo_description: 'Nẹp cao su kết hợp gờ nhôm chống trơn trượt bậc cầu thang gạch đá, an toàn cho trẻ nhỏ và người già.',
     description: `
       <h3>Nẹp Cao Su Mũi Bậc Cầu Thang Chống Trơn Trượt</h3>
@@ -211,7 +231,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Đồng Thau Nguyên Chất Chữ T T20mm',
     slug: 'nep-dong-thau-nguyen-chat-chu-t-t20mm',
-    category_slug: 'nep-dong-nep-noi-tham',
+    category_slug: 'phu-kien',
     sku: 'DONG-T20-PURE',
     original_price: 350000,
     sale_price: 295000,
@@ -220,6 +240,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp đồng', 'Đồng thau', 'Cổ điển'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
     seo_description: 'Nẹp đồng thau nguyên khối T20mm độ bền hàng chục năm, mang phong cách cổ điển hoài cổ tân cổ điển.',
     description: `
       <h3>Nẹp Đồng Thau Nguyên Chất Chữ T20mm Premium</h3>
@@ -230,7 +251,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Đồng V25mm Nổi Gờ Chống Trượt',
     slug: 'nep-dong-v25mm-noi-go-chong-truot',
-    category_slug: 'nep-dong-nep-noi-tham',
+    category_slug: 'phu-kien',
     sku: 'DONG-V25-GO',
     original_price: 380000,
     sale_price: 320000,
@@ -239,6 +260,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp đồng', 'Góc V', 'Mũi bậc'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện ngoại thất'],
     seo_description: 'Nẹp đồng góc V25mm gờ sọc mạ bóng cao cấp bảo vệ đá granit cầu thang và vách đá tự nhiên.',
     description: `
       <h3>Nẹp Đồng V25mm Sọc Gờ Mũi Bậc Cầu Thang</h3>
@@ -249,7 +271,7 @@ export const SEED_PRODUCTS = [
   {
     name: 'Nẹp Nối Thảm Nhôm Răng Cưa N20mm',
     slug: 'nep-noi-tham-nhom-cao-cap-n20mm',
-    category_slug: 'nep-dong-nep-noi-tham',
+    category_slug: 'phu-kien',
     sku: 'NHOM-THAM-N20',
     original_price: 150000,
     sale_price: 125000,
@@ -258,6 +280,7 @@ export const SEED_PRODUCTS = [
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop',
     tags: ['Nẹp thảm', 'Nẹp răng cưa', 'Nối thảm'],
+    construction_categories: ['Hoàn thiện nội thất'],
     seo_description: 'Nẹp nhôm răng cưa giữ chắc mép thảm khách sạn, văn phòng và khu vực sảnh hội nghị.',
     description: `
       <h3>Nẹp Nối Thảm Nhôm Răng Cưa Khách Sạn</h3>
@@ -330,7 +353,7 @@ export async function seedTrimDatabase() {
         status: prod.status,
         thumbnail_url: prod.thumbnail_url,
         image_url: prod.thumbnail_url,
-        tags: prod.tags,
+        tags: encodeProductTags(prod.tags, (prod as any).construction_categories || []),
         seo_description: prod.seo_description,
         description: prod.description,
         specs: prod.specs,
@@ -353,3 +376,6 @@ export async function seedTrimDatabase() {
     return { success: false, error: error.message };
   }
 }
+
+export const INITIAL_CATEGORIES = SEED_CATEGORIES;
+export const INITIAL_PRODUCTS = SEED_PRODUCTS;

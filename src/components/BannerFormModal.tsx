@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { X, Save, UploadCloud, Image as ImageIcon, ToggleLeft, ToggleRight } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
@@ -158,7 +159,7 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                 </div>
 
                 {/* Nút Call to Action */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Chữ trên nút (CTA Text)</label>
                     <input
@@ -166,9 +167,52 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                       name="cta_text"
                       value={formData.cta_text}
                       onChange={handleChange}
-                      placeholder="VD: Xem dự án"
+                      placeholder="VD: KHÁM PHÁ SẢN PHẨM"
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Đường dẫn liên kết (CTA Link)</label>
+                    <input
+                      type="text"
+                      name="cta_link"
+                      value={formData.cta_link}
+                      onChange={handleChange}
+                      placeholder="VD: /products"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium"
+                    />
+                    
+                    {/* Quick Preset Buttons for CTA Link */}
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, cta_link: '/products' }))}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors ${
+                          formData.cta_link === '/products' ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                        }`}
+                      >
+                        🛍️ /products
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, cta_link: '/projects' }))}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors ${
+                          formData.cta_link === '/projects' ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                        }`}
+                      >
+                        🏗️ /projects
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, cta_link: '/contact' }))}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors ${
+                          formData.cta_link === '/contact' ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                        }`}
+                      >
+                        📞 /contact
+                      </button>
+                    </div>
                   </div>
                 </div>
 

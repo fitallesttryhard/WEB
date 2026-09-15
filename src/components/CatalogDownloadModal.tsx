@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { X, FileDown, CheckCircle2, ShieldCheck, Loader2, Sparkles, Building2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';

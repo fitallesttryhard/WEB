@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { X, Trash2, Plus, Minus, FileText, CheckCircle2, ArrowLeft, Send, PhoneCall, ShieldCheck, Loader2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';

@@ -1,5 +1,6 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { getArticles } from '../articleServices';
 import { Loader2 } from 'lucide-react';
 
 export default function BlogList() {
@@ -10,17 +11,12 @@ export default function BlogList() {
     async function fetchPosts() {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('posts')
-          .select('*')
-          .eq('is_published', true)
-          .order('created_at', { ascending: false });
-
-        if (data) {
-          setPosts(data);
+        const data = await getArticles();
+        if (data && data.length > 0) {
+          setPosts(data.filter(a => a.is_published));
         }
       } catch (err) {
-        console.error('Lỗi lấy bài viết từ Supabase:', err);
+        console.error('Lỗi lấy bài viết S-BUILD:', err);
       } finally {
         setLoading(false);
       }
@@ -59,12 +55,16 @@ export default function BlogList() {
         ) : displayArticles.length === 0 ? (
           <div className="bg-gray-50 rounded-2xl p-12 text-center border border-gray-100 max-w-xl mx-auto">
             <p className="text-gray-500 font-medium text-lg mb-2">Hiện chưa có bài viết nào được xuất bản.</p>
-            <p className="text-gray-400 text-sm">Bạn có thể tạo bài viết mới từ trang <a href="#admin" className="text-red-600 font-bold hover:underline">Quản trị Admin</a>.</p>
+            <p className="text-gray-400 text-sm">Bạn có thể tạo bài viết mới từ trang <a href="/admin" className="text-red-600 font-bold hover:underline">Quản trị Admin</a>.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
             {displayArticles.map((article) => (
-              <article key={article.id} className="group cursor-pointer flex flex-col">
+              <a 
+                key={article.id} 
+                href={`/bai-viet/${(article as any).slug || (article as any).id}`} 
+                className="group cursor-pointer flex flex-col block text-left outline-none"
+              >
                 {/* Hình ảnh */}
                 <div className="w-full overflow-hidden rounded-2xl mb-6 bg-gray-100 aspect-video relative">
                   <img 
@@ -82,16 +82,14 @@ export default function BlogList() {
                   <span className="text-sm font-bold text-gray-400 mb-3 block">
                     {article.date}
                   </span>
-                  <h2 className="text-xl font-bold text-gray-900 leading-snug mb-3 group-hover:text-gray-600 transition-colors">
-                    <a href={`#article?id=${article.id}`} className="block outline-none">
-                      {article.title}
-                    </a>
+                  <h2 className="text-xl font-bold text-gray-900 leading-snug mb-3 group-hover:text-red-600 transition-colors">
+                    {article.title}
                   </h2>
                   <p className="text-gray-500 text-base leading-relaxed line-clamp-2">
                     {article.excerpt}
                   </p>
                 </div>
-              </article>
+              </a>
             ))}
           </div>
         )}

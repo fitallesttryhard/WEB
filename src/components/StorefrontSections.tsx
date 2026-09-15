@@ -1,8 +1,11 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, ShoppingBag, ArrowRight, Calendar, User, Loader2, ArrowLeftRight, X, Check, Eye } from 'lucide-react';
 import { getProducts } from '../productServices';
+import { getArticles, SBUILD_TENANT_ID } from '../articleServices';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
+import { extractConstructionCategories } from '../constructionServices';
 
 export default function StorefrontSections() {
   const [products, setProducts] = useState<any[]>([]);
@@ -17,20 +20,15 @@ export default function StorefrontSections() {
       setLoading(true);
       try {
         // Tải sản phẩm từ productServices.ts
-        const res = await getProducts({ limit: 8, status: 'published' });
+        const res = await getProducts({ limit: 8, status: 'published', tenantId: SBUILD_TENANT_ID });
         if (res.success && res.data) {
           setProducts(res.data);
         }
 
-        // Tải bài viết nổi bật từ Supabase
-        const { data: postData } = await supabase
-          .from('posts')
-          .select('*')
-          .eq('is_published', true)
-          .limit(3);
-
-        if (postData) {
-          setPosts(postData);
+        // Tải bài viết S-BUILD độc lập từ articleServices
+        const articleData = await getArticles();
+        if (articleData && articleData.length > 0) {
+          setPosts(articleData.slice(0, 3));
         }
       } catch (err) {
         console.error('Lỗi khi nạp dữ liệu Storefront:', err);
@@ -91,21 +89,24 @@ export default function StorefrontSections() {
         {/* SECTION 1: SẢN PHẨM NỔI BẬT */}
         <section>
           {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
-              <span className="text-red-600 font-bold text-xs uppercase tracking-widest block mb-1.5">
-                SẢN PHẨM BÁN CHẠY
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight uppercase">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-6 h-0.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600"></span>
+                <span className="text-red-600 font-extrabold text-[11px] uppercase tracking-[0.2em]">
+                  SẢN PHẨM BÁN CHẠY
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">
                 Vật Tư & Phụ Kiện Tiêu Biểu
               </h2>
             </div>
             <a
-              href="#products"
-              className="inline-flex items-center gap-2 font-bold text-sm text-red-600 hover:text-red-700 transition-colors uppercase tracking-wider group"
+              href="/products"
+              className="inline-flex items-center gap-2 font-bold text-xs text-red-600 hover:text-red-700 transition-colors uppercase tracking-wider group"
             >
               Xem tất cả sản phẩm
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
 
@@ -116,68 +117,100 @@ export default function StorefrontSections() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((product) => {
-                const img = product.thumbnail_url || product.image_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop';
-                const catName = product.categories?.name || 'Vật tư xây dựng';
+              {products.map((product, idx) => {
+                const defaultImg = 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop';
+                const img = product.thumbnail_url || product.image_url || defaultImg;
+                const rawCatName = product.categories?.name || '';
+                const catName = (rawCatName && rawCatName.trim().toLowerCase() !== 'vật tư xây dựng') ? rawCatName : '';
                 const price = product.original_price || product.price || 0;
                 const isCompared = compareList.some((p) => p.id === product.id);
+                const ccList = extractConstructionCategories(product.tags);
 
                 return (
                   <div
                     key={product.id}
-                    className="group flex flex-col bg-white rounded-2xl border border-slate-100 p-3.5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative"
+                    style={{ animationDelay: `${idx * 100}ms` }}
+                    className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 p-4 transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.12)] hover:-translate-y-1 relative animate-fade-in-up"
                   >
                     {/* Image Container */}
-                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-50 mb-3 group/img">
-                      <a href={`#product?id=${product.id}`} className="w-full h-full block">
+                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-100 mb-3.5 group/img flex items-center justify-center border border-slate-100">
+                      <a href={`/san-pham/${(product as any).slug || (product as any).id}`} className="w-full h-full block">
                         <img
                           src={img}
                           alt={product.name}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = defaultImg;
+                          }}
                           className="w-full h-full object-cover rounded-xl transition-transform duration-500 ease-out group-hover/img:scale-105"
                         />
                       </a>
 
                       {/* HOT Badge */}
                       {product.is_hot && (
-                        <span className="absolute top-2.5 right-2.5 z-10 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs pointer-events-none">
+                        <span className="absolute top-2.5 right-2.5 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md backdrop-blur-md pointer-events-none">
                           Nổi bật
                         </span>
                       )}
 
-                      {/* Compare Icon-Only Button */}
+                      {/* Compare Button */}
                       <button
                         onClick={(e) => handleToggleCompare(e, { ...product, image: img, price })}
-                        className={`absolute top-2.5 left-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-xs backdrop-blur-md cursor-pointer ${
+                        className={`absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md backdrop-blur-md cursor-pointer ${
                           isCompared
-                            ? 'bg-red-600 text-white'
-                            : 'bg-white/90 text-slate-600 hover:bg-slate-900 hover:text-white'
+                            ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-red-500/30'
+                            : 'bg-white/90 text-slate-600 hover:bg-red-600 hover:text-white'
                         }`}
                         title={isCompared ? 'Bỏ so sánh' : 'Thêm vào so sánh'}
                       >
-                        <ArrowLeftRight size={13} />
+                        <ArrowLeftRight size={14} />
                       </button>
                     </div>
 
                     {/* Card Content */}
                     <div className="flex flex-col flex-grow">
-                      <span className="text-[10px] text-red-600 font-extrabold uppercase tracking-widest mb-1 line-clamp-1">
-                        {catName}
-                      </span>
+                      {catName ? (
+                        <span className="text-[10px] text-red-600 font-extrabold uppercase tracking-widest mb-1 line-clamp-1">
+                          {catName}
+                        </span>
+                      ) : null}
+
+                      {/* Mini-Tags Hạng mục thi công */}
+                      {ccList && ccList.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {ccList.slice(0, 2).map((cc: string, cIdx: number) => (
+                            <span
+                              key={cIdx}
+                              className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-100"
+                            >
+                              <span className="w-1 h-1 rounded-full bg-purple-500"></span>
+                              {cc}
+                            </span>
+                          ))}
+                          {ccList.length > 2 && (
+                            <span className="text-[9px] font-bold px-1 py-0.5 rounded-md bg-slate-100 text-slate-500">
+                              +{ccList.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       <a 
-                        href={`#product?id=${product.id}`} 
-                        className="text-sm font-bold text-slate-900 line-clamp-2 leading-snug h-10 mb-2 group-hover:text-red-600 transition-colors"
+                        href={`/san-pham/${(product as any).slug || (product as any).id}`} 
+                        className="text-sm font-extrabold text-slate-800 line-clamp-2 leading-snug h-10 mb-3 group-hover:text-red-600 transition-colors"
                       >
                         {product.name}
                       </a>
 
-                      <div className="mt-auto pt-2 border-t border-slate-100 flex flex-col gap-2.5">
-                        <span className="text-slate-900 font-black text-base">
+                      <div className="mt-auto pt-3 border-t border-slate-100 flex flex-col gap-3">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-600 font-black text-base">
                           {formatPrice(price)}
                         </span>
 
                         <button
                           onClick={(e) => handleAddToCart(e, product)}
-                          className="w-full py-2.5 bg-slate-900 hover:bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
+                          className="w-full py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-md shadow-red-500/20 active:scale-[0.98] cursor-pointer"
                         >
                           <ShoppingBag size={14} /> Nhận báo giá
                         </button>
@@ -204,7 +237,7 @@ export default function StorefrontSections() {
                 </h2>
               </div>
               <a
-                href="#blog"
+                href="/blog"
                 className="inline-flex items-center gap-2 font-bold text-sm text-red-600 hover:text-red-700 transition-colors uppercase tracking-wider group"
               >
                 Xem tất cả bài viết
@@ -214,12 +247,13 @@ export default function StorefrontSections() {
 
             {/* Articles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {displayArticles.map((article) => (
+              {displayArticles.map((article, idx) => (
                 <article
                   key={article.id}
-                  className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
+                  style={{ animationDelay: `${idx * 150}ms` }}
+                  className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 animate-fade-in-up"
                 >
-                  <a href={`#article?id=${article.id}`} className="aspect-[16/10] w-full overflow-hidden bg-slate-100 block">
+                  <a href={`/bai-viet/${(article as any).slug || (article as any).id}`} className="aspect-[16/10] w-full overflow-hidden bg-slate-100 block">
                     <img
                       src={article.image}
                       alt={article.title}
@@ -240,7 +274,7 @@ export default function StorefrontSections() {
                       </div>
                     </div>
 
-                    <a href={`#article?id=${article.id}`} className="text-lg font-bold text-slate-900 mb-3 line-clamp-2 leading-snug group-hover:text-red-600 transition-colors">
+                    <a href={`/bai-viet/${(article as any).slug || (article as any).id}`} className="text-lg font-bold text-slate-900 mb-3 line-clamp-2 leading-snug group-hover:text-red-600 transition-colors">
                       {article.title}
                     </a>
 
@@ -250,7 +284,7 @@ export default function StorefrontSections() {
 
                     <div className="mt-auto pt-4 border-t border-slate-100">
                       <a
-                        href={`#article?id=${article.id}`}
+                        href={`/bai-viet/${(article as any).slug || (article as any).id}`}
                         className="inline-flex items-center gap-2 text-xs font-extrabold text-red-600 uppercase tracking-wider group-hover:gap-3 transition-all"
                       >
                         Đọc tiếp
