@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Package, Layers, ArrowRight, CheckCircle2
+  Package, Layers, ArrowRight, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { 
@@ -15,14 +15,14 @@ import {
 const SBUILD_TENANT_ID = '00000000-0000-0000-0000-000000000002';
 const STANDARD_MATERIAL_ORDER = ['Nẹp nhựa', 'Nẹp nhôm', 'Nẹp inox', 'Dụng cụ', 'Phụ kiện', 'Hóa chất'];
 
-// Dữ liệu khởi tạo chuẩn xác 100% khớp với Database để HTML sinh ra từ Server/lần đầu không bị giật hay đổi text sau 0.5s
+// Dữ liệu khởi tạo chuẩn xác 100% khớp với Database
 export const INITIAL_MATERIAL_CATEGORIES = [
   {
     id: 'b1111111-0000-0000-0000-000000000003',
     name: 'Nẹp nhựa',
     slug: 'nep-nhua',
     description: 'Nẹp nhựa PVC bo góc gạch men, nẹp chỉ ngắt nước và nẹp trát tường chuyên dụng.',
-    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop',
     count: 2
   },
   {
@@ -30,7 +30,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Nẹp nhôm',
     slug: 'nep-nhom',
     description: 'Nẹp nhôm chữ T, V, U, L mạ Anode cao cấp chống ăn mòn và tạo đường chỉ sắc nét cho công trình.',
-    image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
     count: 3
   },
   {
@@ -38,7 +38,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Nẹp inox',
     slug: 'nep-inox',
     description: 'Nẹp inox 304 mạ PVD vàng gương, vàng xước, đen bóng đạt chuẩn sang trọng và chịu lực va đập tốt.',
-    image_url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop',
     count: 2
   },
   {
@@ -46,7 +46,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Dụng cụ',
     slug: 'dung-cu',
     description: 'Dụng cụ thi công ốp lát, bay răng cưa, búa cao su, kìm siết ke cân bằng.',
-    image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200&auto=format&fit=crop',
     count: 2
   },
   {
@@ -54,7 +54,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Phụ kiện',
     slug: 'phu-kien',
     description: 'Ke cân bằng, nêm chêm gạch, nút bịt đầu nẹp, phụ kiện liên kết và đỡ giàn giáo.',
-    image_url: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop',
     count: 7
   },
   {
@@ -62,52 +62,52 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Hóa chất',
     slug: 'hoa-chat',
     description: 'Keo dán gạch, keo chà ron, keo dán nẹp chuyên dụng và phụ gia chống thấm.',
-    image_url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1200&auto=format&fit=crop',
     count: 2
   }
 ];
 
-// Sub-label hiển thị trên hover
+// Sub-label kiến trúc cho từng danh mục
 function getCategorySubLabel(name: string, slug?: string, isConstruction = false) {
   const key = (slug || name || '').toLowerCase();
 
   if (isConstruction) {
-    if (key.includes('op-lat') || key.includes('ốp lát')) return 'Gạch men & Đá';
-    if (key.includes('trat') || key.includes('trát')) return 'Cạnh vữa & Mốc trát';
-    if (key.includes('thach-cao') || key.includes('thạch cao')) return 'Trần & Vách ngăn';
-    if (key.includes('noi-that') || key.includes('nội thất')) return 'Sàn gỗ & Nẹp len';
-    if (key.includes('ngoai-that') || key.includes('ngoại thất')) return 'Ban công & Cửa sổ';
-    if (key.includes('den-led') || key.includes('đèn led')) return 'Nẹp nhôm âm trần';
-    return 'Cổ ống & Mạch ngừng';
+    if (key.includes('op-lat') || key.includes('ốp lát')) return 'Gạch men & Đá tự nhiên';
+    if (key.includes('trat') || key.includes('trát')) return 'Cạnh vữa & Mốc trát tường';
+    if (key.includes('thach-cao') || key.includes('thạch cao')) return 'Trần thạch cao & Vách ngăn';
+    if (key.includes('noi-that') || key.includes('nội thất')) return 'Sàn gỗ & Nẹp len chân tường';
+    if (key.includes('ngoai-that') || key.includes('ngoại thất')) return 'Ban công & Mặt dựng ngoài trời';
+    if (key.includes('den-led') || key.includes('đèn led')) return 'Nẹp nhôm âm trần & Hắt sáng';
+    return 'Cổ ống & Mạch ngừng bê tông';
   }
-  if (key.includes('nhua') || key.includes('nhựa')) return 'Nhựa PVC cao cấp';
-  if (key.includes('nhom') || key.includes('nhôm')) return 'Hợp kim Anode';
-  if (key.includes('inox')) return 'Inox 304 mạ PVD';
-  if (key.includes('dung-cu') || key.includes('dụng cụ')) return 'Thi công chuyên nghiệp';
-  if (key.includes('phu-kien') || key.includes('phụ kiện')) return 'Ke cân bằng & Cốp pha';
-  if (key.includes('hoa-chat') || key.includes('hóa chất')) return 'Keo dán & Chà ron';
-  return 'Vật tư đạt chuẩn';
+  if (key.includes('nhua') || key.includes('nhựa')) return 'Nhựa PVC nguyên sinh';
+  if (key.includes('nhom') || key.includes('nhôm')) return 'Hợp kim Anode 6063-T5';
+  if (key.includes('inox')) return 'Inox 304 mạ PVD cao cấp';
+  if (key.includes('dung-cu') || key.includes('dụng cụ')) return 'Thi công xây dựng chuyên dụng';
+  if (key.includes('phu-kien') || key.includes('phụ kiện')) return 'Ke cân bằng & Phụ kiện ốp lát';
+  if (key.includes('hoa-chat') || key.includes('hóa chất')) return 'Keo dán nẹp & Phụ gia chống thấm';
+  return 'Vật tư đạt chuẩn kiểm định';
 }
 
-// Placeholder images - 100% verified reliable construction & architectural photos
 const PLACEHOLDER_IMAGES = [
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1200&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1200&auto=format&fit=crop',
 ];
 
-// ─── Category Card (go.arch style) ──────────────────────────────
-function CategoryCard({ 
-  name, 
-  description, 
-  imageUrl, 
-  subLabel, 
-  href, 
-  index 
+// ─── Single Architectural Full-Bleed Card ──────────────────────────
+function FullBleedCategoryCard({
+  name,
+  description,
+  imageUrl,
+  subLabel,
+  href,
+  index,
+  total,
 }: {
   name: string;
   description: string;
@@ -115,6 +115,7 @@ function CategoryCard({
   subLabel: string;
   href: string;
   index: number;
+  total: number;
 }) {
   const [hovered, setHovered] = useState(false);
   const defaultBg = PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
@@ -124,251 +125,162 @@ function CategoryCard({
     setImgSrc(imageUrl || defaultBg);
   }, [imageUrl, defaultBg]);
 
+  const formattedIndex = String(index + 1).padStart(2, '0');
+
   return (
     <a
       href={href}
-      className="group relative block overflow-hidden rounded-2xl cursor-pointer"
-      style={{ 
-        aspectRatio: '4/3.35', 
-        minHeight: 220,
-        transform: 'translateZ(0)',
-        willChange: 'transform'
-      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="group relative block h-full w-full overflow-hidden border-r border-white/10 select-none bg-slate-950 cursor-pointer"
+      style={{
+        transform: 'translateZ(0)',
+        willChange: 'transform',
+      }}
     >
-      {/* Background Image — ken burns zoom */}
+      {/* Background Image with Slow Architectural Ken Burns Zoom */}
       <img
         src={imgSrc}
         alt={name}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
-          transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: hovered ? 'scale(1.06)' : 'scale(1)',
+          transition: 'transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: hovered ? 'scale(1.08)' : 'scale(1)',
           willChange: 'transform',
         }}
         loading="eager"
         decoding="async"
         onError={() => {
-          if (imgSrc !== defaultBg) {
-            setImgSrc(defaultBg);
-          }
+          if (imgSrc !== defaultBg) setImgSrc(defaultBg);
         }}
       />
 
-      {/* Permanent gradient: dark at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-      {/* Extra darkening on hover */}
-      <div
-        className="absolute inset-0 bg-black/20"
+      {/* 
+        CRITICAL REQUIREMENT: 
+        Lớp phủ đen mờ đến trong dần từ cạnh trái đến cạnh phải của mỗi thẻ 
+      */}
+      <div 
+        className="absolute inset-0 pointer-events-none transition-opacity duration-500"
         style={{
-          opacity: hovered ? 1 : 0,
-          transition: 'opacity 0.35s ease',
+          background: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.65) 45%, rgba(0, 0, 0, 0.25) 80%, rgba(0, 0, 0, 0.05) 100%)',
+          opacity: hovered ? 0.95 : 1,
         }}
       />
 
-      {/* Bottom content */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-4 sm:p-5">
+      {/* Subtle bottom shadow gradient to protect text in lower areas */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.1) 40%, transparent 100%)',
+        }}
+      />
 
-        {/* Description — slides up from below on hover */}
-        <div style={{ overflow: 'hidden' }}>
-          <p
+      {/* Card Content Container */}
+      <div className="relative z-10 h-full w-full p-6 sm:p-7 lg:p-8 flex flex-col justify-between">
+        
+        {/* Top Section: Index, Category Title & Sub-label */}
+        <div className="max-w-[90%]">
+          {/* Tag & Index */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-mono text-red-500 text-xs font-bold tracking-widest">
+              {formattedIndex}
+            </span>
+            <span className="w-4 h-px bg-white/20"></span>
+            <span className="font-arch text-white/50 text-[10px] font-bold uppercase tracking-[0.2em]">
+              {subLabel}
+            </span>
+          </div>
+
+          {/* Main Title — Big architectural font */}
+          <h3 className="font-arch font-bold text-white text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider leading-snug">
+            {name}
+          </h3>
+
+          {/* Short Description */}
+          <p 
             style={{
-              transform: hovered ? 'translateY(0)' : 'translateY(110%)',
-              opacity: hovered ? 1 : 0,
-              transition: 'transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease',
+              transition: 'all 0.4s ease',
+              opacity: hovered ? 1 : 0.82,
+              transform: hovered ? 'translateY(0)' : 'translateY(2px)',
             }}
-            className="text-white/85 text-xs font-medium leading-relaxed mb-2 line-clamp-2"
+            className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed mt-2.5 line-clamp-2 max-w-sm"
           >
             {description}
           </p>
         </div>
 
-        {/* Sub label — slides up with delay */}
-        <div style={{ overflow: 'hidden' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              transform: hovered ? 'translateY(0)' : 'translateY(110%)',
-              opacity: hovered ? 1 : 0,
-              transition: 'transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease',
-              transitionDelay: hovered ? '50ms' : '0ms',
-            }}
-            className="font-arch text-red-400 text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5 inline-block"
-          >
-            {subLabel}
+        {/* 
+          CRITICAL ARCHITECTURAL TOUCH (from reference photo):
+          Vertical 90-degree rotated label on bottom-left 
+        */}
+        <div 
+          className="absolute bottom-7 left-7 pointer-events-none origin-bottom-left"
+          style={{
+            writingMode: 'vertical-rl',
+            transform: 'rotate(180deg)',
+          }}
+        >
+          <span className="font-arch text-[10px] font-bold text-white/30 group-hover:text-red-400/80 transition-colors uppercase tracking-[0.38em] whitespace-nowrap">
+            S - B U I L D  •  A R C H I T E C T U R E
           </span>
         </div>
 
-        {/* Category name — always visible */}
-        <div className="flex items-end justify-between gap-2.5">
-          <h3
+        {/* Bottom-Right Action CTA */}
+        <div className="flex items-end justify-end mt-auto pt-6">
+          <div 
             style={{
-              transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
-              transition: 'transform 0.3s ease',
+              transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: hovered ? 'translateX(0)' : 'translateX(6px)',
             }}
-            className="font-arch font-bold text-white text-lg sm:text-xl uppercase tracking-[0.05em] leading-tight"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/10 backdrop-blur-md border border-white/15 text-white group-hover:bg-red-600 group-hover:border-red-500 shadow-sm"
           >
-            {name}
-          </h3>
-          <div
-            style={{
-              opacity: hovered ? 1 : 0,
-              transform: hovered ? 'translateX(0)' : 'translateX(8px)',
-              transition: 'opacity 0.3s ease, transform 0.3s ease',
-              transitionDelay: hovered ? '70ms' : '0ms',
-            }}
-            className="w-7 h-7 rounded-full bg-white/15 border border-white/25 backdrop-blur-sm flex items-center justify-center shrink-0"
-          >
-            <ArrowRight size={13} className="text-white" />
+            <span className="font-arch text-[11px] font-bold uppercase tracking-wider">
+              Khám phá
+            </span>
+            <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
           </div>
         </div>
+
       </div>
     </a>
   );
 }
 
-// ─── Dynamic Column Span Calculation for Gap-filling Banner ─────────
-function getFillBannerColSpan(count: number) {
-  const rem2 = count % 2;
-  const rem3 = count % 3;
-  const rem4 = count % 4;
-
-  const baseSpan = rem2 === 1 ? 'col-span-1' : 'col-span-2';
-
-  let mdSpan = 'md:col-span-3';
-  if (rem3 === 1) mdSpan = 'md:col-span-2';
-  else if (rem3 === 2) mdSpan = 'md:col-span-1';
-
-  let lgSpan = 'lg:col-span-4';
-  if (rem4 === 1) lgSpan = 'lg:col-span-3';
-  else if (rem4 === 2) lgSpan = 'lg:col-span-2';
-  else if (rem4 === 3) lgSpan = 'lg:col-span-1';
-
-  return `${baseSpan} ${mdSpan} ${lgSpan}`;
-}
-
-// ─── Gap-filling CTA Banner Card ────────────────────────────────────
-function CategoryCtaCard({ 
-  isSingleColOnLg = false 
-}: { 
-  isSingleColOnLg?: boolean; 
-}) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="group relative overflow-hidden rounded-2xl border border-slate-800 shadow-xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:border-red-500/50 hover:shadow-red-950/40 h-full w-full"
-      style={{
-        backgroundColor: '#090d16',
-        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.08) 1px, #090d16 1px)',
-        backgroundSize: '20px 20px',
-        minHeight: 220,
-      }}
-    >
-      {/* Ambient Red Glow on hover / dynamic lighting */}
-      <div
-        className="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full blur-2xl transition-opacity duration-700"
-        style={{
-          background: 'radial-gradient(circle, rgba(220, 38, 38, 0.35) 0%, transparent 70%)',
-          opacity: hovered ? 1 : 0.65,
-        }}
-      />
-      <div
-        className="pointer-events-none absolute -bottom-12 -left-12 w-44 h-44 rounded-full blur-2xl transition-opacity duration-700"
-        style={{
-          background: 'radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 70%)',
-          opacity: hovered ? 0.9 : 0.4,
-        }}
-      />
-
-      {/* Top Header info */}
-      <div className="relative z-10">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <div className="w-5 h-5 rounded-md bg-red-600/25 border border-red-500/40 text-red-500 flex items-center justify-center shrink-0 shadow-sm">
-              <CheckCircle2 size={12} className="transition-transform duration-300 group-hover:scale-110" />
-            </div>
-            <span className="font-arch text-red-400 font-bold text-[10px] uppercase tracking-[0.14em] truncate">
-              DỰ ÁN & VẬT TƯ ĐẶC THÙ
-            </span>
-          </div>
-
-          <a
-            href="tel:0901234567"
-            className="text-[10px] font-bold text-slate-400 hover:text-red-400 transition-colors shrink-0 whitespace-nowrap"
-          >
-            Hotline: <span className="text-red-400 font-black">0901 234 567</span>
-          </a>
-        </div>
-
-        <h4 className={`font-arch font-bold text-white uppercase tracking-wide leading-snug line-clamp-2 ${
-          isSingleColOnLg ? 'text-sm' : 'text-sm sm:text-base lg:text-lg'
-        }`}>
-          Cần tìm giải pháp vật tư tùy chỉnh theo bản vẽ kỹ thuật?
-        </h4>
-
-        <p className="text-slate-300 text-[11px] font-medium mt-1 leading-relaxed line-clamp-2">
-          Sbuild cung cấp đầy đủ chứng chỉ CO/CQ, bảng quy cách chi tiết & gửi mẫu công trình.
-        </p>
-
-        {/* Feature badges */}
-        <div className="flex flex-wrap items-center gap-1.5 mt-2">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-slate-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> CO/CQ
-          </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-slate-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span> Gửi mẫu
-          </span>
-          {!isSingleColOnLg && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-slate-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Giá sỉ công trình
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Bottom Action — Prominent button with zero cutoff & ample bottom breathing room */}
-      <div className="relative z-10 pt-2.5 mt-2.5 border-t border-slate-800/80">
-        <a
-          href="/products"
-          className="font-arch inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-red-600/50 hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
-        >
-          <span>Mở kho sản phẩm</span>
-          <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-        </a>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Component ─────────────────────────────────────────────
+// ─── Main Categories Component (Edge-to-Edge Architectural Slider) ───
 export default function Categories() {
   const [activeTab, setActiveTab] = useState<'material' | 'construction'>('material');
-  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
   const [dbCategories, setDbCategories] = useState<any[]>(INITIAL_MATERIAL_CATEGORIES);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
-  const [productCounts, setProductCounts] = useState<{ [key: string]: number }>({
-    'b1111111-0000-0000-0000-000000000003': 2,
-    'b1111111-0000-0000-0000-000000000001': 3,
-    'b1111111-0000-0000-0000-000000000002': 2,
-    'b1111111-0000-0000-0000-000000000004': 2,
-    'b1111111-0000-0000-0000-000000000005': 7,
-    'b1111111-0000-0000-0000-000000000006': 2,
-  });
-  const [constructionCounts, setConstructionCounts] = useState<{ [key: string]: number }>({
-    'Ốp lát gạch': 8,
-    'Trát tường': 2,
-    'Thạch cao': 1,
-    'Hoàn thiện nội thất': 9,
-    'Hoàn thiện ngoại thất': 3,
-    'Thi công đèn LED': 0,
-    'Chống thấm': 2,
-  });
 
+  // Responsive visible cards count: 4 on desktop, 2 on tablet, 1 on mobile
+  const [visibleCards, setVisibleCards] = useState(4);
+
+  useEffect(() => {
+    function updateVisibleCards() {
+      if (typeof window === 'undefined') return;
+      if (window.innerWidth >= 1024) {
+        setVisibleCards(4);
+      } else if (window.innerWidth >= 640) {
+        setVisibleCards(2);
+      } else {
+        setVisibleCards(1);
+      }
+    }
+
+    updateVisibleCards();
+    window.addEventListener('resize', updateVisibleCards);
+    return () => window.removeEventListener('resize', updateVisibleCards);
+  }, []);
+
+  // Reset slider index when changing tabs
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [activeTab]);
+
+  // Load live data from Supabase
   useEffect(() => {
     async function loadDynamicTaxonomy() {
       try {
@@ -379,13 +291,7 @@ export default function Categories() {
 
         const ccQuery = getConstructionCategories();
 
-        const prodQuery = supabase
-          .from('products')
-          .select('id, category_id, tags')
-          .eq('tenant_id', SBUILD_TENANT_ID)
-          .eq('status', 'published');
-
-        const [catRes, ccList, prodRes] = await Promise.all([catQuery, ccQuery, prodQuery]);
+        const [catRes, ccList] = await Promise.all([catQuery, ccQuery]);
 
         if (catRes.data && catRes.data.length > 0) {
           const rawCats = catRes.data.filter((c: any) => 
@@ -407,30 +313,12 @@ export default function Categories() {
         if (ccList && ccList.length > 0) {
           setConstructionCategories(ccList);
         }
-
-        if (prodRes.data && prodRes.data.length > 0) {
-          const pMap: { [key: string]: number } = {};
-          const ccMap: { [key: string]: number } = {};
-
-          prodRes.data.forEach((p: any) => {
-            if (p.category_id) {
-              pMap[p.category_id] = (pMap[p.category_id] || 0) + 1;
-            }
-            const ccs = extractConstructionCategories(p.tags, ccList || DEFAULT_CONSTRUCTION_CATEGORIES);
-            ccs.forEach((ccName) => {
-              ccMap[ccName] = (ccMap[ccName] || 0) + 1;
-            });
-          });
-
-          setProductCounts(pMap);
-          setConstructionCounts(ccMap);
-        }
       } catch (err) {
         console.warn('Lỗi khi nạp dữ liệu danh mục từ Supabase:', err);
       }
     }
 
-    // Preload all category images into browser cache so tab switching is instantaneous
+    // Preload image cache for 60fps instant transitions
     try {
       const allUrls = [
         ...INITIAL_MATERIAL_CATEGORIES.map(c => c.image_url),
@@ -445,148 +333,265 @@ export default function Categories() {
         }
       });
     } catch {
-      // Ignore preloader errors
+      // Ignore preloader error
     }
 
     loadDynamicTaxonomy();
   }, []);
 
-  // Unified grid class — same for both tabs
-  const gridClass = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5";
+  const currentItems = activeTab === 'material' ? dbCategories : constructionCategories;
+  const maxIndex = Math.max(0, currentItems.length - visibleCards);
+
+  // Auto-play: Slide from right to left every 5.2s if items > visibleCards
+  useEffect(() => {
+    if (isPaused || currentItems.length <= visibleCards) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    }, 5200);
+
+    return () => clearInterval(interval);
+  }, [isPaused, maxIndex, currentItems.length, visibleCards]);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  // Touch / Drag swipe support
+  const touchStartX = useRef<number | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (diff > 50) {
+      handleNext();
+    } else if (diff < -50) {
+      handlePrev();
+    }
+    touchStartX.current = null;
+  };
 
   return (
-    <section className="bg-white py-10 sm:py-12 lg:py-14 shrink-0 relative z-10 overflow-hidden border-b border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-neutral-950 py-8 sm:py-10 shrink-0 relative z-10 overflow-hidden border-b border-neutral-900 w-full">
+      
+      {/* ─── Top Header & Tab Controls (Contained for crisp readability) ─── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
+          
+          {/* Section Heading */}
+          <div>
+            <div className="inline-flex items-center gap-2 mb-2">
+              <span className="w-6 h-0.5 rounded-full bg-red-600"></span>
+              <span className="font-arch text-red-500 font-bold text-[11px] uppercase tracking-[0.24em]">
+                HỆ THỐNG DANH MỤC KIẾN TRÚC
+              </span>
+            </div>
+            <h2 className="font-arch text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-wider uppercase">
+              Giải Pháp Vật Tư & Thi Công
+            </h2>
+            <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">
+              Khám phá giải pháp nẹp và phụ kiện chuyên dụng được phân chia trực quan theo từng hạng mục.
+            </p>
+          </div>
+
+          {/* Tab Switcher & Navigation Controls */}
+          <div className="flex flex-wrap items-center gap-3 self-start md:self-end">
+            
+            {/* Tab Pill Buttons */}
+            <div className="inline-flex items-center bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/10 relative">
+              <button
+                onClick={() => setActiveTab('material')}
+                className={`relative font-arch flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
+                  activeTab === 'material' ? 'text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {activeTab === 'material' && (
+                  <motion.div
+                    layoutId="categoryActivePill"
+                    className="absolute inset-0 bg-red-600 rounded-lg shadow-md shadow-red-950/40 -z-10"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <Package size={14} />
+                <span>Sản phẩm</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                  activeTab === 'material' ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-400'
+                }`}>
+                  {dbCategories.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('construction')}
+                className={`relative font-arch flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
+                  activeTab === 'construction' ? 'text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                {activeTab === 'construction' && (
+                  <motion.div
+                    layoutId="categoryActivePill"
+                    className="absolute inset-0 bg-red-600 rounded-lg shadow-md shadow-red-950/40 -z-10"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <Layers size={14} />
+                <span>Hạng mục thi công</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                  activeTab === 'construction' ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-400'
+                }`}>
+                  {constructionCategories.length}
+                </span>
+              </button>
+            </div>
+
+            {/* Top Carousel Navigation Buttons (if > 4 cards) */}
+            {currentItems.length > visibleCards && (
+              <div className="flex items-center gap-1.5 bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/10">
+                <button
+                  onClick={handlePrev}
+                  aria-label="Previous"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <div className="text-[11px] font-mono text-slate-400 px-1 font-bold">
+                  <span>{String(currentIndex + 1).padStart(2, '0')}</span>
+                  <span className="text-slate-600 mx-1">/</span>
+                  <span>{String(maxIndex + 1).padStart(2, '0')}</span>
+                </div>
+                <button
+                  onClick={handleNext}
+                  aria-label="Next"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+
+          </div>
+        </div>
+      </div>
+
+      {/* 
+        ─── FULL-WIDTH EDGE-TO-EDGE 4-COLUMN ARCHITECTURAL SLIDER ─── 
+        CRITICAL: Touches screen edges on both left and right (w-full, px-0)!
+      */}
+      <div 
+        className="w-full relative overflow-hidden select-none border-y border-white/10"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-4 sm:mb-5">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <span className="w-7 h-0.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600"></span>
-            <span className="font-arch text-red-600 font-bold text-[11px] uppercase tracking-[0.22em]">
-              DANH MỤC
-            </span>
-            <span className="w-7 h-0.5 rounded-full bg-gradient-to-r from-rose-600 to-red-600"></span>
-          </div>
-          <h2 className="font-arch text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-wider uppercase">
-            Giải Pháp Vật Tư & Thi Công
-          </h2>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1 max-w-xl mx-auto">
-            Tra cứu linh hoạt theo chủng loại vật tư hoặc tìm giải pháp theo từng hạng mục thi công.
-          </p>
-        </div>
-
-        {/* Tab Toggle Buttons - Centered and Compact with Smooth Animated Pill */}
-        <div className="flex justify-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center bg-slate-100/90 backdrop-blur-sm p-1 sm:p-1.5 rounded-2xl border border-slate-200/90 shadow-inner relative">
-            <button
-              onClick={() => setActiveTab('material')}
-              className={`relative font-arch flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
-                activeTab === 'material' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              {activeTab === 'material' && (
-                <motion.div
-                  layoutId="categoryActivePill"
-                  className="absolute inset-0 bg-white rounded-xl shadow-md shadow-slate-900/10 -z-10"
-                  transition={{ type: "spring", stiffness: 500, damping: 34 }}
-                />
-              )}
-              <Package size={16} className={`transition-all duration-300 ${activeTab === 'material' ? 'text-red-600 scale-110' : 'text-slate-400'}`} />
-              <span>Sản phẩm</span>
-              <span className={`text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
-                activeTab === 'material' ? 'bg-red-100 text-red-600' : 'bg-slate-200 text-slate-500'
-              }`}>
-                {dbCategories.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('construction')}
-              className={`relative font-arch flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
-                activeTab === 'construction' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              {activeTab === 'construction' && (
-                <motion.div
-                  layoutId="categoryActivePill"
-                  className="absolute inset-0 bg-white rounded-xl shadow-md shadow-slate-900/10 -z-10"
-                  transition={{ type: "spring", stiffness: 500, damping: 34 }}
-                />
-              )}
-              <Layers size={16} className={`transition-all duration-300 ${activeTab === 'construction' ? 'text-red-600 scale-110' : 'text-slate-400'}`} />
-              <span>Hạng mục thi công</span>
-              <span className={`text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
-                activeTab === 'construction' ? 'bg-red-100 text-red-600' : 'bg-slate-200 text-slate-500'
-              }`}>
-                {constructionCategories.length}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* 60FPS High Performance Grid — native CSS grid with zero layout thrashing */}
-        <div className={gridClass}>
-          {(activeTab === 'material' ? dbCategories : constructionCategories).map((item, index) => {
+        {/* Slider Track */}
+        <div
+          className="flex h-[520px] sm:h-[580px] lg:h-[620px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          style={{
+            transform: `translateX(-${(currentIndex * 100) / visibleCards}%)`,
+            willChange: 'transform',
+          }}
+        >
+          {currentItems.map((item, index) => {
             const isConstruction = activeTab === 'construction';
             const subLabel = getCategorySubLabel(item.name, item.slug, isConstruction);
-            const itemKey = `${activeTab}-${item.id || item.slug || item.name || index}`;
+            const href = isConstruction
+              ? `/products?construction=${encodeURIComponent(item.name)}`
+              : `/products?cat=${encodeURIComponent(item.name)}`;
+
             return (
-              <motion.div
-                key={itemKey}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.18,
-                  ease: [0.16, 1, 0.3, 1],
-                  delay: Math.min(index * 0.015, 0.08)
-                }}
-                style={{ willChange: 'transform, opacity' }}
+              <div
+                key={item.id || item.slug || item.name || index}
+                className="shrink-0 h-full w-full sm:w-1/2 lg:w-1/4"
               >
-                <CategoryCard
+                <FullBleedCategoryCard
                   name={item.name}
                   description={
                     item.description ||
                     (isConstruction
-                      ? 'Ứng dụng nẹp và phụ kiện chuyên biệt cho công đoạn thi công.'
+                      ? 'Ứng dụng nẹp và phụ kiện chuyên biệt cho từng công đoạn thi công.'
                       : 'Giải pháp vật tư xây dựng chuyên dụng chất lượng chuẩn kiểm định.')
                   }
                   imageUrl={item.image_url}
                   subLabel={subLabel}
-                  href={
-                    isConstruction
-                      ? `/products?construction=${encodeURIComponent(item.name)}`
-                      : `/products?cat=${encodeURIComponent(item.name)}`
-                  }
+                  href={href}
                   index={index}
+                  total={currentItems.length}
                 />
-              </motion.div>
+              </div>
             );
           })}
-
-          {/* Morphing CTA Banner Card: spring-morphs between 2 cols and 1 col with high performance */}
-          <motion.div
-            layout
-            key="categoryCtaBannerMorph"
-            className={getFillBannerColSpan(
-              activeTab === 'material' ? dbCategories.length : constructionCategories.length
-            )}
-            transition={{
-              type: "spring",
-              stiffness: 420,
-              damping: 32,
-              mass: 0.7
-            }}
-            style={{ willChange: 'transform' }}
-          >
-            <CategoryCtaCard
-              isSingleColOnLg={getFillBannerColSpan(
-                activeTab === 'material' ? dbCategories.length : constructionCategories.length
-              ).includes('lg:col-span-1')}
-            />
-          </motion.div>
         </div>
 
+        {/* 
+          OVERLAY NAVIGATION BUTTONS (Matching Reference Photo):
+          ← PREV on the left side, NEXT → on the right side!
+        */}
+        {currentItems.length > visibleCards && (
+          <>
+            {/* Left Button (PREV) */}
+            <button
+              onClick={handlePrev}
+              aria-label="Previous Slide"
+              className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 group/btn flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl cursor-pointer"
+            >
+              <ChevronLeft size={16} className="transition-transform duration-300 group-hover/btn:-translate-x-1" />
+              <span className="font-arch text-[11px] sm:text-xs font-bold uppercase tracking-widest hidden sm:inline-block">
+                PREV
+              </span>
+            </button>
+
+            {/* Right Button (NEXT) */}
+            <button
+              onClick={handleNext}
+              aria-label="Next Slide"
+              className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 group/btn flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl cursor-pointer"
+            >
+              <span className="font-arch text-[11px] sm:text-xs font-bold uppercase tracking-widest hidden sm:inline-block">
+                NEXT
+              </span>
+              <ChevronRight size={16} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
+            </button>
+          </>
+        )}
+
       </div>
+
+      {/* ─── Bottom Status Indicator Bar ─── */}
+      <div className="w-full mt-4 px-4 sm:px-6 flex items-center justify-between text-xs text-slate-500 font-mono">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
+          <span className="font-arch text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            {activeTab === 'material' ? 'VẬT TƯ CHUYÊN DỤNG' : 'CÔNG ĐOẠN THI CÔNG'}
+          </span>
+        </div>
+
+        {/* Progress ticks */}
+        {currentItems.length > visibleCards && (
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-1 transition-all duration-300 rounded-full cursor-pointer ${
+                  currentIndex === idx ? 'w-8 bg-red-600' : 'w-2.5 bg-white/20 hover:bg-white/40'
+                }`}
+                aria-label={`Slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
     </section>
   );
 }
