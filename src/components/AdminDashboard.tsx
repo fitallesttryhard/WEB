@@ -123,7 +123,9 @@ export default function AdminDashboard() {
   const [selectedPosts, setSelectedPosts] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
   const [selectedPostCategories, setSelectedPostCategories] = useState<any[]>([]);
-  const [categoryForm, setCategoryForm] = useState({ id: null as any, name: '', slug: '', description: '' });
+  const [categoryForm, setCategoryForm] = useState({ id: null as any, name: '', slug: '', description: '', image_url: '' });
+  const [isCategoryImageUploading, setIsCategoryImageUploading] = useState(false);
+  const categoryImageInputRef = React.useRef<HTMLInputElement>(null);
   const [isCategorySlugEdited, setIsCategorySlugEdited] = useState(false);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
   const [constructionCategoryForm, setConstructionCategoryForm] = useState<{ id: string | null; name: string; slug: string; description: string }>({
@@ -1071,6 +1073,28 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCategoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsCategoryImageUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `cat-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const { error } = await supabase.storage.from('product-media').upload(fileName, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
+      setCategoryForm(prev => ({ ...prev, image_url: publicUrl }));
+    } catch (err) {
+      // fallback: local preview
+      const localUrl = URL.createObjectURL(file);
+      setCategoryForm(prev => ({ ...prev, image_url: localUrl }));
+      console.warn('Upload lỗi, dùng URL cục bộ:', err);
+    } finally {
+      setIsCategoryImageUploading(false);
+      if (categoryImageInputRef.current) categoryImageInputRef.current.value = '';
+    }
+  };
+
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryForm.name) {
@@ -1087,7 +1111,8 @@ export default function AdminDashboard() {
         await supabase.from('categories').update({ 
           name: categoryForm.name, 
           slug,
-          description: categoryForm.description || ''
+          description: categoryForm.description || '',
+          image_url: categoryForm.image_url || null
         }).eq('id', categoryForm.id);
       } catch (err) {
         console.warn('Lỗi update category:', err);
@@ -1109,14 +1134,15 @@ export default function AdminDashboard() {
           tenant_id: SBUILD_TENANT_ID,
           name: categoryForm.name, 
           slug,
-          description: categoryForm.description || ''
+          description: categoryForm.description || '',
+          image_url: categoryForm.image_url || null
         };
         await supabase.from('categories').insert([payload]);
       } catch (err) {
         console.warn('Lỗi insert category:', err);
       }
     }
-    setCategoryForm({ id: null, name: '', slug: '', description: '' });
+    setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '' });
     setIsCategorySlugEdited(false);
   };
 
@@ -1125,7 +1151,8 @@ export default function AdminDashboard() {
       id: cat.id,
       name: cat.name,
       slug: cat.slug || toSlug(cat.name),
-      description: cat.description || ''
+      description: cat.description || '',
+      image_url: cat.image_url || ''
     });
     setIsCategorySlugEdited(true);
   };
@@ -2111,12 +2138,71 @@ export default function AdminDashboard() {
                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium transition-all resize-none"
                         />
                       </div>
+                      {/* Image Upload */}
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Ảnh danh mục</label>
+                        <div className="flex flex-col gap-2">
+                          {/* Preview */}
+                          {categoryForm.image_url ? (
+                            <div className="relative rounded-xl overflow-hidden border border-gray-200" style={{ aspectRatio: '3/2' }}>
+                              <img src={categoryForm.image_url} alt="preview" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => setCategoryForm(prev => ({ ...prev, image_url: '' }))}
+                                className="absolute top-2 right-2 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => categoryImageInputRef.current?.click()}
+                              disabled={isCategoryImageUploading}
+                              className="w-full border-2 border-dashed border-gray-200 hover:border-red-400 rounded-xl py-6 flex flex-col items-center gap-2 text-gray-400 hover:text-red-500 transition-all cursor-pointer"
+                            >
+                              {isCategoryImageUploading ? (
+                                <><Loader2 size={20} className="animate-spin" /><span className="text-xs font-medium">Đang tải lên...</span></>
+                              ) : (
+                                <><ImageIcon size={20} /><span className="text-xs font-medium">Chọn ảnh danh mục</span></>
+                              )}
+                            </button>
+                          )}
+                          {/* URL input */}
+                          <input
+                            type="text"
+                            name="image_url"
+                            value={categoryForm.image_url}
+                            onChange={handleCategoryFormChange}
+                            placeholder="Hoặc dán URL ảnh..."
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-xs font-medium transition-all"
+                          />
+                          <input
+                            ref={categoryImageInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleCategoryImageUpload}
+                          />
+                          {categoryForm.image_url && (
+                            <button
+                              type="button"
+                              onClick={() => categoryImageInputRef.current?.click()}
+                              disabled={isCategoryImageUploading}
+                              className="text-xs text-blue-600 hover:text-blue-700 font-medium text-left"
+                            >
+                              Thay ảnh khác
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="pt-2 flex gap-2">
                         {categoryForm.id && (
                           <button 
                             type="button"
                             onClick={() => {
-                              setCategoryForm({ id: null, name: '', slug: '', description: '' });
+                              setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '' });
                               setIsCategorySlugEdited(false);
                             }}
                             className="flex-1 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 py-2.5 rounded-xl font-bold text-sm transition-all"
@@ -2159,6 +2245,7 @@ export default function AdminDashboard() {
                               className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                             />
                           </th>
+                          <th className="px-5 py-4">Ảnh</th>
                           <th className="px-5 py-4">Tên danh mục</th>
                           <th className="px-5 py-4">Mô tả</th>
                           <th className="px-5 py-4 text-center">Số lượng</th>
@@ -2175,6 +2262,15 @@ export default function AdminDashboard() {
                                 onChange={() => handleSelectCategory(cat.id)}
                                 className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
                               />
+                            </td>
+                            <td className="px-5 py-4">
+                              {cat.image_url ? (
+                                <img src={cat.image_url} alt={cat.name} className="w-12 h-12 rounded-lg object-cover border border-gray-100" />
+                              ) : (
+                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                  <ImageIcon size={16} className="text-gray-400" />
+                                </div>
+                              )}
                             </td>
                             <td className="px-5 py-4">
                               <div className="flex flex-col">
@@ -2210,7 +2306,7 @@ export default function AdminDashboard() {
                         ))}
                         {categories.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="px-5 py-8 text-center text-gray-500 font-medium">Chưa có danh mục nào.</td>
+                            <td colSpan={6} className="px-5 py-8 text-center text-gray-500 font-medium">Chưa có danh mục nào.</td>
                           </tr>
                         )}
                       </tbody>

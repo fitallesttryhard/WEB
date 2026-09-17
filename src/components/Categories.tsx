@@ -1,10 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Ruler, Sparkles, Droplets, Wrench, Package, 
-  Layers, LayoutGrid, Paintbrush, Home, Building2, 
-  Lightbulb, ShieldCheck, ArrowRight,
-  CheckCircle2, Boxes
+  Package, Layers, ArrowRight, CheckCircle2
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { 
@@ -24,6 +22,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Nẹp nhựa',
     slug: 'nep-nhua',
     description: 'Nẹp nhựa PVC bo góc gạch men, nẹp chỉ ngắt nước và nẹp trát tường chuyên dụng.',
+    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
     count: 2
   },
   {
@@ -31,6 +30,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Nẹp nhôm',
     slug: 'nep-nhom',
     description: 'Nẹp nhôm chữ T, V, U, L mạ Anode cao cấp chống ăn mòn và tạo đường chỉ sắc nét cho công trình.',
+    image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
     count: 3
   },
   {
@@ -38,6 +38,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Nẹp inox',
     slug: 'nep-inox',
     description: 'Nẹp inox 304 mạ PVD vàng gương, vàng xước, đen bóng đạt chuẩn sang trọng và chịu lực va đập tốt.',
+    image_url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop',
     count: 2
   },
   {
@@ -45,6 +46,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Dụng cụ',
     slug: 'dung-cu',
     description: 'Dụng cụ thi công ốp lát, bay răng cưa, búa cao su, kìm siết ke cân bằng.',
+    image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop',
     count: 2
   },
   {
@@ -52,6 +54,7 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Phụ kiện',
     slug: 'phu-kien',
     description: 'Ke cân bằng, nêm chêm gạch, nút bịt đầu nẹp, phụ kiện liên kết và đỡ giàn giáo.',
+    image_url: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop',
     count: 7
   },
   {
@@ -59,147 +62,293 @@ export const INITIAL_MATERIAL_CATEGORIES = [
     name: 'Hóa chất',
     slug: 'hoa-chat',
     description: 'Keo dán gạch, keo chà ron, keo dán nẹp chuyên dụng và phụ gia chống thấm.',
+    image_url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
     count: 2
   }
 ];
 
-// Hàm gán icon và màu sắc phù hợp theo nhận diện chuẩn thương hiệu SBUILD (Đỏ & Slate)
-function getCategoryVisuals(name: string, slug?: string, isConstruction = false) {
+// Sub-label hiển thị trên hover
+function getCategorySubLabel(name: string, slug?: string, isConstruction = false) {
   const key = (slug || name || '').toLowerCase();
 
   if (isConstruction) {
-    if (key.includes('op-lat') || key.includes('ốp lát')) {
-      return { 
-        icon: LayoutGrid, 
-        color: 'from-red-600 to-rose-600', 
-        bg: 'bg-slate-100', 
-        text: 'text-slate-800', 
-        badge: 'Gạch men & Đá' 
-      };
-    }
-    if (key.includes('trat') || key.includes('trát')) {
-      return { 
-        icon: Paintbrush, 
-        color: 'from-red-600 to-rose-600', 
-        bg: 'bg-slate-100', 
-        text: 'text-slate-800', 
-        badge: 'Cạnh vữa & Mốc trát' 
-      };
-    }
-    if (key.includes('thach-cao') || key.includes('thạch cao')) {
-      return { 
-        icon: Layers, 
-        color: 'from-red-600 to-rose-600', 
-        bg: 'bg-slate-100', 
-        text: 'text-slate-800', 
-        badge: 'Trần & Vách ngăn' 
-      };
-    }
-    if (key.includes('noi-that') || key.includes('nội thất')) {
-      return { 
-        icon: Home, 
-        color: 'from-red-600 to-rose-600', 
-        bg: 'bg-slate-100', 
-        text: 'text-slate-800', 
-        badge: 'Sàn gỗ & Nẹp len' 
-      };
-    }
-    if (key.includes('ngoai-that') || key.includes('ngoại thất')) {
-      return { 
-        icon: Building2, 
-        color: 'from-red-600 to-rose-600', 
-        bg: 'bg-slate-100', 
-        text: 'text-slate-800', 
-        badge: 'Ban công & Cửa sổ' 
-      };
-    }
-    if (key.includes('den-led') || key.includes('đèn led')) {
-      return { 
-        icon: Lightbulb, 
-        color: 'from-red-600 to-rose-600', 
-        bg: 'bg-slate-100', 
-        text: 'text-slate-800', 
-        badge: 'Nẹp nhôm âm trần' 
-      };
-    }
-    return { 
-      icon: ShieldCheck, 
-      color: 'from-red-600 to-rose-600', 
-      bg: 'bg-slate-100', 
-      text: 'text-slate-800', 
-      badge: 'Cổ ống & Mạch ngừng' 
-    };
+    if (key.includes('op-lat') || key.includes('ốp lát')) return 'Gạch men & Đá';
+    if (key.includes('trat') || key.includes('trát')) return 'Cạnh vữa & Mốc trát';
+    if (key.includes('thach-cao') || key.includes('thạch cao')) return 'Trần & Vách ngăn';
+    if (key.includes('noi-that') || key.includes('nội thất')) return 'Sàn gỗ & Nẹp len';
+    if (key.includes('ngoai-that') || key.includes('ngoại thất')) return 'Ban công & Cửa sổ';
+    if (key.includes('den-led') || key.includes('đèn led')) return 'Nẹp nhôm âm trần';
+    return 'Cổ ống & Mạch ngừng';
   }
-
-  // Chủng loại vật tư
-  if (key.includes('nhua') || key.includes('nhựa')) {
-    return { 
-      icon: Layers, 
-      color: 'from-red-600 to-rose-600', 
-      bg: 'bg-slate-100', 
-      text: 'text-slate-800', 
-      badge: 'Nhựa PVC cao cấp' 
-    };
-  }
-  if (key.includes('nhom') || key.includes('nhôm')) {
-    return { 
-      icon: Ruler, 
-      color: 'from-red-600 to-rose-600', 
-      bg: 'bg-slate-100', 
-      text: 'text-slate-800', 
-      badge: 'Hợp kim Anode' 
-    };
-  }
-  if (key.includes('inox')) {
-    return { 
-      icon: Sparkles, 
-      color: 'from-red-600 to-rose-600', 
-      bg: 'bg-slate-100', 
-      text: 'text-slate-800', 
-      badge: 'Inox 304 mạ PVD' 
-    };
-  }
-  if (key.includes('dung-cu') || key.includes('dụng cụ')) {
-    return { 
-      icon: Wrench, 
-      color: 'from-red-600 to-rose-600', 
-      bg: 'bg-slate-100', 
-      text: 'text-slate-800', 
-      badge: 'Thi công chuyên nghiệp' 
-    };
-  }
-  if (key.includes('phu-kien') || key.includes('phụ kiện')) {
-    return { 
-      icon: Boxes, 
-      color: 'from-red-600 to-rose-600', 
-      bg: 'bg-slate-100', 
-      text: 'text-slate-800', 
-      badge: 'Ke cân bằng & Cốp pha' 
-    };
-  }
-  if (key.includes('hoa-chat') || key.includes('hóa chất')) {
-    return { 
-      icon: Droplets, 
-      color: 'from-red-600 to-rose-600', 
-      bg: 'bg-slate-100', 
-      text: 'text-slate-800', 
-      badge: 'Keo dán & Chà ron' 
-    };
-  }
-
-  return { 
-    icon: Package, 
-    color: 'from-red-600 to-rose-600', 
-    bg: 'bg-red-50', 
-    text: 'text-red-600', 
-    badge: 'Vật tư đạt chuẩn' 
-  };
+  if (key.includes('nhua') || key.includes('nhựa')) return 'Nhựa PVC cao cấp';
+  if (key.includes('nhom') || key.includes('nhôm')) return 'Hợp kim Anode';
+  if (key.includes('inox')) return 'Inox 304 mạ PVD';
+  if (key.includes('dung-cu') || key.includes('dụng cụ')) return 'Thi công chuyên nghiệp';
+  if (key.includes('phu-kien') || key.includes('phụ kiện')) return 'Ke cân bằng & Cốp pha';
+  if (key.includes('hoa-chat') || key.includes('hóa chất')) return 'Keo dán & Chà ron';
+  return 'Vật tư đạt chuẩn';
 }
 
+// Placeholder images - 100% verified reliable construction & architectural photos
+const PLACEHOLDER_IMAGES = [
+  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop',
+];
+
+// ─── Category Card (go.arch style) ──────────────────────────────
+function CategoryCard({ 
+  name, 
+  description, 
+  imageUrl, 
+  subLabel, 
+  href, 
+  index 
+}: {
+  name: string;
+  description: string;
+  imageUrl?: string;
+  subLabel: string;
+  href: string;
+  index: number;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const defaultBg = PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
+  const [imgSrc, setImgSrc] = useState(imageUrl || defaultBg);
+
+  useEffect(() => {
+    setImgSrc(imageUrl || defaultBg);
+  }, [imageUrl, defaultBg]);
+
+  return (
+    <a
+      href={href}
+      className="group relative block overflow-hidden rounded-2xl cursor-pointer"
+      style={{ 
+        aspectRatio: '4/3.35', 
+        minHeight: 220,
+        transform: 'translateZ(0)',
+        willChange: 'transform'
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Background Image — ken burns zoom */}
+      <img
+        src={imgSrc}
+        alt={name}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+          transform: hovered ? 'scale(1.06)' : 'scale(1)',
+          willChange: 'transform',
+        }}
+        loading="eager"
+        decoding="async"
+        onError={() => {
+          if (imgSrc !== defaultBg) {
+            setImgSrc(defaultBg);
+          }
+        }}
+      />
+
+      {/* Permanent gradient: dark at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+      {/* Extra darkening on hover */}
+      <div
+        className="absolute inset-0 bg-black/20"
+        style={{
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 0.35s ease',
+        }}
+      />
+
+      {/* Bottom content */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-4 sm:p-5">
+
+        {/* Description — slides up from below on hover */}
+        <div style={{ overflow: 'hidden' }}>
+          <p
+            style={{
+              transform: hovered ? 'translateY(0)' : 'translateY(110%)',
+              opacity: hovered ? 1 : 0,
+              transition: 'transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease',
+            }}
+            className="text-white/85 text-xs font-medium leading-relaxed mb-2 line-clamp-2"
+          >
+            {description}
+          </p>
+        </div>
+
+        {/* Sub label — slides up with delay */}
+        <div style={{ overflow: 'hidden' }}>
+          <span
+            style={{
+              display: 'inline-block',
+              transform: hovered ? 'translateY(0)' : 'translateY(110%)',
+              opacity: hovered ? 1 : 0,
+              transition: 'transform 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease',
+              transitionDelay: hovered ? '50ms' : '0ms',
+            }}
+            className="font-arch text-red-400 text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5 inline-block"
+          >
+            {subLabel}
+          </span>
+        </div>
+
+        {/* Category name — always visible */}
+        <div className="flex items-end justify-between gap-2.5">
+          <h3
+            style={{
+              transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+              transition: 'transform 0.3s ease',
+            }}
+            className="font-arch font-bold text-white text-lg sm:text-xl uppercase tracking-[0.05em] leading-tight"
+          >
+            {name}
+          </h3>
+          <div
+            style={{
+              opacity: hovered ? 1 : 0,
+              transform: hovered ? 'translateX(0)' : 'translateX(8px)',
+              transition: 'opacity 0.3s ease, transform 0.3s ease',
+              transitionDelay: hovered ? '70ms' : '0ms',
+            }}
+            className="w-7 h-7 rounded-full bg-white/15 border border-white/25 backdrop-blur-sm flex items-center justify-center shrink-0"
+          >
+            <ArrowRight size={13} className="text-white" />
+          </div>
+        </div>
+      </div>
+    </a>
+  );
+}
+
+// ─── Dynamic Column Span Calculation for Gap-filling Banner ─────────
+function getFillBannerColSpan(count: number) {
+  const rem2 = count % 2;
+  const rem3 = count % 3;
+  const rem4 = count % 4;
+
+  const baseSpan = rem2 === 1 ? 'col-span-1' : 'col-span-2';
+
+  let mdSpan = 'md:col-span-3';
+  if (rem3 === 1) mdSpan = 'md:col-span-2';
+  else if (rem3 === 2) mdSpan = 'md:col-span-1';
+
+  let lgSpan = 'lg:col-span-4';
+  if (rem4 === 1) lgSpan = 'lg:col-span-3';
+  else if (rem4 === 2) lgSpan = 'lg:col-span-2';
+  else if (rem4 === 3) lgSpan = 'lg:col-span-1';
+
+  return `${baseSpan} ${mdSpan} ${lgSpan}`;
+}
+
+// ─── Gap-filling CTA Banner Card ────────────────────────────────────
+function CategoryCtaCard({ 
+  isSingleColOnLg = false 
+}: { 
+  isSingleColOnLg?: boolean; 
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="group relative overflow-hidden rounded-2xl border border-slate-800 shadow-xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 hover:border-red-500/50 hover:shadow-red-950/40 h-full w-full"
+      style={{
+        backgroundColor: '#090d16',
+        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.08) 1px, #090d16 1px)',
+        backgroundSize: '20px 20px',
+        minHeight: 220,
+      }}
+    >
+      {/* Ambient Red Glow on hover / dynamic lighting */}
+      <div
+        className="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full blur-2xl transition-opacity duration-700"
+        style={{
+          background: 'radial-gradient(circle, rgba(220, 38, 38, 0.35) 0%, transparent 70%)',
+          opacity: hovered ? 1 : 0.65,
+        }}
+      />
+      <div
+        className="pointer-events-none absolute -bottom-12 -left-12 w-44 h-44 rounded-full blur-2xl transition-opacity duration-700"
+        style={{
+          background: 'radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, transparent 70%)',
+          opacity: hovered ? 0.9 : 0.4,
+        }}
+      />
+
+      {/* Top Header info */}
+      <div className="relative z-10">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <div className="w-5 h-5 rounded-md bg-red-600/25 border border-red-500/40 text-red-500 flex items-center justify-center shrink-0 shadow-sm">
+              <CheckCircle2 size={12} className="transition-transform duration-300 group-hover:scale-110" />
+            </div>
+            <span className="font-arch text-red-400 font-bold text-[10px] uppercase tracking-[0.14em] truncate">
+              DỰ ÁN & VẬT TƯ ĐẶC THÙ
+            </span>
+          </div>
+
+          <a
+            href="tel:0901234567"
+            className="text-[10px] font-bold text-slate-400 hover:text-red-400 transition-colors shrink-0 whitespace-nowrap"
+          >
+            Hotline: <span className="text-red-400 font-black">0901 234 567</span>
+          </a>
+        </div>
+
+        <h4 className={`font-arch font-bold text-white uppercase tracking-wide leading-snug line-clamp-2 ${
+          isSingleColOnLg ? 'text-sm' : 'text-sm sm:text-base lg:text-lg'
+        }`}>
+          Cần tìm giải pháp vật tư tùy chỉnh theo bản vẽ kỹ thuật?
+        </h4>
+
+        <p className="text-slate-300 text-[11px] font-medium mt-1 leading-relaxed line-clamp-2">
+          Sbuild cung cấp đầy đủ chứng chỉ CO/CQ, bảng quy cách chi tiết & gửi mẫu công trình.
+        </p>
+
+        {/* Feature badges */}
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-slate-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> CO/CQ
+          </span>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-slate-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span> Gửi mẫu
+          </span>
+          {!isSingleColOnLg && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 border border-white/15 text-[10px] font-bold text-slate-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Giá sỉ công trình
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Action — Prominent button with zero cutoff & ample bottom breathing room */}
+      <div className="relative z-10 pt-2.5 mt-2.5 border-t border-slate-800/80">
+        <a
+          href="/products"
+          className="font-arch inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-lg shadow-red-600/30 hover:shadow-red-600/50 hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
+        >
+          <span>Mở kho sản phẩm</span>
+          <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ─────────────────────────────────────────────
 export default function Categories() {
   const [activeTab, setActiveTab] = useState<'material' | 'construction'>('material');
   
-  // Khởi tạo state bằng đúng nội dung chuẩn từ DB để triệt tiêu hiện tượng giật/đổi text sau 0.5s
   const [dbCategories, setDbCategories] = useState<any[]>(INITIAL_MATERIAL_CATEGORIES);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
   const [productCounts, setProductCounts] = useState<{ [key: string]: number }>({
@@ -223,16 +372,13 @@ export default function Categories() {
   useEffect(() => {
     async function loadDynamicTaxonomy() {
       try {
-        // 1. Tải danh mục vật tư từ DB Supabase (bảng categories)
         const catQuery = supabase
           .from('categories')
           .select('id, name, slug, description, image_url')
           .eq('tenant_id', SBUILD_TENANT_ID);
 
-        // 2. Tải hạng mục thi công từ Supabase tenant_settings
         const ccQuery = getConstructionCategories();
 
-        // 3. Tải danh sách sản phẩm để tính chính xác số lượng sản phẩm thật trong kho
         const prodQuery = supabase
           .from('products')
           .select('id, category_id, tags')
@@ -241,13 +387,11 @@ export default function Categories() {
 
         const [catRes, ccList, prodRes] = await Promise.all([catQuery, ccQuery, prodQuery]);
 
-        // Cập nhật danh mục vật tư từ DB
         if (catRes.data && catRes.data.length > 0) {
           const rawCats = catRes.data.filter((c: any) => 
             c.name && c.name.trim().toLowerCase() !== 'vật tư xây dựng'
           );
 
-          // Sắp xếp theo thứ tự ưu tiên chuẩn
           const sorted = [...rawCats].sort((a: any, b: any) => {
             const idxA = STANDARD_MATERIAL_ORDER.indexOf(a.name);
             const idxB = STANDARD_MATERIAL_ORDER.indexOf(b.name);
@@ -260,12 +404,10 @@ export default function Categories() {
           setDbCategories(sorted);
         }
 
-        // Cập nhật hạng mục thi công từ DB
         if (ccList && ccList.length > 0) {
           setConstructionCategories(ccList);
         }
 
-        // Tính số lượng sản phẩm thực tế theo từng danh mục
         if (prodRes.data && prodRes.data.length > 0) {
           const pMap: { [key: string]: number } = {};
           const ccMap: { [key: string]: number } = {};
@@ -288,188 +430,160 @@ export default function Categories() {
       }
     }
 
+    // Preload all category images into browser cache so tab switching is instantaneous
+    try {
+      const allUrls = [
+        ...INITIAL_MATERIAL_CATEGORIES.map(c => c.image_url),
+        ...DEFAULT_CONSTRUCTION_CATEGORIES.map(c => c.image_url),
+        ...PLACEHOLDER_IMAGES
+      ].filter(Boolean) as string[];
+
+      allUrls.forEach(src => {
+        if (src && typeof window !== 'undefined') {
+          const img = new Image();
+          img.src = src;
+        }
+      });
+    } catch {
+      // Ignore preloader errors
+    }
+
     loadDynamicTaxonomy();
   }, []);
 
+  // Unified grid class — same for both tabs
+  const gridClass = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5";
+
   return (
-    <section className="bg-slate-50/60 py-24 shrink-0 relative z-10 overflow-hidden border-b border-slate-200/60">
+    <section className="bg-white py-10 sm:py-12 lg:py-14 shrink-0 relative z-10 overflow-hidden border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-8 h-0.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600"></span>
-              <span className="text-red-600 font-extrabold text-xs uppercase tracking-[0.2em]">
-                HỆ THỐNG PHÂN LOẠI KÉP
-              </span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">
-              Giải Pháp Vật Tư & Thi Công Chuyên Dụng
-            </h2>
-            <p className="text-slate-500 text-sm font-medium mt-2 max-w-xl">
-              Tra cứu linh hoạt theo chủng loại vật tư chính hoặc tìm giải pháp nẹp theo từng công đoạn thi công công trình.
-            </p>
+        <div className="text-center max-w-3xl mx-auto mb-4 sm:mb-5">
+          <div className="inline-flex items-center gap-2 mb-2">
+            <span className="w-7 h-0.5 rounded-full bg-gradient-to-r from-red-600 to-rose-600"></span>
+            <span className="font-arch text-red-600 font-bold text-[11px] uppercase tracking-[0.22em]">
+              DANH MỤC
+            </span>
+            <span className="w-7 h-0.5 rounded-full bg-gradient-to-r from-rose-600 to-red-600"></span>
           </div>
+          <h2 className="font-arch text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-wider uppercase">
+            Giải Pháp Vật Tư & Thi Công
+          </h2>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium mt-1 max-w-xl mx-auto">
+            Tra cứu linh hoạt theo chủng loại vật tư hoặc tìm giải pháp theo từng hạng mục thi công.
+          </p>
+        </div>
 
-          {/* Tab Selector Động (Chủng loại vật tư vs Hạng mục thi công) */}
-          <div className="flex items-center bg-slate-200/80 p-1.5 rounded-2xl self-start md:self-auto border border-slate-200 shadow-inner">
+        {/* Tab Toggle Buttons - Centered and Compact with Smooth Animated Pill */}
+        <div className="flex justify-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center bg-slate-100/90 backdrop-blur-sm p-1 sm:p-1.5 rounded-2xl border border-slate-200/90 shadow-inner relative">
             <button
               onClick={() => setActiveTab('material')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                activeTab === 'material'
-                  ? 'bg-white text-slate-900 shadow-md shadow-slate-900/10'
-                  : 'text-slate-600 hover:text-slate-900'
+              className={`relative font-arch flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
+                activeTab === 'material' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              <Package size={15} className={activeTab === 'material' ? 'text-red-600' : 'text-slate-400'} />
-              <span>Chủng loại vật tư ({dbCategories.length})</span>
+              {activeTab === 'material' && (
+                <motion.div
+                  layoutId="categoryActivePill"
+                  className="absolute inset-0 bg-white rounded-xl shadow-md shadow-slate-900/10 -z-10"
+                  transition={{ type: "spring", stiffness: 500, damping: 34 }}
+                />
+              )}
+              <Package size={16} className={`transition-all duration-300 ${activeTab === 'material' ? 'text-red-600 scale-110' : 'text-slate-400'}`} />
+              <span>Sản phẩm</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
+                activeTab === 'material' ? 'bg-red-100 text-red-600' : 'bg-slate-200 text-slate-500'
+              }`}>
+                {dbCategories.length}
+              </span>
             </button>
+
             <button
               onClick={() => setActiveTab('construction')}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                activeTab === 'construction'
-                  ? 'bg-white text-slate-900 shadow-md shadow-slate-900/10'
-                  : 'text-slate-600 hover:text-slate-900'
+              className={`relative font-arch flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
+                activeTab === 'construction' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              <Layers size={15} className={activeTab === 'construction' ? 'text-red-600' : 'text-slate-400'} />
-              <span>Hạng mục thi công ({constructionCategories.length})</span>
+              {activeTab === 'construction' && (
+                <motion.div
+                  layoutId="categoryActivePill"
+                  className="absolute inset-0 bg-white rounded-xl shadow-md shadow-slate-900/10 -z-10"
+                  transition={{ type: "spring", stiffness: 500, damping: 34 }}
+                />
+              )}
+              <Layers size={16} className={`transition-all duration-300 ${activeTab === 'construction' ? 'text-red-600 scale-110' : 'text-slate-400'}`} />
+              <span>Hạng mục thi công</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
+                activeTab === 'construction' ? 'bg-red-100 text-red-600' : 'bg-slate-200 text-slate-500'
+              }`}>
+                {constructionCategories.length}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Tab 1: Chủng loại vật tư (Nạp hoàn toàn từ bảng categories trong Supabase) */}
-        {activeTab === 'material' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-300">
-            {dbCategories.map((cat, index) => {
-              const visuals = getCategoryVisuals(cat.name, cat.slug, false);
-              const Icon = visuals.icon;
-              const count = productCounts[cat.id] ?? cat.count ?? 0;
+        {/* 60FPS High Performance Grid — native CSS grid with zero layout thrashing */}
+        <div className={gridClass}>
+          {(activeTab === 'material' ? dbCategories : constructionCategories).map((item, index) => {
+            const isConstruction = activeTab === 'construction';
+            const subLabel = getCategorySubLabel(item.name, item.slug, isConstruction);
+            const itemKey = `${activeTab}-${item.id || item.slug || item.name || index}`;
+            return (
+              <motion.div
+                key={itemKey}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.18,
+                  ease: [0.16, 1, 0.3, 1],
+                  delay: Math.min(index * 0.015, 0.08)
+                }}
+                style={{ willChange: 'transform, opacity' }}
+              >
+                <CategoryCard
+                  name={item.name}
+                  description={
+                    item.description ||
+                    (isConstruction
+                      ? 'Ứng dụng nẹp và phụ kiện chuyên biệt cho công đoạn thi công.'
+                      : 'Giải pháp vật tư xây dựng chuyên dụng chất lượng chuẩn kiểm định.')
+                  }
+                  imageUrl={item.image_url}
+                  subLabel={subLabel}
+                  href={
+                    isConstruction
+                      ? `/products?construction=${encodeURIComponent(item.name)}`
+                      : `/products?cat=${encodeURIComponent(item.name)}`
+                  }
+                  index={index}
+                />
+              </motion.div>
+            );
+          })}
 
-              return (
-                <a
-                  key={cat.id || index}
-                  href={`/products?cat=${encodeURIComponent(cat.name)}`}
-                  className="group relative flex flex-col justify-between p-7 rounded-2xl border border-slate-200/80 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(220,38,38,0.12)] hover:-translate-y-1.5 overflow-hidden"
-                >
-                  {/* Subtle Background Glow Accent */}
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-red-50 to-rose-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-                  <div>
-                    {/* Header: Icon + Count Badge */}
-                    <div className="flex items-center justify-between mb-5">
-                      <div className={`w-13 h-13 rounded-2xl ${visuals.bg} ${visuals.text} flex items-center justify-center group-hover:bg-gradient-to-tr ${visuals.color} group-hover:text-white transition-all duration-300 shadow-sm border border-slate-200/60 group-hover:border-transparent`}>
-                        <Icon size={24} strokeWidth={2.2} />
-                      </div>
-                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/70 px-3 py-1 rounded-full text-[11px] font-bold text-slate-700 group-hover:border-red-200 group-hover:text-red-600 transition-colors">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                        <span>{count} sản phẩm</span>
-                      </div>
-                    </div>
-
-                    {/* Sub-badge */}
-                    <span className="inline-block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
-                      {visuals.badge}
-                    </span>
-
-                    {/* Category Name */}
-                    <h3 className="font-black text-xl uppercase text-slate-900 mb-2.5 group-hover:text-red-600 transition-colors">
-                      {cat.name}
-                    </h3>
-                    
-                    {/* Category Description */}
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3">
-                      {cat.description || 'Giải pháp vật tư xây dựng chuyên dụng chất lượng chuẩn kiểm định.'}
-                    </p>
-                  </div>
-
-                  {/* Footer CTA Link */}
-                  <div className="mt-7 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-black text-slate-500 group-hover:text-red-600 transition-colors uppercase tracking-wider">
-                    <span>Xem sản phẩm</span>
-                    <ArrowRight size={15} className="group-hover:translate-x-1.5 transition-transform" />
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Tab 2: Hạng mục thi công (Nạp hoàn toàn từ Supabase tenant_settings) */}
-        {activeTab === 'construction' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in duration-300">
-            {constructionCategories.map((cc, index) => {
-              const visuals = getCategoryVisuals(cc.name, cc.slug, true);
-              const Icon = visuals.icon;
-              const count = constructionCounts[cc.name] ?? 0;
-
-              return (
-                <a
-                  key={cc.id || index}
-                  href={`/products?construction=${encodeURIComponent(cc.name)}`}
-                  className="group relative flex flex-col justify-between p-6 rounded-2xl border border-slate-200/80 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(220,38,38,0.12)] hover:-translate-y-1.5 overflow-hidden"
-                >
-                  <div className="absolute -top-10 -right-10 w-28 h-28 bg-gradient-to-br from-red-50 to-rose-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-                  <div>
-                    {/* Header: Icon + Count Badge */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-2xl ${visuals.bg} ${visuals.text} flex items-center justify-center group-hover:bg-gradient-to-tr ${visuals.color} group-hover:text-white transition-all duration-300 shadow-sm border border-slate-200/60 group-hover:border-transparent`}>
-                        <Icon size={22} strokeWidth={2.2} />
-                      </div>
-                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/70 px-3 py-1 rounded-full text-[11px] font-bold text-slate-700 group-hover:border-red-200 group-hover:text-red-600 transition-colors">
-                        <span className={`w-1.5 h-1.5 rounded-full ${count > 0 ? 'bg-red-500' : 'bg-slate-400'}`}></span>
-                        <span>{count > 0 ? `${count} sản phẩm` : 'Đang cập nhật'}</span>
-                      </div>
-                    </div>
-
-                    <span className="inline-block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
-                      Công đoạn
-                    </span>
-
-                    <h3 className="font-black text-lg text-slate-900 mb-2 group-hover:text-red-600 transition-colors uppercase">
-                      {cc.name}
-                    </h3>
-                    
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-2">
-                      {cc.description || 'Ứng dụng nẹp và phụ kiện chuyên biệt cho công đoạn thi công.'}
-                    </p>
-                  </div>
-
-                  {/* Footer CTA Link */}
-                  <div className="mt-6 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs font-black text-slate-500 group-hover:text-red-600 transition-colors uppercase tracking-wider">
-                    <span>Lọc theo công đoạn</span>
-                    <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform" />
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Bottom Banner with Direct Link to All Products Filter */}
-        <div className="mt-14 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-slate-800 text-white">
-          <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 text-red-500 flex items-center justify-center shrink-0">
-              <CheckCircle2 size={24} />
-            </div>
-            <div>
-              <h4 className="font-black text-base uppercase tracking-tight text-white">
-                Cần tìm giải pháp vật tư tùy chỉnh theo bản vẽ kỹ thuật?
-              </h4>
-              <p className="text-xs text-slate-400 font-medium mt-1">
-                Sbuild cung cấp đầy đủ chứng chỉ CO/CQ, bảng quy cách chi tiết và hỗ trợ gửi mẫu tận chân công trình.
-              </p>
-            </div>
-          </div>
-
-          <a
-            href="/products"
-            className="shrink-0 px-6 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-xs uppercase tracking-wider transition-all duration-300 shadow-md shadow-red-600/30 hover:shadow-red-600/50 hover:scale-105 active:scale-95 flex items-center gap-2"
+          {/* Morphing CTA Banner Card: spring-morphs between 2 cols and 1 col with high performance */}
+          <motion.div
+            layout
+            key="categoryCtaBannerMorph"
+            className={getFillBannerColSpan(
+              activeTab === 'material' ? dbCategories.length : constructionCategories.length
+            )}
+            transition={{
+              type: "spring",
+              stiffness: 420,
+              damping: 32,
+              mass: 0.7
+            }}
+            style={{ willChange: 'transform' }}
           >
-            <span>Mở kho sản phẩm</span>
-            <ArrowRight size={15} />
-          </a>
+            <CategoryCtaCard
+              isSingleColOnLg={getFillBannerColSpan(
+                activeTab === 'material' ? dbCategories.length : constructionCategories.length
+              ).includes('lg:col-span-1')}
+            />
+          </motion.div>
         </div>
 
       </div>
