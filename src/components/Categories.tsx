@@ -99,6 +99,41 @@ const PLACEHOLDER_IMAGES = [
   'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1200&auto=format&fit=crop',
 ];
 
+// Định dạng xuống dòng thông minh và cân đối kiến trúc, tránh chữ mồ côi (như "THẤT" rớt dòng)
+function formatArchitecturalTitle(name: string) {
+  const clean = (name || '').trim();
+  const lower = clean.toLowerCase();
+
+  if (lower === 'hoàn thiện nội thất') {
+    return (
+      <>
+        <span>HOÀN THIỆN</span>
+        <br />
+        <span>NỘI THẤT</span>
+      </>
+    );
+  }
+  if (lower === 'hoàn thiện ngoại thất') {
+    return (
+      <>
+        <span>HOÀN THIỆN</span>
+        <br />
+        <span>NGOẠI THẤT</span>
+      </>
+    );
+  }
+  if (lower === 'thi công đèn led') {
+    return (
+      <>
+        <span>THI CÔNG</span>
+        <br />
+        <span>ĐÈN LED</span>
+      </>
+    );
+  }
+  return clean;
+}
+
 // ─── Single Architectural Full-Bleed Card ──────────────────────────
 function FullBleedCategoryCard({
   name,
@@ -163,7 +198,7 @@ function FullBleedCategoryCard({
         className="absolute inset-0 pointer-events-none transition-opacity duration-500"
         style={{
           background: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.65) 45%, rgba(0, 0, 0, 0.25) 80%, rgba(0, 0, 0, 0.05) 100%)',
-          opacity: hovered ? 0.95 : 1,
+          opacity: hovered ? 0.92 : 1,
         }}
       />
 
@@ -176,68 +211,82 @@ function FullBleedCategoryCard({
       />
 
       {/* Card Content Container */}
-      <div className="relative z-10 h-full w-full p-6 sm:p-7 lg:p-8 flex flex-col justify-between">
+      <div className="relative z-10 h-full w-full p-5 sm:p-6 flex flex-col justify-between">
         
-        {/* Top Section: Index, Category Title & Sub-label */}
-        <div className="max-w-[90%]">
-          {/* Tag & Index */}
+        {/* Top Section: Index, Category Title & Secondary Hover-only Content */}
+        <div className="max-w-[95%]">
+          {/* Index & Permanent Tag */}
           <div className="flex items-center gap-2 mb-2">
             <span className="font-mono text-red-500 text-xs font-bold tracking-widest">
               {formattedIndex}
             </span>
-            <span className="w-4 h-px bg-white/20"></span>
+            <span className="w-4 h-px bg-white/25"></span>
             <span className="font-arch text-white/50 text-[10px] font-bold uppercase tracking-[0.2em]">
-              {subLabel}
+              S-BUILD
             </span>
           </div>
 
-          {/* Main Title — Big architectural font */}
-          <h3 className="font-arch font-bold text-white text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider leading-snug">
-            {name}
+          {/* Main Title — Balanced architectural typography, no awkward orphan line-breaks */}
+          <h3 
+            style={{ textWrap: 'balance' }}
+            className="font-arch font-bold text-white text-lg sm:text-xl lg:text-[22px] uppercase tracking-wide leading-tight"
+          >
+            {formatArchitecturalTitle(name)}
           </h3>
 
-          {/* Short Description */}
-          <p 
-            style={{
-              transition: 'all 0.4s ease',
-              opacity: hovered ? 1 : 0.82,
-              transform: hovered ? 'translateY(0)' : 'translateY(2px)',
-            }}
-            className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed mt-2.5 line-clamp-2 max-w-sm"
-          >
-            {description}
-          </p>
-        </div>
-
-        {/* 
-          CRITICAL ARCHITECTURAL TOUCH (from reference photo):
-          Vertical 90-degree rotated label on bottom-left 
-        */}
-        <div 
-          className="absolute bottom-7 left-7 pointer-events-none origin-bottom-left"
-          style={{
-            writingMode: 'vertical-rl',
-            transform: 'rotate(180deg)',
-          }}
-        >
-          <span className="font-arch text-[10px] font-bold text-white/30 group-hover:text-red-400/80 transition-colors uppercase tracking-[0.38em] whitespace-nowrap">
-            S - B U I L D  •  A R C H I T E C T U R E
-          </span>
-        </div>
-
-        {/* Bottom-Right Action CTA */}
-        <div className="flex items-end justify-end mt-auto pt-6">
+          {/* 
+            REQUIREMENT: Phần nội dung phụ chỉ hiện lên khi di chuột vào (Hover-reveal only)
+          */}
           <div 
             style={{
               transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-              transform: hovered ? 'translateX(0)' : 'translateX(6px)',
+              opacity: hovered ? 1 : 0,
+              maxHeight: hovered ? '110px' : '0px',
+              transform: hovered ? 'translateY(0)' : 'translateY(6px)',
+              overflow: 'hidden',
             }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/10 backdrop-blur-md border border-white/15 text-white group-hover:bg-red-600 group-hover:border-red-500 shadow-sm"
+            className="mt-2"
           >
-            <span className="font-arch text-[11px] font-bold uppercase tracking-wider">
+            <span className="inline-block font-arch text-red-400 text-[10px] font-bold uppercase tracking-[0.16em] mb-1">
+              {subLabel}
+            </span>
+            <p className="text-slate-300 text-xs font-medium leading-relaxed line-clamp-2 max-w-xs">
+              {description}
+            </p>
+          </div>
+        </div>
+
+        {/* 
+          REQUIREMENT: Dòng chữ dọc KHÔNG BỊ CHE
+          Đặt chữ dọc ở góc dưới bên trái, cách đáy 24px (bottom-6) và xoay đọc từ dưới lên
+        */}
+        <div className="absolute bottom-6 left-5 z-20 pointer-events-none select-none">
+          <span 
+            className="block font-arch text-[9px] sm:text-[10px] font-bold text-white/35 group-hover:text-red-400 transition-colors uppercase tracking-[0.28em] whitespace-nowrap"
+            style={{
+              writingMode: 'vertical-rl',
+              transform: 'rotate(180deg)',
+            }}
+          >
+            S-BUILD • ARCHITECTURE
+          </span>
+        </div>
+
+        {/* Bottom-Right Action CTA: Trồi lên khi di chuột vào */}
+        <div className="flex items-end justify-end mt-auto pt-4">
+          <div 
+            style={{
+              transition: 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              opacity: hovered ? 1 : 0,
+              transform: hovered ? 'translateX(0) translateY(0)' : 'translateX(6px) translateY(6px)',
+              pointerEvents: hovered ? 'auto' : 'none',
+            }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 border border-red-500 text-white shadow-lg shadow-red-950/50"
+          >
+            <span className="font-arch text-xs font-bold uppercase tracking-wider">
               Khám phá
             </span>
-            <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-0.5" />
           </div>
         </div>
 
@@ -246,7 +295,7 @@ function FullBleedCategoryCard({
   );
 }
 
-// ─── Main Categories Component (Edge-to-Edge Architectural Slider) ───
+// ─── Main Categories Component ─────────────────────────────────────
 export default function Categories() {
   const [activeTab, setActiveTab] = useState<'material' | 'construction'>('material');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -380,104 +429,105 @@ export default function Categories() {
   };
 
   return (
-    <section className="bg-neutral-950 py-8 sm:py-10 shrink-0 relative z-10 overflow-hidden border-b border-neutral-900 w-full">
+    /* 
+      REQUIREMENT: Giảm chiều cao lại 1 chút (trừ khoảng header navbar 4rem ~ 64px để vừa vặn)
+      Section pb-0 để mép đáy của thẻ thanh thoát, nằm trọn trong khung nhìn
+    */
+    <section className="bg-white pt-2.5 sm:pt-3 pb-0 shrink-0 relative z-10 overflow-hidden border-b border-slate-100 w-full flex flex-col justify-between h-[calc(100dvh-4rem)] min-h-[520px]">
       
-      {/* ─── Top Header & Tab Controls (Contained for crisp readability) ─── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
+      {/* 
+        REQUIREMENT: Header & Tab nằm ngay giữa màn hình (Centered Layout) 
+      */}
+      <div className="max-w-4xl mx-auto px-4 text-center mb-2 sm:mb-2.5 shrink-0">
+        
+        {/* Architectural Section Heading */}
+        <div className="inline-flex items-center gap-2 mb-1">
+          <span className="w-5 h-0.5 rounded-full bg-red-600"></span>
+          <span className="font-arch text-red-600 font-bold text-[10px] sm:text-[11px] uppercase tracking-[0.24em]">
+            HỆ THỐNG DANH MỤC KIẾN TRÚC
+          </span>
+          <span className="w-5 h-0.5 rounded-full bg-red-600"></span>
+        </div>
+
+        <h2 className="font-arch text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-wider uppercase">
+          Giải Pháp Vật Tư & Thi Công
+        </h2>
+
+        {/* Centered Tab Switcher & Navigation Controls */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mt-2.5">
           
-          {/* Section Heading */}
-          <div>
-            <div className="inline-flex items-center gap-2 mb-2">
-              <span className="w-6 h-0.5 rounded-full bg-red-600"></span>
-              <span className="font-arch text-red-500 font-bold text-[11px] uppercase tracking-[0.24em]">
-                HỆ THỐNG DANH MỤC KIẾN TRÚC
+          {/* Tab Pill Buttons — Tailored for White Theme */}
+          <div className="inline-flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200/90 shadow-inner relative">
+            <button
+              onClick={() => setActiveTab('material')}
+              className={`relative font-arch flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
+                activeTab === 'material' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {activeTab === 'material' && (
+                <motion.div
+                  layoutId="categoryActivePill"
+                  className="absolute inset-0 bg-red-600 rounded-xl shadow-md shadow-red-600/25 -z-10"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
+              <Package size={14} className={activeTab === 'material' ? 'text-white' : 'text-slate-500'} />
+              <span>Sản phẩm</span>
+              <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
+                activeTab === 'material' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
+              }`}>
+                {dbCategories.length}
               </span>
-            </div>
-            <h2 className="font-arch text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-wider uppercase">
-              Giải Pháp Vật Tư & Thi Công
-            </h2>
-            <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">
-              Khám phá giải pháp nẹp và phụ kiện chuyên dụng được phân chia trực quan theo từng hạng mục.
-            </p>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('construction')}
+              className={`relative font-arch flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
+                activeTab === 'construction' ? 'text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {activeTab === 'construction' && (
+                <motion.div
+                  layoutId="categoryActivePill"
+                  className="absolute inset-0 bg-red-600 rounded-xl shadow-md shadow-red-600/25 -z-10"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
+              <Layers size={14} className={activeTab === 'construction' ? 'text-white' : 'text-slate-500'} />
+              <span>Hạng mục thi công</span>
+              <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
+                activeTab === 'construction' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
+              }`}>
+                {constructionCategories.length}
+              </span>
+            </button>
           </div>
 
-          {/* Tab Switcher & Navigation Controls */}
-          <div className="flex flex-wrap items-center gap-3 self-start md:self-end">
-            
-            {/* Tab Pill Buttons */}
-            <div className="inline-flex items-center bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/10 relative">
+          {/* Quick Counter & Nav on Tablet/Desktop */}
+          {currentItems.length > visibleCards && (
+            <div className="hidden sm:inline-flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200">
               <button
-                onClick={() => setActiveTab('material')}
-                className={`relative font-arch flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
-                  activeTab === 'material' ? 'text-white' : 'text-slate-400 hover:text-white'
-                }`}
+                onClick={handlePrev}
+                aria-label="Previous"
+                className="w-7 h-7 rounded-xl flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-white transition-colors cursor-pointer"
               >
-                {activeTab === 'material' && (
-                  <motion.div
-                    layoutId="categoryActivePill"
-                    className="absolute inset-0 bg-red-600 rounded-lg shadow-md shadow-red-950/40 -z-10"
-                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                  />
-                )}
-                <Package size={14} />
-                <span>Sản phẩm</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                  activeTab === 'material' ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-400'
-                }`}>
-                  {dbCategories.length}
-                </span>
+                <ChevronLeft size={15} />
               </button>
-
-              <button
-                onClick={() => setActiveTab('construction')}
-                className={`relative font-arch flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer z-10 active:scale-95 ${
-                  activeTab === 'construction' ? 'text-white' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {activeTab === 'construction' && (
-                  <motion.div
-                    layoutId="categoryActivePill"
-                    className="absolute inset-0 bg-red-600 rounded-lg shadow-md shadow-red-950/40 -z-10"
-                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                  />
-                )}
-                <Layers size={14} />
-                <span>Hạng mục thi công</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                  activeTab === 'construction' ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-400'
-                }`}>
-                  {constructionCategories.length}
-                </span>
-              </button>
-            </div>
-
-            {/* Top Carousel Navigation Buttons (if > 4 cards) */}
-            {currentItems.length > visibleCards && (
-              <div className="flex items-center gap-1.5 bg-white/5 backdrop-blur-md p-1 rounded-xl border border-white/10">
-                <button
-                  onClick={handlePrev}
-                  aria-label="Previous"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <div className="text-[11px] font-mono text-slate-400 px-1 font-bold">
-                  <span>{String(currentIndex + 1).padStart(2, '0')}</span>
-                  <span className="text-slate-600 mx-1">/</span>
-                  <span>{String(maxIndex + 1).padStart(2, '0')}</span>
-                </div>
-                <button
-                  onClick={handleNext}
-                  aria-label="Next"
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                >
-                  <ChevronRight size={16} />
-                </button>
+              <div className="text-[11px] font-mono text-slate-500 px-1 font-bold">
+                <span className="text-slate-900">{String(currentIndex + 1).padStart(2, '0')}</span>
+                <span className="text-slate-300 mx-1">/</span>
+                <span>{String(maxIndex + 1).padStart(2, '0')}</span>
               </div>
-            )}
+              <button
+                onClick={handleNext}
+                aria-label="Next"
+                className="w-7 h-7 rounded-xl flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-white transition-colors cursor-pointer"
+              >
+                <ChevronRight size={15} />
+              </button>
+            </div>
+          )}
 
-          </div>
         </div>
       </div>
 
@@ -486,16 +536,16 @@ export default function Categories() {
         CRITICAL: Touches screen edges on both left and right (w-full, px-0)!
       */}
       <div 
-        className="w-full relative overflow-hidden select-none border-y border-white/10"
+        className="w-full relative overflow-hidden select-none border-t border-slate-200/80 bg-slate-950 flex-1 flex flex-col min-h-0"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         
-        {/* Slider Track */}
+        {/* Slider Track — Chiều cao mở rộng chạm mép đáy màn hình hoàn hảo */}
         <div
-          className="flex h-[520px] sm:h-[580px] lg:h-[620px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          className="flex h-full w-full min-h-[440px] sm:min-h-[480px] lg:min-h-0 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{
             transform: `translateX(-${(currentIndex * 100) / visibleCards}%)`,
             willChange: 'transform',
@@ -542,7 +592,7 @@ export default function Categories() {
             <button
               onClick={handlePrev}
               aria-label="Previous Slide"
-              className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 group/btn flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl cursor-pointer"
+              className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-30 group/btn flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl cursor-pointer"
             >
               <ChevronLeft size={16} className="transition-transform duration-300 group-hover/btn:-translate-x-1" />
               <span className="font-arch text-[11px] sm:text-xs font-bold uppercase tracking-widest hidden sm:inline-block">
@@ -554,7 +604,7 @@ export default function Categories() {
             <button
               onClick={handleNext}
               aria-label="Next Slide"
-              className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 group/btn flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl cursor-pointer"
+              className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-30 group/btn flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl cursor-pointer"
             >
               <span className="font-arch text-[11px] sm:text-xs font-bold uppercase tracking-widest hidden sm:inline-block">
                 NEXT
@@ -564,32 +614,6 @@ export default function Categories() {
           </>
         )}
 
-      </div>
-
-      {/* ─── Bottom Status Indicator Bar ─── */}
-      <div className="w-full mt-4 px-4 sm:px-6 flex items-center justify-between text-xs text-slate-500 font-mono">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
-          <span className="font-arch text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            {activeTab === 'material' ? 'VẬT TƯ CHUYÊN DỤNG' : 'CÔNG ĐOẠN THI CÔNG'}
-          </span>
-        </div>
-
-        {/* Progress ticks */}
-        {currentItems.length > visibleCards && (
-          <div className="flex items-center gap-1.5">
-            {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`h-1 transition-all duration-300 rounded-full cursor-pointer ${
-                  currentIndex === idx ? 'w-8 bg-red-600' : 'w-2.5 bg-white/20 hover:bg-white/40'
-                }`}
-                aria-label={`Slide ${idx + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
     </section>

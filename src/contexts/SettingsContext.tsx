@@ -9,6 +9,7 @@ export interface TenantSettings {
   address: string;
   email: string;
   logoUrl?: string;
+  aboutImageUrl?: string;
   faviconUrl?: string;
   brandColor?: string;
   mapUrl?: string;
@@ -233,6 +234,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             logoUrl: data.logo_url || prev.logoUrl,
             companyName,
             companyDescription: fc.companyDescription || prev.companyDescription,
+            aboutImageUrl: fc.aboutImageUrl || data.about_image_url || localCustomSettings.aboutImageUrl || prev.aboutImageUrl,
             hotline,
             address: data.address || fc.address || prev.address,
             email,

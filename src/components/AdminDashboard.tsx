@@ -575,6 +575,7 @@ export default function AdminDashboard() {
           ...existingFc,
           companyName: settingsForm.companyName,
           companyDescription: settingsForm.companyDescription,
+          aboutImageUrl: settingsForm.aboutImageUrl || '',
           hotline: settingsForm.hotline,
           address: settingsForm.address,
           email: settingsForm.email,
@@ -3009,7 +3010,77 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                      <div className="md:col-span-2">
+                    {/* Ảnh Giới Thiệu Doanh Nghiệp (Khối "Không chỉ là vật tư") */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-bold text-gray-700 mb-1">
+                        Ảnh Giới Thiệu Doanh Nghiệp (Khối "Không chỉ là vật tư")
+                      </label>
+                      <p className="text-xs text-slate-500 mb-3">
+                        Hình ảnh đứng hiển thị ở trang chủ ngay dưới Slide Banner chính.
+                      </p>
+                      <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl border border-slate-200 bg-slate-50/50">
+                        {settingsForm.aboutImageUrl ? (
+                          <div className="relative w-36 h-48 bg-slate-900 rounded-xl border border-slate-200 overflow-hidden shrink-0 shadow-sm group">
+                            <img src={settingsForm.aboutImageUrl} alt="Ảnh Giới Thiệu" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => setSettingsForm(prev => ({ ...prev, aboutImageUrl: '' }))}
+                              className="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md transition-colors cursor-pointer"
+                              title="Xóa ảnh (dùng ảnh mặc định)"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-36 h-48 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-slate-400 shrink-0">
+                            <ImageIcon size={28} />
+                            <span className="text-[11px] font-bold mt-1.5 text-center px-2">Dùng ảnh mặc định</span>
+                          </div>
+                        )}
+
+                        <div className="flex-1 space-y-2.5 w-full">
+                          <div className="flex flex-wrap gap-2">
+                            <label className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-sm transition-colors cursor-pointer inline-flex items-center gap-1.5">
+                              <UploadCloud size={16} />
+                              <span>Tải ảnh từ máy</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  try {
+                                    const fileName = `about-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                                    const { error } = await supabase.storage.from('product-media').upload(fileName, file);
+                                    if (!error) {
+                                      const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
+                                      setSettingsForm(prev => ({ ...prev, aboutImageUrl: publicUrl }));
+                                    } else {
+                                      const reader = new FileReader();
+                                      reader.onload = (ev) => {
+                                        if (ev.target?.result) setSettingsForm(prev => ({ ...prev, aboutImageUrl: ev.target!.result as string }));
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  } catch(err) {}
+                                }}
+                              />
+                            </label>
+                          </div>
+
+                          <input
+                            type="text"
+                            value={settingsForm.aboutImageUrl || ''}
+                            onChange={(e) => setSettingsForm(prev => ({ ...prev, aboutImageUrl: e.target.value }))}
+                            placeholder="Hoặc dán URL ảnh trực tiếp: https://..."
+                            className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-red-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-2">
                         <label className="block text-sm font-bold text-gray-700 mb-1.5">Tên công ty</label>
                         <input 
                           type="text" 
