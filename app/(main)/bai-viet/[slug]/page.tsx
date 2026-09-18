@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     || 'Bài viết từ Sbuild';
 
   return {
-    title: `${post.title} | Sbuild`,
+    title: post.title,
     description,
     openGraph: {
       title: post.title,

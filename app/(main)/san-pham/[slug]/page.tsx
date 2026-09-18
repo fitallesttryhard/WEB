@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const image = product.thumbnail_url || product.image_url;
 
   return {
-    title: `${product.name} | Sbuild`,
+    title: product.name,
     description,
     openGraph: {
       title: product.name,
