@@ -1,5 +1,7 @@
+﻿"use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../supabaseClient';
+import { FIT_TENANT_ID } from '../projectServices';
 
 export interface TenantSettings {
   companyName: string;
@@ -117,6 +119,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
         const { data, error } = await supabase
           .from('tenant_settings')
           .select('*')
+          .eq('tenant_id', FIT_TENANT_ID)
           .limit(1)
           .maybeSingle();
 
@@ -201,7 +204,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
       (async () => {
         try {
           // Lấy tenant đầu tiên hoặc tạo record cấu hình
-          const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
+          const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').eq('tenant_id', FIT_TENANT_ID).limit(1).maybeSingle();
           const existingFc = existing?.footer_config || {};
 
           const dbPayload = {
@@ -255,3 +258,5 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
 export const useSettings = () => useContext(SettingsContext);
 export default SettingsContext;
+
+

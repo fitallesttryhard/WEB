@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Phone, ChevronDown, HardHat, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
@@ -23,7 +24,7 @@ export default function Navbar() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const { data } = await supabase.from('categories').select('*').limit(8);
+        const { data } = await supabase.from('categories').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001').limit(8);
         if (data) setCategories(data);
       } catch (err) {
         console.warn('Lỗi nạp categories cho Navbar:', err);
@@ -214,3 +215,5 @@ export default function Navbar() {
   </>
   );
 }
+
+

@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { 
   Sparkles, 
@@ -11,10 +12,10 @@ import {
 } from 'lucide-react';
 
 interface AiDesignPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const AiDesignPage: React.FC<AiDesignPageProps> = ({ setCurrentTab }) => {
+export const AiDesignPage: React.FC<AiDesignPageProps> = () => {
   return (
     <div className="tech-bg min-h-screen py-16 text-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
@@ -74,7 +75,7 @@ export const AiDesignPage: React.FC<AiDesignPageProps> = ({ setCurrentTab }) => 
             Liên hệ với Fi.tallest để nhận demo các giải pháp giao diện thông minh cho doanh nghiệp của bạn.
           </p>
           <button 
-            onClick={() => setCurrentTab('quote')}
+            onClick={() => ('quote')}
             className="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-extrabold text-sm shadow-xl shadow-purple-500/30 hover:scale-105 transition-all inline-flex items-center gap-2"
           >
             <span>Đăng Ký Tư Vấn AI</span>
@@ -86,3 +87,5 @@ export const AiDesignPage: React.FC<AiDesignPageProps> = ({ setCurrentTab }) => 
     </div>
   );
 };
+
+

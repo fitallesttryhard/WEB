@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, ShieldCheck, Truck, Award, Clock, Sparkles, ExternalLink } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
@@ -348,4 +349,6 @@ export default function ContactUs() {
     </div>
   );
 }
+
+
 

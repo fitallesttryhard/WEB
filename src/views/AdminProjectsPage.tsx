@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { projectsData, Project } from '../data/projectsData';
 import { 
@@ -13,10 +14,10 @@ import {
 } from 'lucide-react';
 
 interface AdminProjectsPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const AdminProjectsPage: React.FC<AdminProjectsPageProps> = ({ setCurrentTab }) => {
+export const AdminProjectsPage: React.FC<AdminProjectsPageProps> = () => {
   const [projectsList, setProjectsList] = useState<Project[]>(projectsData);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -300,3 +301,5 @@ export const AdminProjectsPage: React.FC<AdminProjectsPageProps> = ({ setCurrent
     </div>
   );
 };
+
+

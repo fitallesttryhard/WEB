@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, ShoppingBag, Filter, Search, Check, Loader2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -7,11 +8,11 @@ import { getProducts } from '../productServices';
 const tags = ['Bán chạy', 'Khuyến mãi', 'Mới nhất', 'Cao cấp', 'Giá rẻ', 'Dự án'];
 
 const FALLBACK_FITALLEST_PRODUCTS = [
-  { id: '1', name: 'Thiết Kế Website Doanh Nghiệp Độc Bản', category: 'Thiết Kế Website & Apps', price: 12500000, image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop', is_hot: true },
-  { id: '2', name: 'Phát Triển Ứng Dụng Di Động iOS & Android', category: 'Thiết Kế Website & Apps', price: 25000000, image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800&auto=format&fit=crop', is_hot: true },
-  { id: '3', name: 'Cloud Hosting NVMe SSD 10GB Pro', category: 'Cloud Hosting & Server', price: 2400000, image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop', is_hot: false },
-  { id: '4', name: 'Gói Dịch Vụ SEO Google Đột Phá Chuyển Đổi', category: 'Dịch Vụ SEO & Marketing', price: 8500000, image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=800&auto=format&fit=crop', is_hot: true },
-  { id: '5', name: 'Giải Pháp SaaS & Web App Quản Trị Doanh Nghiệp', category: 'Giải Pháp AI & SaaS', price: 18000000, image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop', is_hot: false },
+  { id: '1', slug: '1', name: 'Thiết Kế Website Doanh Nghiệp Độc Bản', category: 'Thiết Kế Website & Apps', price: 12500000, image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop', is_hot: true },
+  { id: '2', slug: '2', name: 'Phát Triển Ứng Dụng Di Động iOS & Android', category: 'Thiết Kế Website & Apps', price: 25000000, image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800&auto=format&fit=crop', is_hot: true },
+  { id: '3', slug: '3', name: 'Cloud Hosting NVMe SSD 10GB Pro', category: 'Cloud Hosting & Server', price: 2400000, image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop', is_hot: false },
+  { id: '4', slug: '4', name: 'Gói Dịch Vụ SEO Google Đột Phá Chuyển Đổi', category: 'Dịch Vụ SEO & Marketing', price: 8500000, image: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=800&auto=format&fit=crop', is_hot: true },
+  { id: '5', slug: '5', name: 'Giải Pháp SaaS & Web App Quản Trị Doanh Nghiệp', category: 'Giải Pháp AI & SaaS', price: 18000000, image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop', is_hot: false },
 ];
 
 export default function ProductsPage() {
@@ -31,7 +32,7 @@ export default function ProductsPage() {
       try {
         const [prodRes, catRes] = await Promise.all([
           getProducts({ limit: 50, status: 'published' }),
-          supabase.from('categories').select('name')
+          supabase.from('categories').select('name').eq('tenant_id', '00000000-0000-0000-0000-000000000001')
         ]);
 
         if (prodRes.success && prodRes.data && prodRes.data.length > 0) {
@@ -227,7 +228,7 @@ export default function ProductsPage() {
                     >
                       {/* Image Container */}
                       <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-100 mb-3.5 group/img flex items-center justify-center border border-slate-100">
-                        <a href={`#product?id=${product.id}`} className="w-full h-full block">
+                        <a href={`/san-pham/${(product as any).slug || (product as any).id}`} className="w-full h-full block">
                           <img 
                             src={product.image} 
                             alt={product.name}
@@ -252,7 +253,7 @@ export default function ProductsPage() {
                           {product.category}
                         </span>
                         <a 
-                          href={`#product?id=${product.id}`} 
+                          href={`/san-pham/${(product as any).slug || (product as any).id}`} 
                           className="text-sm font-extrabold text-slate-800 line-clamp-2 leading-snug h-10 mb-3 group-hover:text-red-600 transition-colors"
                         >
                           {product.name}
@@ -306,3 +307,5 @@ export default function ProductsPage() {
     </div>
   );
 }
+
+

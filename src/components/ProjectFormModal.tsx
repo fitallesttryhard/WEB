@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud, Image as ImageIcon, Sparkles, Plus, Trash2, Check } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
@@ -383,3 +384,5 @@ export default function ProjectFormModal({
     </>
   );
 }
+
+

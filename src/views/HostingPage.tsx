@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { 
   Server, 
@@ -11,10 +12,10 @@ import {
 } from 'lucide-react';
 
 interface HostingPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const HostingPage: React.FC<HostingPageProps> = ({ setCurrentTab }) => {
+export const HostingPage: React.FC<HostingPageProps> = () => {
   return (
     <div className="min-h-screen py-16 text-slate-100 relative overflow-x-clip">
       
@@ -68,7 +69,7 @@ export const HostingPage: React.FC<HostingPageProps> = ({ setCurrentTab }) => {
             </div>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="w-full py-3 rounded-xl bg-white/5 hover:bg-blue-600 hover:text-white border border-white/10 font-bold text-xs text-slate-200 transition-colors"
             >
               Đăng Ký Host Personal
@@ -107,7 +108,7 @@ export const HostingPage: React.FC<HostingPageProps> = ({ setCurrentTab }) => {
             </div>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="w-full py-3.5 rounded-xl bg-blue-500 hover:bg-blue-400 font-bold text-xs text-slate-950 transition-colors shadow-lg shadow-blue-500/25"
             >
               Đăng Ký Host Business
@@ -138,7 +139,7 @@ export const HostingPage: React.FC<HostingPageProps> = ({ setCurrentTab }) => {
             </div>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="w-full py-3 rounded-xl bg-white/5 hover:bg-blue-600 hover:text-white border border-white/10 font-bold text-xs text-slate-200 transition-colors"
             >
               Đăng Ký Host Ultra PRO
@@ -151,3 +152,5 @@ export const HostingPage: React.FC<HostingPageProps> = ({ setCurrentTab }) => {
     </div>
   );
 };
+
+

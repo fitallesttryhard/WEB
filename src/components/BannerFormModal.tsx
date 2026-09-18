@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { X, Save, UploadCloud, Image as ImageIcon, ToggleLeft, ToggleRight } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
@@ -335,3 +336,5 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
     </div>
   );
 }
+
+

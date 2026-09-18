@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { 
   ChevronRight, Star, Heart, ShieldCheck, 
@@ -7,7 +8,7 @@ import {
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
 
-export default function ProductDetail() {
+export default function ProductDetail({ slug }: { slug?: string } = {}) {
   const [product, setProduct] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,19 +22,28 @@ export default function ProductDetail() {
     async function loadProduct() {
       setLoading(true);
       try {
-        const hash = window.location.hash || '';
+        const hash = typeof window !== 'undefined' ? window.location.hash || '' : '';
         const searchStr = hash.includes('?') ? hash.split('?')[1] : '';
         const params = new URLSearchParams(searchStr);
-        const productId = params.get('id');
+        const targetSlug = slug || params.get('slug') || params.get('id');
 
         let prodData = null;
-        if (productId) {
-          const { data } = await supabase
+        if (targetSlug) {
+          const { data: bySlug } = await supabase
             .from('products')
             .select('*, categories(name)')
-            .eq('id', productId)
+            .eq('slug', targetSlug)
             .maybeSingle();
-          prodData = data;
+          prodData = bySlug;
+
+          if (!prodData) {
+            const { data: byId } = await supabase
+              .from('products')
+              .select('*, categories(name)')
+              .eq('id', targetSlug)
+              .maybeSingle();
+            prodData = byId;
+          }
         }
 
         if (!prodData) {
@@ -344,9 +354,9 @@ export default function ProductDetail() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relProd) => (
                 <a 
-                  href={`#product?id=${relProd.id}`}
+                  href={`/san-pham/${relProd.slug || relProd.id}`}
                   key={relProd.id}
-                  onClick={() => window.location.hash = `#product?id=${relProd.id}`}
+                  
                   className="group flex flex-col bg-white rounded-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative"
                 >
                   <div className="aspect-[4/3] w-full overflow-hidden bg-gray-50 flex items-center justify-center">
@@ -380,3 +390,5 @@ export default function ProductDetail() {
     </div>
   );
 }
+
+

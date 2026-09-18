@@ -1,3 +1,4 @@
+﻿"use client";
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, 
@@ -96,7 +97,7 @@ Hạ tầng Cloud Server tại Fitallest sử dụng 100% ổ cứng Enterprise 
 ];
 
 interface BlogPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
 import { supabase } from '../supabaseClient';
@@ -113,7 +114,7 @@ const formatDate = (dateStr?: string) => {
   }
 };
 
-export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
+export const BlogPage: React.FC<BlogPageProps> = () => {
   // Synchronously initialize posts state to prevent double-load flicker
   const [posts, setPosts] = useState<PostItem[]>(() => {
     try {
@@ -171,7 +172,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
   const loadPosts = async () => {
     let currentPosts = posts;
     try {
-      const { data: dbPosts } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+      const { data: dbPosts } = await supabase.from('posts').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001').order('created_at', { ascending: false });
       if (dbPosts && dbPosts.length > 0) {
         currentPosts = dbPosts.map((p: any) => ({
           id: p.id,
@@ -521,7 +522,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
                   <button 
                     onClick={() => {
                       setActiveArticle(null);
-                      setCurrentTab('quote');
+                      window.location.href = '/quote';
                     }}
                     className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20"
                   >
@@ -537,3 +538,5 @@ export const BlogPage: React.FC<BlogPageProps> = ({ setCurrentTab }) => {
     </div>
   );
 };
+
+

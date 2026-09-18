@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { 
   Code, 
@@ -12,10 +13,10 @@ import {
 } from 'lucide-react';
 
 interface ServicesPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const ServicesPage: React.FC<ServicesPageProps> = ({ setCurrentTab }) => {
+export const ServicesPage: React.FC<ServicesPageProps> = () => {
   return (
     <div className="min-h-screen py-16 text-slate-100 relative overflow-hidden">
       
@@ -69,7 +70,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ setCurrentTab }) => 
             </div>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 hover:scale-[1.02] transition-all flex items-center gap-2"
             >
               <span>Nhận Dự Toán Thiết Kế Web</span>
@@ -126,7 +127,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ setCurrentTab }) => 
             </p>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-purple-600/25 hover:scale-[1.02] transition-all flex items-center gap-2"
             >
               <span>Nhận Dự Toán App Mobile</span>
@@ -139,3 +140,5 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({ setCurrentTab }) => 
     </div>
   );
 };
+
+

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Phone, FileDown, ChevronUp, X, Sparkles, MessageCircle, Send } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
@@ -296,3 +297,5 @@ export default function FloatingWidgets({ onOpenCatalogModal }: FloatingWidgetsP
     </>
   );
 }
+
+

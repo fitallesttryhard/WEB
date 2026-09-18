@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Upload, Search, CheckCircle2, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
@@ -1155,3 +1156,5 @@ const Plus = ({ size, className }: { size: number, className?: string }) => (
     <path d="M12 5v14" />
   </svg>
 );
+
+

@@ -1,7 +1,9 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Building2, MapPin, Sparkles, X, Send, ArrowUpRight, ShieldCheck, ChevronRight, ArrowRight } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
+import { getProjects, FIT_TENANT_ID } from '../projectServices';
 
 export const defaultProjects = [
   {
@@ -51,12 +53,19 @@ export const defaultProjects = [
 ];
 
 export default function ProjectsShowcase() {
-  const [projectsList, setProjectsList] = useState<any[]>(defaultProjects);
+  const [projectsList, setProjectsList] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState('Tất cả công trình');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const { openDrawer } = useCart();
 
   useEffect(() => {
+    async function loadProjects() {
+      try {
+        const data = await getProjects(FIT_TENANT_ID);
+        setProjectsList(data);
+      } catch(e) {}
+    }
+    loadProjects();
     async function loadProjects() {
       try {
         const { data: dbProjects } = await supabase
@@ -319,3 +328,5 @@ export default function ProjectsShowcase() {
     </section>
   );
 }
+
+

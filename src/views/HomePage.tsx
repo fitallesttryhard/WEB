@@ -1,3 +1,4 @@
+﻿"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Sparkles, Code, Globe, Smartphone, Server, ShieldCheck,
@@ -9,7 +10,7 @@ import { projectsData } from '../data/projectsData';
 import { supabase } from '../supabaseClient';
 
 interface HomePageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
 // Gradient style helper
@@ -75,7 +76,7 @@ const wfSteps = [
   { num: '05', title: 'Bàn Giao & Vận Hành', desc: 'Go-live trên hạ tầng Cloud NVMe, đào tạo quản trị, bảo hành dài hạn và hỗ trợ kỹ thuật 24/7.' },
 ];
 
-export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
+export const HomePage: React.FC<HomePageProps> = () => {
   const [formData, setFormData] = useState({ fullname: '', phone: '', email: '', services: [] as string[], note: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -99,7 +100,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
   useEffect(() => {
     async function loadData() {
       try {
-        const { data: dbPosts } = await supabase.from('posts').select('*').eq('is_published', true).order('created_at', { ascending: false });
+        const { data: dbPosts } = await supabase.from('posts').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001').eq('is_published', true).order('created_at', { ascending: false });
         if (dbPosts && dbPosts.length > 0) {
           setDynamicPosts(dbPosts.map((p: any) => ({
             id: p.id,
@@ -114,7 +115,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
       } catch (e) {}
 
       try {
-        const { data: dbProjects } = await supabase.from('projects').select('*');
+        const { data: dbProjects } = await supabase.from('projects').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001');
         if (dbProjects && dbProjects.length > 0) {
           setDynamicProjects(dbProjects.map((p: any) => ({
             id: p.id,
@@ -411,7 +412,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                 Fi.tallest xây dựng hạ tầng số cao cấp — thiết kế website độc bản, ứng dụng di động chuẩn UX/UI và chiến lược SEO Top 1 Google giúp doanh nghiệp bứt phá doanh số.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <button onClick={() => setCurrentTab('quote')}
+                <button onClick={() => ('quote')}
                   className="group relative px-8 py-4 rounded-2xl font-bold text-sm text-white overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(6,182,212,0.5)] cursor-pointer"
                   style={{ background: 'linear-gradient(135deg,#0891b2,#06b6d4,#38bdf8)' }}>
                   <span className="relative z-10 flex items-center justify-center gap-2">
@@ -420,7 +421,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                   </span>
                   <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
                 </button>
-                <button onClick={() => setCurrentTab('projects')}
+                <button onClick={() => ('projects')}
                   className="group px-8 py-4 rounded-2xl font-bold text-sm text-slate-200 border border-white/10 hover:border-cyan-500/50 hover:text-white bg-slate-900/60 hover:bg-slate-800/80 backdrop-blur-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-lg">
                   <Play className="w-4 h-4 text-cyan-400" />
                   Khám Phá 50+ Case Studies
@@ -564,7 +565,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                 key={i}
                 onMouseEnter={() => setHoveredSvc(i)}
                 onMouseLeave={() => setHoveredSvc(null)}
-                onClick={() => setCurrentTab(svc.tab)}
+                onClick={() => (svc.tab)}
                 className="group relative p-7 rounded-2xl border border-white/[0.08] cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:border-cyan-500/40"
                 style={{ 
                   background: hoveredSvc === i ? 'linear-gradient(145deg,rgba(15,23,42,0.9),rgba(6,182,212,0.08))' : 'rgba(15,23,42,0.6)', 
@@ -610,7 +611,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
               </h2>
               <p className="text-slate-400 mt-3 text-sm">Sản phẩm thực tế đã triển khai thành công cho khách hàng toàn quốc.</p>
             </div>
-            <button onClick={() => setCurrentTab('projects')}
+            <button onClick={() => ('projects')}
               className="group flex items-center gap-2 px-6 py-3 rounded-xl border border-cyan-500/40 text-cyan-400 text-sm font-bold hover:bg-cyan-500/15 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all self-start md:self-auto backdrop-blur-md">
               Xem Tất Cả <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -632,7 +633,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                   <h3 className="font-bold text-white text-base mb-2 group-hover:text-cyan-400 transition-colors line-clamp-1">{project.title}</h3>
                   <p className="text-slate-400 text-xs leading-relaxed line-clamp-2 mb-5">{project.description}</p>
                   <button 
-                    onClick={() => setCurrentTab('projects')}
+                    onClick={() => ('projects')}
                     className="w-full py-2.5 rounded-xl bg-white/[0.05] hover:bg-cyan-500/20 border border-white/[0.08] hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>Xem Chi Tiết Dự Án</span>
@@ -645,7 +646,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
               { title: 'Web App Quản Trị Doanh Nghiệp', cat: 'Enterprise', img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop' },
               { title: 'Cổng Tài Chính Quốc Tế', cat: 'Fintech', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop' }
             ].map((p, i) => (
-              <div key={i} onClick={() => setCurrentTab('projects')}
+              <div key={i} onClick={() => ('projects')}
                 className="group rounded-2xl overflow-hidden border border-white/[0.08] bg-slate-900/60 backdrop-blur-xl hover:border-cyan-500/40 transition-all duration-400 cursor-pointer hover:-translate-y-2">
                 <div className="aspect-video relative overflow-hidden">
                   <img src={p.img} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -683,7 +684,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
               <p className="text-slate-400 text-base leading-relaxed mb-10 max-w-[45ch]">
                 Từ khảo sát đến bàn giao — quy trình chuẩn quốc tế đảm bảo sản phẩm hoàn chỉnh, đúng hạn và vượt kỳ vọng.
               </p>
-              <button onClick={() => setCurrentTab('quote')}
+              <button onClick={() => ('quote')}
                 className="group px-7 py-3.5 rounded-xl font-bold text-sm text-white flex items-center gap-2 transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_rgba(124,58,237,0.4)]"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}>
                 Bắt Đầu Dự Án <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -728,7 +729,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
                 Bài Viết <span style={gt('#f472b6','#fb7185')}>Mới Nhất</span>
               </h2>
             </div>
-            <button onClick={() => { setCurrentTab('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            <button onClick={() => { ('blog'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               className="group flex items-center gap-2 text-sm font-bold text-pink-400 border border-pink-500/40 px-5 py-2.5 rounded-xl hover:bg-pink-500/15 hover:shadow-[0_0_20px_rgba(244,114,182,0.3)] transition-all self-start md:self-auto backdrop-blur-md">
               Tất cả bài viết <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -737,7 +738,7 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
             {recentArticles.map((art, i) => (
               <article key={art.id || i} onClick={() => {
                 sessionStorage.setItem('active_article_id', String(art.id));
-                setCurrentTab('blog');
+                window.location.href = '/blog';
                 window.scrollTo(0, 0);
               }}
                 className="group rounded-2xl overflow-hidden border border-white/[0.08] bg-slate-900/60 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-400 cursor-pointer hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col justify-between">
@@ -837,3 +838,5 @@ export const HomePage: React.FC<HomePageProps> = ({ setCurrentTab }) => {
 };
 
 export default HomePage;
+
+

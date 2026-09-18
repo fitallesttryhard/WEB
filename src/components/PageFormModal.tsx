@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { X, Save, Image as ImageIcon, LayoutTemplate } from 'lucide-react';
 
@@ -250,3 +251,5 @@ export default function PageFormModal({ isOpen, onClose, onSubmit, initialData }
     </div>
   );
 }
+
+

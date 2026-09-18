@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { HardHat, Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -138,3 +139,5 @@ export default function AdminLoginGate() {
     </div>
   );
 }
+
+

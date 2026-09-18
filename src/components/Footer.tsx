@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { MapPin, Phone, Mail, Facebook, Youtube, Instagram, Twitter, Video, MessageCircle, Globe, ChevronRight } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
@@ -190,4 +191,6 @@ export default function Footer() {
     </footer>
   );
 }
+
+
 

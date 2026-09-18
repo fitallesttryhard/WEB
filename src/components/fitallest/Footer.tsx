@@ -1,4 +1,6 @@
+"use client";
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useSettings } from '../../contexts/SettingsContext';
 import { 
   Sparkles, 
@@ -13,11 +15,8 @@ import {
   Heart
 } from 'lucide-react';
 
-interface FooterProps {
-  setCurrentTab: (tab: string) => void;
-}
-
-export const FitallestFooter: React.FC<FooterProps> = ({ setCurrentTab }) => {
+export const FitallestFooter: React.FC = () => {
+  const router = useRouter();
   const { settings } = useSettings();
   const hotline = settings.hotline || '0356 105 315';
   const email = settings.email || 'contact@fitallest.com';
@@ -25,7 +24,8 @@ export const FitallestFooter: React.FC<FooterProps> = ({ setCurrentTab }) => {
   const companyName = settings.companyName || 'Fi.tallest';
 
   const navigate = (tab: string) => {
-    setCurrentTab(tab);
+    if (tab === 'home') router.push('/');
+    else router.push(`/${tab}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -202,3 +202,5 @@ export const FitallestFooter: React.FC<FooterProps> = ({ setCurrentTab }) => {
     </footer>
   );
 };
+
+

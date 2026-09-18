@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Ruler, Blocks, Droplet, Wrench, Package, Loader2, ArrowRight } from 'lucide-react';
 import { supabase } from '../supabaseClient';
@@ -9,7 +10,7 @@ export default function Categories() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const { data, error } = await supabase.from('categories').select('*').limit(8);
+        const { data, error } = await supabase.from('categories').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001').limit(8);
         if (error) throw error;
         setCategories(data || []);
       } catch (error) {
@@ -47,7 +48,7 @@ export default function Categories() {
               </span>
             </div>
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">
-              Giải Pháp Vật Tư Chuyên Dụng
+              Giải Pháp Dịch Vụ & Giải Pháp Digital
             </h2>
           </div>
 
@@ -72,8 +73,9 @@ export default function Categories() {
               return (
                 <a
                   key={cat.id || index}
+                  style={{ animationDelay: `${index * 120}ms` }}
                   href={`#products?cat=${cat.id}`}
-                  className="group relative flex flex-col justify-between p-8 rounded-2xl border border-slate-200/90 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.1)] hover:-translate-y-1.5 overflow-hidden"
+                  className="group relative flex flex-col justify-between p-8 rounded-2xl border border-slate-200/90 bg-white transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.1)] hover:-translate-y-1.5 overflow-hidden animate-fade-in-up"
                 >
                   {/* Subtle Background Accent */}
                   <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-red-50 to-rose-50/20 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -106,3 +108,5 @@ export default function Categories() {
     </section>
   );
 }
+
+

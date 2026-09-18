@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import {
   Download,
@@ -1430,3 +1431,5 @@ export default function SuperAdminDashboard({ activeSubTab = "saas-tenants" }: {
     </div>
   );
 }
+
+

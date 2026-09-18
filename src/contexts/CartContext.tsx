@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface CartItem {
@@ -94,3 +95,5 @@ export function useCart() {
   }
   return context;
 }
+
+

@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { 
   Globe, 
@@ -11,10 +12,10 @@ import {
 } from 'lucide-react';
 
 interface SeoPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const SeoPage: React.FC<SeoPageProps> = ({ setCurrentTab }) => {
+export const SeoPage: React.FC<SeoPageProps> = () => {
   return (
     <div className="min-h-screen py-16 text-slate-100 relative overflow-x-clip">
       
@@ -64,7 +65,7 @@ export const SeoPage: React.FC<SeoPageProps> = ({ setCurrentTab }) => {
             </div>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="w-full py-3 rounded-xl bg-white/5 hover:bg-emerald-600 hover:text-white border border-white/10 font-bold text-xs text-slate-200 transition-colors"
             >
               Chọn Gói SEO Local
@@ -103,7 +104,7 @@ export const SeoPage: React.FC<SeoPageProps> = ({ setCurrentTab }) => {
             </div>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 font-bold text-xs text-slate-950 transition-colors shadow-lg shadow-emerald-500/25"
             >
               Đăng Ký Gói SEO Tổng Thể
@@ -134,7 +135,7 @@ export const SeoPage: React.FC<SeoPageProps> = ({ setCurrentTab }) => {
             </div>
 
             <button 
-              onClick={() => setCurrentTab('quote')}
+              onClick={() => ('quote')}
               className="w-full py-3 rounded-xl bg-white/5 hover:bg-emerald-600 hover:text-white border border-white/10 font-bold text-xs text-slate-200 transition-colors"
             >
               Liên Hệ Ngay
@@ -147,3 +148,5 @@ export const SeoPage: React.FC<SeoPageProps> = ({ setCurrentTab }) => {
     </div>
   );
 };
+
+

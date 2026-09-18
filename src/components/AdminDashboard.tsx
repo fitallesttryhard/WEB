@@ -1,3 +1,4 @@
+﻿"use client";
 import SuperAdminDashboard from './SuperAdminDashboard';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from '../seedData';
 import React, { useState, useEffect, useRef } from 'react';
@@ -12,6 +13,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 import { supabase } from '../lib/supabase';
+import { FIT_TENANT_ID } from '../projectServices';
 import ProductFormModal from './ProductFormModal';
 import PostFormModal from './PostFormModal';
 import PageFormModal from './PageFormModal';
@@ -766,12 +768,13 @@ export default function AdminDashboard() {
   };
 
   const fetchData = async () => {
+      try { localStorage.removeItem('fitallest_admin_categories'); localStorage.removeItem('fitallest_admin_products'); localStorage.removeItem('fitallest_admin_posts'); } catch(e){}
     try {
       // 1. Categories
-      let cats = INITIAL_CATEGORIES;
+      let cats: any[] = [];
       try {
-        const { data: dbCats } = await supabase.from('categories').select('*');
-        if (dbCats && dbCats.length > 0) {
+        const { data: dbCats } = await supabase.from('categories').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001');
+        if (dbCats !== null) {
           cats = dbCats.map(c => ({
             id: c.id,
             name: c.name,
@@ -788,7 +791,7 @@ export default function AdminDashboard() {
       // 2. Products
       let prods = INITIAL_PRODUCTS;
       try {
-        const { data: dbProds } = await supabase.from('products').select('*');
+        const { data: dbProds } = await supabase.from('products').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001');
         if (dbProds && dbProds.length > 0) {
           prods = dbProds.map(p => ({
             id: p.id,
@@ -821,7 +824,7 @@ export default function AdminDashboard() {
       // 3. Posts / Articles
       let dbPostsList = [];
       try {
-        const { data: dbPosts } = await supabase.from('posts').select('*');
+        const { data: dbPosts } = await supabase.from('posts').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001');
         if (dbPosts && dbPosts.length > 0) {
           dbPostsList = dbPosts.map(p => ({
             id: p.id,
@@ -1014,7 +1017,10 @@ export default function AdminDashboard() {
             setAdminProjects(parsedProj);
           } else {
             localStorage.setItem('fitallest_admin_projects', JSON.stringify(REAL_12_PROJECTS));
-            setAdminProjects(REAL_12_PROJECTS);
+            try {
+        const fetchedProjects = await getProjects(FIT_TENANT_ID);
+        setAdminProjects(fetchedProjects);
+      } catch(e) { console.warn('Lỗi nạp fitallest projects:', e); }
           }
         } catch (e) {
           localStorage.setItem('fitallest_admin_projects', JSON.stringify(REAL_12_PROJECTS));
@@ -1057,7 +1063,7 @@ export default function AdminDashboard() {
     try {
       await updateSettings(updatedSettingsForm); // Synchronously updates React Context for Navbar, Footer, ContactUs, etc.
 
-      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
+      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').eq('tenant_id', FIT_TENANT_ID).limit(1).maybeSingle();
       const existingFc = existing?.footer_config || {};
 
       const payload = {
@@ -1522,7 +1528,7 @@ export default function AdminDashboard() {
   const saveBannersToDb = async (updatedBanners: any[]) => {
     try {
       updateSettings({ banners: updatedBanners });
-      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').limit(1).maybeSingle();
+      const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').eq('tenant_id', FIT_TENANT_ID).limit(1).maybeSingle();
       const footerConfig = existing?.footer_config || {};
       const payload = {
         footer_config: {
@@ -2130,7 +2136,7 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
                               <button 
-                                onClick={() => window.open(`#product?id=${product.id}`, '_blank')}
+                                onClick={() => window.open(`/san-pham/${product.id}`, '_blank')}
                                 className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
                               >
                                 <Eye size={16} />
@@ -2484,7 +2490,7 @@ export default function AdminDashboard() {
                           <td className="px-3 py-3 w-32 text-right whitespace-nowrap">
                             <div className="flex items-center justify-end gap-1 shrink-0">
                               <button 
-                                onClick={() => window.open(`#article?id=${page.id}`, '_blank')}
+                                onClick={() => window.open(`/bai-viet/${page.id}`, '_blank')}
                                 className="p-1.5 text-emerald-600 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors shrink-0" 
                                 title="Xem trước"
                               >
@@ -4453,3 +4459,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+

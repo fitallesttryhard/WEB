@@ -1,8 +1,9 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Share2, Facebook, Twitter, Linkedin, Link as LinkIcon, Loader2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
-export default function ArticleDetail() {
+export default function ArticleDetail({ slug }: { slug?: string } = {}) {
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -11,19 +12,28 @@ export default function ArticleDetail() {
     async function fetchArticle() {
       setLoading(true);
       try {
-        const hash = window.location.hash || '';
+        const hash = typeof window !== 'undefined' ? window.location.hash || '' : '';
         const searchStr = hash.includes('?') ? hash.split('?')[1] : '';
         const params = new URLSearchParams(searchStr);
-        const postId = params.get('id');
+        const targetSlug = slug || params.get('slug') || params.get('id');
 
         let postData = null;
-        if (postId) {
-          const { data } = await supabase
+        if (targetSlug) {
+          const { data: bySlug } = await supabase
             .from('posts')
             .select('*')
-            .eq('id', postId)
+            .eq('slug', targetSlug)
             .maybeSingle();
-          postData = data;
+          postData = bySlug;
+
+          if (!postData) {
+            const { data: byId } = await supabase
+              .from('posts')
+              .select('*')
+              .eq('id', targetSlug)
+              .maybeSingle();
+            postData = byId;
+          }
         }
 
         if (!postData) {
@@ -133,3 +143,5 @@ export default function ArticleDetail() {
     </div>
   );
 }
+
+

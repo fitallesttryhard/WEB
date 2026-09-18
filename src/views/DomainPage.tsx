@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { 
   Globe, 
@@ -9,10 +10,10 @@ import {
 } from 'lucide-react';
 
 interface DomainPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const DomainPage: React.FC<DomainPageProps> = ({ setCurrentTab }) => {
+export const DomainPage: React.FC<DomainPageProps> = () => {
   const [domainSearch, setDomainSearch] = useState('');
   const [searchResult, setSearchResult] = useState<string | null>(null);
 
@@ -81,7 +82,7 @@ export const DomainPage: React.FC<DomainPageProps> = ({ setCurrentTab }) => {
                   Tên miền <span className="font-bold text-amber-400">{searchResult}</span> đang có sẵn để đăng ký ngay!
                 </div>
                 <button 
-                  onClick={() => setCurrentTab('quote')}
+                  onClick={() => ('quote')}
                   className="px-4 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors"
                 >
                   Mua Ngay
@@ -117,3 +118,5 @@ export const DomainPage: React.FC<DomainPageProps> = ({ setCurrentTab }) => {
     </div>
   );
 };
+
+

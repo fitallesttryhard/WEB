@@ -1,3 +1,4 @@
+﻿"use client";
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ShieldCheck, Award, Truck, CheckCircle2, ArrowRight, HardHat, Target } from 'lucide-react';
@@ -17,9 +18,9 @@ export default function AboutUs({ isFullPage = false }: AboutUsProps) {
     async function fetchStatsAndPage() {
       try {
         const [{ count: catCount }, { count: prodCount }, { data: pageData }] = await Promise.all([
-          supabase.from('categories').select('*', { count: 'exact', head: true }),
-          supabase.from('products').select('*', { count: 'exact', head: true }),
-          supabase.from('pages').select('*').or('slug.eq.gioi-thieu,slug.eq.about').maybeSingle()
+          supabase.from('categories').select('*', { count: 'exact', head: true }).eq('tenant_id', '00000000-0000-0000-0000-000000000001'),
+          supabase.from('products').select('*', { count: 'exact', head: true }).eq('tenant_id', '00000000-0000-0000-0000-000000000001'),
+          supabase.from('pages').select('*').eq('tenant_id', '00000000-0000-0000-0000-000000000001').or('slug.eq.gioi-thieu,slug.eq.about').maybeSingle()
         ]);
 
         setStats({
@@ -235,3 +236,5 @@ export default function AboutUs({ isFullPage = false }: AboutUsProps) {
     </div>
   );
 }
+
+

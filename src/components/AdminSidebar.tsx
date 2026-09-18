@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import {
   LayoutDashboard, ShoppingCart, Package, Tags,
@@ -291,3 +292,5 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
     </aside>
   );
 }
+
+

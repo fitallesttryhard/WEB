@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Upload, Search, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
@@ -581,3 +582,5 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
     </div>
   );
 }
+
+

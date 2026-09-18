@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud, Loader2, CheckCircle2, Image as ImageIcon, Search, Trash2, Copy, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -393,4 +394,6 @@ export default function MediaPickerModal({ isOpen, onClose, onSelect, multiple =
     </div>
   );
 }
+
+
 

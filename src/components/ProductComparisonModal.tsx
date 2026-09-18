@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { X, Check, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -169,3 +170,5 @@ export default function ProductComparisonModal({
     </div>
   );
 }
+
+

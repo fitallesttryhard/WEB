@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { 
   Calculator, 
@@ -30,10 +31,10 @@ import {
 } from 'lucide-react';
 
 interface QuotePageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
+export const QuotePage: React.FC<QuotePageProps> = () => {
   // Budget Calculator state
   const [selectedWebType, setSelectedWebType] = useState('company-basic');
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(['domain-com', 'hosting-basic', 'responsive-all']);
@@ -778,3 +779,5 @@ export const QuotePage: React.FC<QuotePageProps> = ({ setCurrentTab }) => {
     </div>
   );
 };
+
+

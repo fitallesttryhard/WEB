@@ -1,4 +1,7 @@
+"use client";
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSettings } from '../../contexts/SettingsContext';
 import { 
   Globe, 
@@ -19,12 +22,9 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
-interface NavbarProps {
-  currentTab: string;
-  setCurrentTab: (tab: string) => void;
-}
-
-export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => {
+export const FitallestNavbar: React.FC = () => {
+  const pathname = usePathname() || '/';
+  const router = useRouter();
   const { settings } = useSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -43,18 +43,13 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
   }, []);
 
   const navigate = (tab: string) => {
-    setCurrentTab(tab);
-    if (tab === 'home') {
-      window.history.pushState("", document.title, window.location.pathname + window.location.search);
-    } else {
-      window.location.hash = tab;
-    }
     setMobileMenuOpen(false);
     setDropdownOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (tab === 'home') router.push('/');
+    else router.push(`/${tab}`);
   };
 
-  const isServiceActive = ['services', 'seo', 'hosting', 'domain', 'ai-design'].includes(currentTab);
+  const isServiceActive = ['/services', '/seo', '/hosting', '/domain', '/ai-design'].includes(pathname);
 
   const servicesList = [
     {
@@ -158,7 +153,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button 
               onClick={() => navigate('home')}
               className={`px-4 py-2 rounded-full transition-all duration-300 ${
-                currentTab === 'home' 
+                pathname === '/' 
                   ? 'text-white bg-cyan-500/20 border border-cyan-500/40 font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
                   : 'hover:text-white hover:bg-white/[0.06]'
               }`}
@@ -203,7 +198,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
                         navigate(svc.id);
                       }}
                       className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-start gap-3 group/item cursor-pointer ${
-                        currentTab === svc.id 
+                        pathname === `/${svc.id}` 
                           ? 'bg-cyan-500/15 border border-cyan-500/30' 
                           : 'hover:bg-white/[0.06]'
                       }`}
@@ -241,7 +236,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button 
               onClick={() => navigate('projects')}
               className={`px-4 py-2 rounded-full transition-all duration-300 ${
-                currentTab === 'projects' 
+                pathname === '/projects' 
                   ? 'text-white bg-cyan-500/20 border border-cyan-500/40 font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
                   : 'hover:text-white hover:bg-white/[0.06]'
               }`}
@@ -252,7 +247,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button 
               onClick={() => navigate('blog')}
               className={`px-4 py-2 rounded-full transition-all duration-300 ${
-                currentTab === 'blog' 
+                pathname === '/blog' 
                   ? 'text-white bg-cyan-500/20 border border-cyan-500/40 font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
                   : 'hover:text-white hover:bg-white/[0.06]'
               }`}
@@ -263,7 +258,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button 
               onClick={() => navigate('quote')}
               className={`px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-1.5 ${
-                currentTab === 'quote' 
+                pathname === '/quote' 
                   ? 'text-white bg-cyan-500/20 border border-cyan-500/40 font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
                   : 'hover:text-white hover:bg-white/[0.06]'
               }`}
@@ -358,7 +353,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button
               onClick={() => navigate('home')}
               className={`px-4 py-3 rounded-xl font-bold text-xs text-center transition-colors ${
-                currentTab === 'home' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
+                pathname === '/' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
               }`}
             >
               Trang Chủ
@@ -366,7 +361,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button
               onClick={() => navigate('projects')}
               className={`px-4 py-3 rounded-xl font-bold text-xs text-center transition-colors ${
-                currentTab === 'projects' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
+                pathname === '/projects' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
               }`}
             >
               Kho Dự Án
@@ -383,7 +378,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
                 key={svc.id}
                 onClick={() => navigate(svc.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${
-                  currentTab === svc.id ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'text-slate-300 hover:bg-white/[0.05]'
+                  pathname === `/${svc.id}` ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'text-slate-300 hover:bg-white/[0.05]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -406,7 +401,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button
               onClick={() => navigate('blog')}
               className={`px-4 py-3 rounded-xl font-bold text-xs text-center transition-colors ${
-                currentTab === 'blog' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
+                pathname === '/blog' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
               }`}
             >
               Tin Tức
@@ -414,7 +409,7 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
             <button
               onClick={() => navigate('quote')}
               className={`px-4 py-3 rounded-xl font-bold text-xs text-center transition-colors ${
-                currentTab === 'quote' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
+                pathname === '/quote' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-white/[0.03] text-slate-300'
               }`}
             >
               Báo Giá Tự Động
@@ -445,3 +440,5 @@ export const FitallestNavbar: React.FC<NavbarProps> = ({ currentTab, setCurrentT
     </header>
   );
 };
+
+

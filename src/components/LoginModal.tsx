@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, Lock, Mail, User, Building, Phone, ArrowRight, ShieldCheck, HardHat, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -362,3 +363,5 @@ export default function LoginModal() {
     </div>
   );
 }
+
+

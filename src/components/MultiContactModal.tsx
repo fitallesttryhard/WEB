@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Phone, X, MessageCircle, ExternalLink, Mail, Sparkles, Building2 } from 'lucide-react';
 import { ContactItem } from '../utils/contactParser';
@@ -115,3 +116,5 @@ export default function MultiContactModal({
     </div>
   );
 }
+
+

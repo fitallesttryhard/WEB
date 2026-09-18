@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, 
@@ -10,10 +11,10 @@ import {
 import { projectsData } from '../data/projectsData';
 
 interface ProjectsPageProps {
-  setCurrentTab: (tab: string) => void;
+  
 }
 
-export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => {
+export const ProjectsPage: React.FC<ProjectsPageProps> = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState<any>(null);
@@ -215,7 +216,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
               <button 
                 onClick={() => {
                   setSelectedProject(null);
-                  setCurrentTab('quote');
+                  window.location.href = '/quote';
                 }}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-cyan-600 to-indigo-600 hover:opacity-90 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer"
               >
@@ -230,3 +231,5 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ setCurrentTab }) => 
     </div>
   );
 };
+
+

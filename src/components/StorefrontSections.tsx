@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, ShoppingBag, ArrowRight, Calendar, User, Loader2, ArrowLeftRight, X, Check, Eye } from 'lucide-react';
 import { getProducts } from '../productServices';
@@ -77,6 +78,7 @@ export default function StorefrontSections() {
 
   const displayArticles = posts.map((p) => ({
     id: p.id,
+  slug: p.slug || p.id,
     title: p.title,
     excerpt: p.excerpt || 'Bài viết thông tin dự án & kỹ thuật thi công.',
     image: p.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
@@ -119,7 +121,7 @@ export default function StorefrontSections() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((product) => {
+              {products.map((product, idx) => {
                 const defaultImg = 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop';
                 const img = product.thumbnail_url || product.image_url || defaultImg;
                 const catName = product.categories?.name || 'Vật tư xây dựng';
@@ -129,11 +131,12 @@ export default function StorefrontSections() {
                 return (
                   <div
                     key={product.id}
-                    className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 p-4 transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.12)] hover:-translate-y-1 relative"
+                    style={{ animationDelay: `${idx * 100}ms` }}
+                    className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 p-4 transition-all duration-300 hover:border-red-500/40 hover:shadow-[0_16px_35px_rgba(225,29,72,0.12)] hover:-translate-y-1 relative animate-fade-in-up"
                   >
                     {/* Image Container */}
                     <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-slate-100 mb-3.5 group/img flex items-center justify-center border border-slate-100">
-                      <a href={`#product?id=${product.id}`} className="w-full h-full block">
+                      <a href={`/san-pham/${product.slug || product.id}`} className="w-full h-full block">
                         <img
                           src={img}
                           alt={product.name}
@@ -173,7 +176,7 @@ export default function StorefrontSections() {
                         {catName}
                       </span>
                       <a 
-                        href={`#product?id=${product.id}`} 
+                        href={`/san-pham/${product.slug || product.id}`} 
                         className="text-sm font-extrabold text-slate-800 line-clamp-2 leading-snug h-10 mb-3 group-hover:text-red-600 transition-colors"
                       >
                         {product.name}
@@ -223,12 +226,13 @@ export default function StorefrontSections() {
 
             {/* Articles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {displayArticles.map((article) => (
+              {displayArticles.map((article, idx) => (
                 <article
                   key={article.id}
-                  className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
+                  style={{ animationDelay: `${idx * 150}ms` }}
+                  className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 animate-fade-in-up"
                 >
-                  <a href={`#article?id=${article.id}`} className="aspect-[16/10] w-full overflow-hidden bg-slate-100 block">
+                  <a href={`/bai-viet/${article.slug || article.id}`} className="aspect-[16/10] w-full overflow-hidden bg-slate-100 block">
                     <img
                       src={article.image}
                       alt={article.title}
@@ -249,7 +253,7 @@ export default function StorefrontSections() {
                       </div>
                     </div>
 
-                    <a href={`#article?id=${article.id}`} className="text-lg font-bold text-slate-900 mb-3 line-clamp-2 leading-snug group-hover:text-red-600 transition-colors">
+                    <a href={`/bai-viet/${article.slug || article.id}`} className="text-lg font-bold text-slate-900 mb-3 line-clamp-2 leading-snug group-hover:text-red-600 transition-colors">
                       {article.title}
                     </a>
 
@@ -259,7 +263,7 @@ export default function StorefrontSections() {
 
                     <div className="mt-auto pt-4 border-t border-slate-100">
                       <a
-                        href={`#article?id=${article.id}`}
+                        href={`/bai-viet/${article.slug || article.id}`}
                         className="inline-flex items-center gap-2 text-xs font-extrabold text-red-600 uppercase tracking-wider group-hover:gap-3 transition-all"
                       >
                         Đọc tiếp
@@ -441,3 +445,5 @@ export default function StorefrontSections() {
     </div>
   );
 }
+
+

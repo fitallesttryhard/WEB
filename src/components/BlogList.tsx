@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Loader2 } from 'lucide-react';
@@ -30,6 +31,7 @@ export default function BlogList() {
 
   const displayArticles = posts.map((p) => ({
     id: p.id,
+    slug: p.slug || p.id,
     title: p.title,
     excerpt: p.excerpt || 'Bài viết kỹ thuật & dự án công nghệ & phần mềm.',
     date: new Date(p.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -83,7 +85,7 @@ export default function BlogList() {
                     {article.date}
                   </span>
                   <h2 className="text-xl font-bold text-gray-900 leading-snug mb-3 group-hover:text-gray-600 transition-colors">
-                    <a href={`#article?id=${article.id}`} className="block outline-none">
+                    <a href={`/bai-viet/${article.slug || article.id}`} className="block outline-none">
                       {article.title}
                     </a>
                   </h2>
@@ -100,3 +102,5 @@ export default function BlogList() {
     </div>
   );
 }
+
+
