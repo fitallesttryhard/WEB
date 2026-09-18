@@ -1,3 +1,38 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  metadataBase: new URL('https://sbuild.vn'),
+  title: {
+    default: 'Sbuild - Giải Pháp & Vật Tư Xây Dựng Thông Minh',
+    template: '%s | Sbuild',
+  },
+  description: 'Sbuild cung cấp giải pháp vật tư xây dựng thông minh, phụ kiện thi công cao cấp và công nghệ xây dựng hiện đại.',
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: 'https://sbuild.vn',
+    siteName: 'Sbuild',
+    title: 'Sbuild - Giải Pháp & Vật Tư Xây Dựng Thông Minh',
+    description: 'Sbuild cung cấp giải pháp vật tư xây dựng thông minh, phụ kiện thi công cao cấp và công nghệ xây dựng hiện đại.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sbuild - Giải Pháp & Vật Tư Xây Dựng Thông Minh',
+    description: 'Sbuild cung cấp giải pháp vật tư xây dựng thông minh, phụ kiện thi công cao cấp và công nghệ xây dựng hiện đại.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
+
 import '../src/index.css';
 import { Providers } from '../src/components/Providers';
 
