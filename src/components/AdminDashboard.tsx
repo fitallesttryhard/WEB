@@ -2721,7 +2721,7 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'projects', 'media', 'appearance', 'settings'].includes(activeMenu) && (
+            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'projects', 'media', 'appearance', 'settings', 'about_page'].includes(activeMenu) && (
               <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-2 capitalize">{activeMenu}</h1>
                 <p className="text-sm text-gray-500 font-medium mb-8">Phân hệ quản lý {activeMenu}.</p>
