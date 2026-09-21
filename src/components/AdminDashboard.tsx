@@ -17,7 +17,9 @@ import BannerFormModal from './BannerFormModal';
 import ProjectFormModal from './ProjectFormModal';
 import AdminSidebar from './AdminSidebar';
 import OrderDetailModal from './OrderDetailModal';
+import AdminAboutPageManager from './AdminAboutPageManager';
 import { useSettings } from '../contexts/SettingsContext';
+import { useAuth } from '../contexts/AuthContext';
 import { seedTrimDatabase } from '../seedData';
 import { SBUILD_TENANT_ID, getProjects, saveProject, deleteProject } from '../projectServices';
 import { getArticles, saveArticle, deleteArticle } from '../articleServices';
@@ -90,6 +92,7 @@ const mockChartData = [
 ];
 
 export default function AdminDashboard() {
+  const { logout } = useAuth();
   const [activeMenu, setActiveMenu] = useState('products');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -111,7 +114,48 @@ export default function AdminDashboard() {
     { id: 3, title: 'Chính sách bảo mật', slug: 'chinh-sach-bao-mat', status: 'draft', lastUpdated: '2026-08-10', template: 'full-width' },
   ]);
   const [banners, setBanners] = useState<any[]>([
-    { id: 1, image_url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=1200&auto=format&fit=crop', heading: 'Kiến tạo không gian sống', subheading: 'Sbuild - Cùng bạn xây dựng tương lai vững chắc', cta_text: 'Xem dự án', cta_link: '/du-an', status: true, order: 1 }
+    {
+      id: '1789704147477',
+      image_url: '/images/banners/banner-1789704147477.png',
+      heading: 'KIẾN TẠO ĐÔ THỊ TỪ NỀN TẢNG',
+      subheading: 'SBUILD cung cấp vật tư và giải pháp hoàn thiện, góp phần tạo nên những công trình chỉn chu và bền vững.',
+      cta_text: 'KHÁM PHÁ GIẢI PHÁP',
+      cta_link: '/products',
+      layout_type: 'badge_pills',
+      prop_1: 'GIẢI PHÁP CHUYÊN DỤNG',
+      prop_2: 'DANH MỤC ĐA DẠNG',
+      prop_3: 'HỖ TRỢ CÔNG TRÌNH',
+      status: true,
+      order: 1
+    },
+    {
+      id: '1789704310932',
+      image_url: '/images/banners/banner-1789704310932.png',
+      heading: 'CHỈNH CHU TRONG TỪNG CÔNG TRÌNH',
+      subheading: 'Lựa chọn đúng vật liệu hoàn thiện giúp hiện thực hóa thiết kế với độ chính xác và tính đồng bộ cao.',
+      cta_text: 'KHÁM PHÁ DỰ ÁN',
+      cta_link: '/projects',
+      layout_type: 'minimal',
+      prop_1: 'Chuẩn CO/CQ Kiểm Định',
+      prop_2: 'Giao Hàng Công Trình 24/7',
+      prop_3: 'Bảo Hành Chính Hãng',
+      status: true,
+      order: 2
+    },
+    {
+      id: '1789704391026',
+      image_url: '/images/banners/banner-1789704391026.png',
+      heading: 'CHÍNH XÁC ĐẾN TỪNG ĐƯỜNG NÉT',
+      subheading: 'Những góc cạnh, khe nối và điểm chuyển tiếp được xử lý tốt tạo nên khác biệt của công trình.',
+      cta_text: 'XEM ỨNG DỤNG',
+      cta_link: '/products',
+      layout_type: 'minimal',
+      prop_1: 'Chuẩn CO/CQ Kiểm Định',
+      prop_2: 'Giao Hàng Công Trình 24/7',
+      prop_3: 'Bảo Hành Chính Hãng',
+      status: true,
+      order: 3
+    }
   ]);
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<any>(null);
@@ -1044,7 +1088,7 @@ export default function AdminDashboard() {
     showToast('Đã xóa banner!');
   };
 
-  const handleMoveBanner = (index: number, direction: 'up' | 'down') => {
+  const handleMoveBanner = async (index: number, direction: 'up' | 'down') => {
     if ((direction === 'up' && index === 0) || (direction === 'down' && index === banners.length - 1)) return;
     
     const newBanners = [...banners];
@@ -1059,6 +1103,8 @@ export default function AdminDashboard() {
     newBanners.forEach((b, i) => b.order = i + 1);
     
     setBanners(newBanners);
+    await saveBannersToDb(newBanners);
+    showToast('Đã cập nhật thứ tự slide!');
   };
 
   // CATEGORIES HANDLERS
@@ -1383,14 +1429,24 @@ export default function AdminDashboard() {
           
           <div className="flex items-center gap-2 lg:gap-4 ml-auto">
             <a 
-              href="#home"
-              className="flex items-center gap-1.5 lg:gap-2 text-sm font-bold text-gray-600 hover:text-red-600 transition-colors px-2 lg:px-4 py-2 rounded-lg hover:bg-red-50"
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm font-bold text-gray-700 hover:text-red-600 transition-all px-3.5 py-2 rounded-xl hover:bg-red-50 border border-gray-200 hover:border-red-200 shadow-xs cursor-pointer group"
+              title="Mở Website S-BUILD trong tab mới"
             >
-              <ExternalLink size={16} />
+              <ExternalLink size={16} className="text-red-600 group-hover:scale-110 transition-transform" />
               <span className="hidden sm:inline">Xem Website thực tế</span>
             </a>
             <div className="w-px h-6 bg-gray-200"></div>
-            <button className="flex items-center gap-1.5 lg:gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors px-2 lg:px-4 py-2">
+            <button 
+              onClick={() => {
+                logout();
+                window.location.href = '/admin';
+              }}
+              className="flex items-center gap-1.5 lg:gap-2 text-sm font-bold text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors px-3 py-2 rounded-xl cursor-pointer"
+              title="Đăng xuất khỏi trang quản trị"
+            >
               <LogOut size={16} />
               <span className="hidden sm:inline">Đăng xuất</span>
             </button>
@@ -2815,13 +2871,25 @@ export default function AdminDashboard() {
                     <h1 className="text-2xl font-black text-gray-900">Quản lý Banner / Slider</h1>
                     <p className="text-sm text-gray-500 mt-1 font-medium">Cấu hình các banner trình chiếu trên trang chủ.</p>
                   </div>
-                  <button 
-                    onClick={handleAddNewBanner}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95"
-                  >
-                    <Plus size={18} />
-                    Thêm Slide Mới
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <a 
+                      href="/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white border border-gray-200 hover:border-red-300 hover:text-red-600 text-gray-700 px-4 py-2.5 rounded-lg font-bold text-sm transition-all shadow-xs flex items-center gap-2 group"
+                      title="Mở Website trên tab mới để xem ngay các banner đang chạy"
+                    >
+                      <ExternalLink size={16} className="text-red-600 group-hover:scale-110 transition-transform" />
+                      <span>Xem trên Web</span>
+                    </a>
+                    <button 
+                      onClick={handleAddNewBanner}
+                      className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95"
+                    >
+                      <Plus size={18} />
+                      Thêm Slide Mới
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -2920,6 +2988,10 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
+            )}
+
+            {activeMenu === 'about_page' && (
+              <AdminAboutPageManager showToast={showToast} />
             )}
 
             {activeMenu === 'settings' && (

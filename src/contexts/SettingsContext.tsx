@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../supabaseClient';
+import { AboutPageConfig, DEFAULT_ABOUT_PAGE_CONFIG } from '../types/about';
 
 export interface TenantSettings {
   companyName: string;
@@ -23,6 +24,7 @@ export interface TenantSettings {
   socialLinks?: Array<{ id?: any; platform: string; url: string }>;
   footerBlocks?: Array<{ id?: any; title: string; type?: string; items?: any[]; content?: string; url?: string; width?: number; links?: Array<{ label: string; url: string }> }>;
   banners?: Array<any>;
+  aboutPageConfig?: AboutPageConfig;
   [key: string]: any;
 }
 
@@ -34,17 +36,46 @@ interface SettingsContextType {
 
 const defaultSbuildBanners = [
   {
-    id: 1,
-    image_url: '/images/hero-banner.webp',
-    heading: 'KIẾN TẠO KHÔNG GIAN SỐNG',
-    subheading: 'Sbuild - Cùng bạn xây dựng tương lai vững chắc',
-    cta_text: 'XEM DỰ ÁN',
-    cta_link: '/projects',
-    prop_1: 'CHUẨN CO/CQ KIỂM ĐỊNH',
-    prop_2: 'GIAO HÀNG CÔNG TRÌNH 24/7',
-    prop_3: 'BẢO HÀNH CHÍNH HÃNG',
+    id: '1789704147477',
+    image_url: '/images/banners/banner-1789704147477.png',
+    heading: 'KIẾN TẠO ĐÔ THỊ TỪ NỀN TẢNG',
+    subheading: 'SBUILD cung cấp vật tư và giải pháp hoàn thiện, góp phần tạo nên những công trình chỉn chu và bền vững.',
+    cta_text: 'KHÁM PHÁ GIẢI PHÁP',
+    cta_link: '/products',
+    layout_type: 'badge_pills',
+    prop_1: 'GIẢI PHÁP CHUYÊN DỤNG',
+    prop_2: 'DANH MỤC ĐA DẠNG',
+    prop_3: 'HỖ TRỢ CÔNG TRÌNH',
     status: true,
     order: 1
+  },
+  {
+    id: '1789704310932',
+    image_url: '/images/banners/banner-1789704310932.png',
+    heading: 'CHỈNH CHU TRONG TỪNG CÔNG TRÌNH',
+    subheading: 'Lựa chọn đúng vật liệu hoàn thiện giúp hiện thực hóa thiết kế với độ chính xác và tính đồng bộ cao.',
+    cta_text: 'KHÁM PHÁ DỰ ÁN',
+    cta_link: '/projects',
+    layout_type: 'minimal',
+    prop_1: 'Chuẩn CO/CQ Kiểm Định',
+    prop_2: 'Giao Hàng Công Trình 24/7',
+    prop_3: 'Bảo Hành Chính Hãng',
+    status: true,
+    order: 2
+  },
+  {
+    id: '1789704391026',
+    image_url: '/images/banners/banner-1789704391026.png',
+    heading: 'CHÍNH XÁC ĐẾN TỪNG ĐƯỜNG NÉT',
+    subheading: 'Những góc cạnh, khe nối và điểm chuyển tiếp được xử lý tốt tạo nên khác biệt của công trình.',
+    cta_text: 'XEM ỨNG DỤNG',
+    cta_link: '/products',
+    layout_type: 'minimal',
+    prop_1: 'Chuẩn CO/CQ Kiểm Định',
+    prop_2: 'Giao Hàng Công Trình 24/7',
+    prop_3: 'Bảo Hành Chính Hãng',
+    status: true,
+    order: 3
   }
 ];
 
@@ -89,6 +120,7 @@ const defaultSettings: TenantSettings = {
   socialLinks: [],
   footerBlocks: DEFAULT_FOOTER_BLOCKS,
   banners: defaultSbuildBanners,
+  aboutPageConfig: DEFAULT_ABOUT_PAGE_CONFIG,
 };
 
 const SettingsContext = createContext<SettingsContextType>({
@@ -130,6 +162,11 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
                 delete parsed[k];
               }
             });
+            // Never allow stale legacy banner cache to override live Supabase banners
+            if (parsed.banners && Array.isArray(parsed.banners)) {
+              parsed.banners = parsed.banners.filter((b: any) => !isLegacyText(b) && b.heading !== 'KIẾN TẠO KHÔNG GIAN SỐNG');
+              if (parsed.banners.length === 0) delete parsed.banners;
+            }
             localCustomSettings = parsed;
             localStorage.setItem('sbuild_site_custom_settings', JSON.stringify(localCustomSettings));
           } catch (e) {}
@@ -247,8 +284,9 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             plan: tenantPlan,
             socialLinks: Array.isArray(soc) && soc.length > 0 ? soc : (soc.links || prev.socialLinks),
             footerBlocks: finalBlocks,
-            banners: cleanBanners,
+            aboutPageConfig: fc.aboutPageConfig || localCustomSettings.aboutPageConfig || DEFAULT_ABOUT_PAGE_CONFIG,
             ...localCustomSettings,
+            banners: cleanBanners,
           }));
         } else {
           setSettings((prev) => ({
@@ -256,6 +294,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             status: tenantStatus,
             subdomain: tenantSubdomain,
             plan: tenantPlan,
+            aboutPageConfig: localCustomSettings.aboutPageConfig || DEFAULT_ABOUT_PAGE_CONFIG,
             ...localCustomSettings,
           }));
         }
@@ -304,8 +343,13 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
     setSettings((prev) => {
       const updated = { ...prev, ...newSettings };
 
-      // Save to localStorage for instant local site override
+      // Save to localStorage for instant local site override (compact banner URLs)
       try {
+        const compactBanners = (updated.banners || []).map((b: any) => ({
+          ...b,
+          image_url: (b.image_url && b.image_url.startsWith('data:')) ? b.image_url.slice(0, 100) : b.image_url
+        }));
+
         localStorage.setItem('sbuild_site_custom_settings', JSON.stringify({
           gaMeasurementId: updated.gaMeasurementId,
           gscVerificationCode: updated.gscVerificationCode,
@@ -317,8 +361,9 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           email: updated.email,
           mapUrl: updated.mapUrl,
           footerBlocks: updated.footerBlocks,
+          banners: compactBanners,
+          aboutPageConfig: updated.aboutPageConfig,
         }));
-        window.dispatchEvent(new Event('sbuild_settings_updated'));
       } catch (e) {}
 
       // Async sync to Supabase in background
@@ -360,6 +405,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
               customHeaderScripts: updated.customHeaderScripts,
               blocks: updated.footerBlocks || existingFc.blocks || DEFAULT_FOOTER_BLOCKS,
               banners: updated.banners || existingFc.banners || [],
+              aboutPageConfig: updated.aboutPageConfig || existingFc.aboutPageConfig || DEFAULT_ABOUT_PAGE_CONFIG,
             },
           };
 

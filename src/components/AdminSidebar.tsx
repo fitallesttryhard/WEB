@@ -3,7 +3,7 @@
 import {
   LayoutDashboard, ShoppingCart, Package, Tags,
   FileText, Image as ImageIcon, Building2,
-  MonitorPlay, Settings, Layers, LogOut, HardHat
+  MonitorPlay, Settings, Layers, LogOut, HardHat, Compass
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -170,6 +170,17 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
               >
                 <Layers size={18} className={activeMenu === 'banners' ? 'text-white' : 'text-red-400'} />
                 <span>Banner / Slider</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActiveMenu('about_page')}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium cursor-pointer ${
+                  activeMenu === 'about_page' ? 'bg-red-600 text-white font-bold shadow-md shadow-red-600/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                <Compass size={18} className={activeMenu === 'about_page' ? 'text-white' : 'text-red-400'} />
+                <span>Trang Giới Thiệu</span>
               </button>
             </li>
           </ul>

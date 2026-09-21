@@ -18,14 +18,15 @@ export default function Hero() {
 
   // Fallback banner if none configured or active
   const defaultBanner = {
-    image_url: "/images/hero-banner.webp",
-    heading: "Kiến Tạo Không Gian Sống",
-    subheading: "Sbuild - Cùng bạn xây dựng tương lai vững chắc",
-    cta_text: "XEM DỰ ÁN",
-    cta_link: "/projects",
-    prop_1: "CHUẨN CO/CQ KIỂM ĐỊNH",
-    prop_2: "Giao Hàng Công Trình 24/7",
-    prop_3: "Bảo Hành Chính Hãng",
+    image_url: "/images/banners/banner-1789704147477.png",
+    heading: "KIẾN TẠO ĐÔ THỊ TỪ NỀN TẢNG",
+    subheading: "SBUILD cung cấp vật tư và giải pháp hoàn thiện, góp phần tạo nên những công trình chỉn chu và bền vững.",
+    cta_text: "KHÁM PHÁ GIẢI PHÁP",
+    cta_link: "/products",
+    layout_type: "badge_pills",
+    prop_1: "GIẢI PHÁP CHUYÊN DỤNG",
+    prop_2: "DANH MỤC ĐA DẠNG",
+    prop_3: "HỖ TRỢ CÔNG TRÌNH",
   };
 
   const displayBanners = activeBanners.length > 0 ? activeBanners : [defaultBanner];
@@ -69,10 +70,10 @@ export default function Hero() {
     setCurrentIndex((prev) => (prev + 1) % displayBanners.length);
   };
 
-  const layoutType = activeBanner?.layout_type || 'standard';
-  const prop1 = activeBanner?.prop_1 || 'CÔNG TY TNHH ĐẦU TƯ XÂY DỰNG SBUILD';
-  const prop2 = activeBanner?.prop_2 || 'Giao Hàng Công Trình 24/7';
-  const prop3 = activeBanner?.prop_3 || 'Bảo Hành Chính Hãng';
+  const layoutType = activeBanner?.layout_type || defaultBanner.layout_type;
+  const prop1 = activeBanner?.prop_1 || defaultBanner.prop_1;
+  const prop2 = activeBanner?.prop_2 || defaultBanner.prop_2;
+  const prop3 = activeBanner?.prop_3 || defaultBanner.prop_3;
 
   return (
     <section className="relative min-h-[90dvh] w-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950 flex items-center mt-[80px] shrink-0 overflow-hidden group">
@@ -86,7 +87,7 @@ export default function Hero() {
         const isActive = idx === currentIndex;
         return (
           <div
-            key={url + idx}
+            key={(banner.id || 'b') + '-' + idx}
             className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${
               isActive ? 'opacity-70 z-0 pointer-events-auto' : 'opacity-0 -z-10 pointer-events-none'
             }`}
@@ -117,14 +118,14 @@ export default function Hero() {
         <>
           <button
             onClick={handlePrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-red-600 text-white backdrop-blur-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-lg hover:scale-110 active:scale-95"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-red-600 text-white backdrop-blur-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-lg hover:scale-110 active:scale-95 cursor-pointer"
             aria-label="Previous Slide"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-red-600 text-white backdrop-blur-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-lg hover:scale-110 active:scale-95"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/40 hover:bg-red-600 text-white backdrop-blur-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-lg hover:scale-110 active:scale-95 cursor-pointer"
             aria-label="Next Slide"
           >
             <ChevronRight size={24} />
@@ -136,7 +137,7 @@ export default function Hero() {
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
                   idx === currentIndex ? 'w-8 bg-red-600 shadow-[0_0_12px_rgba(220,38,38,0.8)]' : 'w-2.5 bg-white/40 hover:bg-white/70'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
@@ -149,25 +150,32 @@ export default function Hero() {
       {/* Content Container with Entrance Animations */}
       <div className="relative z-20 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-20 flex flex-col justify-center items-start">
         
-        {/* Top Badges for layout_type 'badge_pills' */}
+        {/* Style 3: HUY HIỆU (Badges nhỏ nằm trên Tiêu đề) */}
         {layoutType === 'badge_pills' && (
           <div className="flex flex-wrap items-center gap-2.5 mb-8 animate-fade-in-down delay-100">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
-              <Award size={14} className="text-amber-400 animate-pulse" />
-              <span>{prop1}</span>
-            </div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
-              <Truck size={14} className="text-blue-400" />
-              <span>{prop2}</span>
-            </div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              <span>{prop3}</span>
-            </div>
+            {prop1 && (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
+                <Award size={14} className="text-red-400" />
+                <span>{prop1}</span>
+              </div>
+            )}
+            {prop2 && (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
+                <Truck size={14} className="text-blue-400" />
+                <span>{prop2}</span>
+              </div>
+            )}
+            {prop3 && (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-sm">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span>{prop3}</span>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Live Status Pill Badge (Standard Layout) */}
+        {/* Style 1: ĐẦY ĐỦ (Standard Layout) - Nhãn thương hiệu nhỏ */}
         {layoutType === 'standard' && (
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white text-xs font-bold uppercase tracking-[0.18em] mb-8 shadow-inner animate-fade-in-down delay-100">
             <span className="relative flex h-2.5 w-2.5">
@@ -175,7 +183,7 @@ export default function Hero() {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
             </span>
             <ShieldCheck size={15} className="text-red-400" />
-            <span>{settings.companyName || 'Giải pháp Vật tư Xây dựng Toàn diện'}</span>
+            <span>{settings.companyName || 'SBUILD Vật Tư Xây Dựng'}</span>
           </div>
         )}
 

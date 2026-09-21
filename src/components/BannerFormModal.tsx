@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { X, Save, UploadCloud, Image as ImageIcon, ToggleLeft, ToggleRight } from 'lucide-react';
+import { X, Save, UploadCloud, Image as ImageIcon, ToggleLeft, ToggleRight, Award, Truck, ShieldCheck } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
 
 interface BannerFormModalProps {
@@ -321,33 +321,83 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                   )}
                   
                   {/* Overlay giả lập */}
-                  <div className="absolute inset-0 p-8 flex flex-col justify-center bg-gradient-to-r from-black/80 to-transparent">
-                    <div className="max-w-md">
+                  <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between bg-gradient-to-r from-black/90 via-black/70 to-transparent">
+                    <div className="max-w-md my-auto">
+                      
+                      {/* Kiểu 3: HUY HIỆU (Badges nhỏ nằm trên Tiêu đề) */}
+                      {formData.layout_type === 'badge_pills' && (
+                        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                          {formData.prop_1 && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-red-300 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
+                              <Award size={10} className="text-red-400" />
+                              <span>{formData.prop_1}</span>
+                            </span>
+                          )}
+                          {formData.prop_2 && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
+                              <Truck size={10} className="text-blue-400" />
+                              <span>{formData.prop_2}</span>
+                            </span>
+                          )}
+                          {formData.prop_3 && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
+                              <ShieldCheck size={10} className="text-emerald-400" />
+                              <span>{formData.prop_3}</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       {formData.heading ? (
-                        <h2 className="text-3xl font-black text-white leading-tight mb-3">
+                        <h2 className="text-xl sm:text-2xl font-black text-white leading-tight mb-2">
                           {formData.heading}
                         </h2>
                       ) : (
-                        <div className="h-8 w-3/4 bg-white/20 rounded mb-4 animate-pulse"></div>
+                        <div className="h-6 w-3/4 bg-white/20 rounded mb-3 animate-pulse"></div>
                       )}
                       
                       {formData.subheading ? (
-                        <p className="text-sm text-gray-300 font-medium leading-relaxed mb-6">
+                        <p className="text-xs sm:text-sm text-gray-300 font-medium leading-relaxed mb-4 line-clamp-2">
                           {formData.subheading}
                         </p>
                       ) : (
-                        <div className="space-y-2 mb-6">
-                          <div className="h-3 w-full bg-white/20 rounded animate-pulse"></div>
-                          <div className="h-3 w-4/5 bg-white/20 rounded animate-pulse"></div>
+                        <div className="space-y-1.5 mb-4">
+                          <div className="h-2.5 w-full bg-white/20 rounded animate-pulse"></div>
+                          <div className="h-2.5 w-4/5 bg-white/20 rounded animate-pulse"></div>
                         </div>
                       )}
                       
-                      {formData.cta_text && (
-                        <div className="inline-block px-6 py-2.5 bg-red-600 text-white text-sm font-bold rounded-lg shadow-lg">
-                          {formData.cta_text}
+                      <div className="flex items-center gap-2">
+                        {formData.cta_text && (
+                          <div className="inline-block px-4 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg shadow-md">
+                            {formData.cta_text}
+                          </div>
+                        )}
+                        <div className="inline-block px-3 py-1.5 bg-white/10 text-white text-xs font-bold rounded-lg border border-white/20">
+                          BÁO GIÁ
                         </div>
-                      )}
+                      </div>
                     </div>
+
+                    {/* Kiểu 1: ĐẦY ĐỦ (3 Thẻ cam kết chân slide) */}
+                    {formData.layout_type === 'standard' && (
+                      <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/10 text-[10px] text-gray-300">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <Award size={12} className="text-amber-400 shrink-0" />
+                          <span className="truncate">{formData.prop_1 || 'Chuẩn CO/CQ'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 truncate">
+                          <Truck size={12} className="text-blue-400 shrink-0" />
+                          <span className="truncate">{formData.prop_2 || 'Giao 24/7'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 truncate">
+                          <ShieldCheck size={12} className="text-emerald-400 shrink-0" />
+                          <span className="truncate">{formData.prop_3 || 'Chính hãng'}</span>
+                        </div>
+                      </div>
+                    )}
+
                   </div>
                 </div>
 

@@ -29,11 +29,45 @@ export default function MediaPickerModal({ isOpen, onClose, onSelect, multiple =
   }, [isOpen]);
 
   const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
+      reader.onload = (e) => {
+        const raw = e.target?.result as string;
+        try {
+          const img = new Image();
+          img.src = raw;
+          img.onload = () => {
+            const maxDim = 1920;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, w, h);
+              const compressed = canvas.toDataURL('image/webp', 0.82);
+              resolve(compressed);
+              return;
+            }
+            resolve(raw);
+          };
+          img.onerror = () => resolve(raw);
+        } catch (err) {
+          resolve(raw);
+        }
+      };
+      reader.onerror = () => resolve('');
     });
   };
 
@@ -113,22 +147,48 @@ export default function MediaPickerModal({ isOpen, onClose, onSelect, multiple =
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       let uploadedObj: any = null;
 
+      // 1. Ưu tiên tải lên API máy chủ để lưu thành file tĩnh sạch trong public/uploads
       try {
-        const { data: upData, error } = await supabase.storage.from('product-media').upload(fileName, file);
-        if (!error && upData) {
-          const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
+        const bodyFormData = new FormData();
+        bodyFormData.append('file', file);
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: bodyFormData,
+        });
+        const result = await res.json();
+        if (result.success && result.url) {
           uploadedObj = {
-            id: fileName,
+            id: `server-${Date.now()}-${i}`,
             name: file.name,
-            size: file.size,
-            path: fileName,
-            url: publicUrl
+            size: result.size || file.size,
+            path: result.url,
+            url: result.url
           };
         }
-      } catch (error) {
-        console.warn('Upload failed to Supabase Storage, fallback to local Base64:', error);
+      } catch (uploadApiErr) {
+        console.warn('Upload API không khả dụng, thử Supabase Storage:', uploadApiErr);
       }
 
+      // 2. Thử tải lên Supabase Storage nếu API máy chủ không hoạt động
+      if (!uploadedObj) {
+        try {
+          const { data: upData, error } = await supabase.storage.from('product-media').upload(fileName, file);
+          if (!error && upData) {
+            const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
+            uploadedObj = {
+              id: fileName,
+              name: file.name,
+              size: file.size,
+              path: fileName,
+              url: publicUrl
+            };
+          }
+        } catch (error) {
+          console.warn('Upload Supabase Storage thất bại, chuyển sang nén canvas:', error);
+        }
+      }
+
+      // 3. Fallback cuối cùng: nén ảnh canvas chuẩn Full HD siêu nhẹ
       if (!uploadedObj) {
         try {
           const base64Url = await fileToBase64(file);
