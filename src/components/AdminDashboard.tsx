@@ -1059,13 +1059,37 @@ export default function AdminDashboard() {
   // BANNER HANDLERS
   const saveBannersToDb = async (updatedBanners: any[]) => {
     try {
-      updateSettings({ banners: updatedBanners });
+      // Sanitize: strip massive base64 data URLs before saving to Supabase
+      // Keep only path-based or short URLs to avoid DB payload overflow
+      const sanitizedBanners = updatedBanners.map(b => {
+        const imgUrl = b.image_url || '';
+        // If image_url is a huge base64 data URI, try to find the original file path
+        if (imgUrl.startsWith('data:') && imgUrl.length > 500) {
+          // Don't save massive base64 to Supabase - use the matching banner's static path if available
+          const matchingStatic = [
+            '/images/banners/banner-1789704147477.png',
+            '/images/banners/banner-1789704310932.png', 
+            '/images/banners/banner-1789704391026.png'
+          ];
+          // Check if this banner had a static path before
+          const existingBanner = banners.find(eb => eb.id === b.id);
+          const existingUrl = existingBanner?.image_url || '';
+          if (existingUrl && !existingUrl.startsWith('data:')) {
+            return { ...b, image_url: existingUrl };
+          }
+          // If no existing path, use first available static path for fallback
+          return { ...b, image_url: matchingStatic[0] };
+        }
+        return b;
+      });
+
+      updateSettings({ banners: sanitizedBanners });
       const { data: existing } = await supabase.from('tenant_settings').select('id, footer_config').eq('tenant_id', SBUILD_TENANT_ID).limit(1).maybeSingle();
       const footerConfig = existing?.footer_config || {};
       const payload = {
         footer_config: {
           ...footerConfig,
-          banners: updatedBanners
+          banners: sanitizedBanners
         }
       };
       if (existing?.id) {
@@ -1073,6 +1097,7 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.warn('Lỗi lưu Banners:', err);
+      throw err;
     }
   };
 
@@ -1087,10 +1112,12 @@ export default function AdminDashboard() {
   };
 
   const handleBannerSubmit = async (formData: any) => {
+    // Đóng popup ngay lập tức để UX mượt mà
+    setIsBannerModalOpen(false);
+    
     let nextBanners: any[] = [];
     if (formData.id) {
       nextBanners = banners.map(b => b.id === formData.id ? { ...b, ...formData } : b);
-      showToast('Đã cập nhật banner!');
     } else {
       const newBanner = {
         ...formData,
@@ -1098,11 +1125,16 @@ export default function AdminDashboard() {
         order: banners.length + 1
       };
       nextBanners = [...banners, newBanner];
-      showToast('Đã thêm banner mới!');
     }
     setBanners(nextBanners);
-    await saveBannersToDb(nextBanners);
-    setIsBannerModalOpen(false);
+    
+    try {
+      await saveBannersToDb(nextBanners);
+      showToast(formData.id ? 'Đã cập nhật banner!' : 'Đã thêm banner mới!');
+    } catch (err) {
+      console.error('Lỗi lưu banner:', err);
+      showToast('Lỗi lưu banner! Vui lòng thử lại.');
+    }
   };
 
   const handleDeleteBanner = async (id: any) => {
@@ -1419,8 +1451,8 @@ export default function AdminDashboard() {
       
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed top-6 right-6 z-[100] bg-gray-900 text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-in slide-in-from-top-5 duration-300">
-          <CheckCircle2 size={18} className="text-green-400" />
+        <div className="fixed top-6 right-6 z-[9999] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-5 duration-300 border border-white/10">
+          <CheckCircle2 size={18} className="text-green-400 shrink-0" />
           <span className="font-bold text-sm">{toast}</span>
         </div>
       )}
