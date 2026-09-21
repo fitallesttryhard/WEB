@@ -10,7 +10,7 @@ export default function Hero() {
   const activeBanners = banners.filter((b: any) => {
     if (b.status === false) return false;
     const str = `${b.heading || ''} ${b.subheading || ''} ${b.prop_1 || ''}`.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return !str.includes('fitallest') && !str.includes('0909876817');
+    return !str.includes('fitallest') && !str.includes('0909876817') && !str.includes('khonggiansong');
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);

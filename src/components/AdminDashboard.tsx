@@ -4,7 +4,7 @@ import {
   CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
   UploadCloud, Copy, Image as ImageIcon, Loader2, Save,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
-  Menu, X, Layers, MapPin, Phone, Mail, ChevronRight
+  Menu, X, Layers, MapPin, Phone, Mail, ChevronRight, Search, RefreshCw, Check
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -18,6 +18,16 @@ import ProjectFormModal from './ProjectFormModal';
 import AdminSidebar from './AdminSidebar';
 import OrderDetailModal from './OrderDetailModal';
 import AdminAboutPageManager from './AdminAboutPageManager';
+import MediaPickerModal from './MediaPickerModal';
+import { 
+  MediaItem, 
+  MediaSourceType, 
+  extractSystemMedia, 
+  getLocalUploadedMedia, 
+  fetchRemoteStorageMedia, 
+  uploadSingleMediaFile, 
+  deleteLocalUploadedMedia 
+} from '../mediaServices';
 import { useSettings } from '../contexts/SettingsContext';
 import { useAuth } from '../contexts/AuthContext';
 import { seedTrimDatabase } from '../seedData';
@@ -214,9 +224,14 @@ export default function AdminDashboard() {
   const [settingsForm, setSettingsForm] = useState(settings);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isLogoMediaPickerOpen, setIsLogoMediaPickerOpen] = useState(false);
+  const [isAboutImageMediaPickerOpen, setIsAboutImageMediaPickerOpen] = useState(false);
+  const [isCategoryMediaPickerOpen, setIsCategoryMediaPickerOpen] = useState(false);
 
   // Media state
-  const [mediaFiles, setMediaFiles] = useState<any[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<MediaItem[]>([]);
+  const [mediaTab, setMediaTab] = useState<MediaSourceType>('all');
+  const [mediaSearchQuery, setMediaSearchQuery] = useState('');
+  const [mediaPreviewImage, setMediaPreviewImage] = useState<MediaItem | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [mediaLoaded, setMediaLoaded] = useState(false);
@@ -236,92 +251,102 @@ export default function AdminDashboard() {
     }
   }, [activeMenu, mediaLoaded]);
 
+  // Lắng nghe sự kiện đồng bộ hình ảnh từ các form khác
+  useEffect(() => {
+    const handleMediaSync = () => {
+      fetchMedia();
+    };
+    window.addEventListener('sbuild_media_updated', handleMediaSync);
+    return () => window.removeEventListener('sbuild_media_updated', handleMediaSync);
+  }, [banners, products, adminProjects, posts, categories, settingsForm]);
+
   const fetchMedia = async () => {
     try {
-      const { data, error } = await supabase.storage.from('product-media').list();
-      if (error) throw error;
-      
-      const validFiles = data.filter((f: any) => f.name !== '.emptyFolderPlaceholder' && f.metadata?.size);
-      
-      const filesWithUrls = validFiles.map((file: any) => {
-        const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(file.name);
-        return {
-          id: file.id,
-          name: file.name,
-          size: file.metadata?.size || 0,
-          path: file.name,
-          url: publicUrl
-        };
+      // 1. Quét ảnh từ các thực thể trong hệ thống (Banners, Sản phẩm, Dự án, Tin tức, Danh mục, Cài đặt)
+      const systemItems = extractSystemMedia({
+        banners,
+        products,
+        projects: adminProjects,
+        posts,
+        categories,
+        settings: settingsForm
       });
-      setMediaFiles(filesWithUrls.sort((a, b) => b.name.localeCompare(a.name)));
+
+      // 2. Lấy ảnh tải lên cục bộ
+      const localUploads = getLocalUploadedMedia();
+
+      // 3. Thử lấy ảnh từ bucket Supabase Storage
+      let remoteUploads: MediaItem[] = [];
+      try {
+        remoteUploads = await fetchRemoteStorageMedia();
+      } catch (e) {}
+
+      // 4. Hợp nhất và loại trùng URL
+      const combined = [...localUploads, ...remoteUploads, ...systemItems];
+      const seen = new Set<string>();
+      const deduplicated: MediaItem[] = [];
+
+      for (const item of combined) {
+        if (!item.url || seen.has(item.url)) continue;
+        seen.add(item.url);
+        deduplicated.push(item);
+      }
+
+      setMediaFiles(deduplicated);
       setMediaLoaded(true);
     } catch (error) {
       console.error('Error fetching media:', error);
-      if (mediaFiles.length === 0) {
-        setMediaFiles([
-          { name: 'scaffolding-hero.jpg', size: 1024500, path: 'mock-1', url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=600&auto=format&fit=crop' },
-          { name: 'metal-clamp.png', size: 2048000, path: 'mock-2', url: 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=600&auto=format&fit=crop' }
-        ]);
-      }
       setMediaLoaded(true);
     }
+  };
+
+  const handleSyncAllMedia = async () => {
+    showToast('Đang quét và đồng bộ hình ảnh từ toàn hệ thống...');
+    await fetchMedia();
+    showToast(`Đã đồng bộ ${mediaFiles.length} hình ảnh từ Banners, Sản phẩm, Dự án, Tin tức và Cài đặt!`);
   };
 
   const handleMediaUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setIsUploading(true);
     
-    const newFiles: any[] = [];
+    const newItems: MediaItem[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (!file.type.startsWith('image/')) continue;
-      
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      
       try {
-        const { error } = await supabase.storage.from('product-media').upload(fileName, file);
-        if (error) throw error;
-        
-        const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
-        newFiles.push({
-          name: file.name,
-          size: file.size,
-          path: fileName,
-          url: publicUrl
-        });
+        const item = await uploadSingleMediaFile(file);
+        if (item) newItems.push(item);
       } catch (err) {
         console.error('Upload error:', err);
-        newFiles.push({
-          name: file.name,
-          size: file.size,
-          path: `mock-${Date.now()}-${i}`,
-          url: URL.createObjectURL(file)
-        });
       }
     }
-    
-    setMediaFiles(prev => [...newFiles, ...prev]);
+
+    if (newItems.length > 0) {
+      setMediaFiles(prev => [...newItems, ...prev.filter(p => !newItems.some(n => n.url === p.url))]);
+      showToast(`Đã tải lên ${newItems.length} hình ảnh vào Thư viện Media!`);
+    }
     setIsUploading(false);
-    if (newFiles.length > 0) showToast(`Đã tải lên ${newFiles.length} hình ảnh!`);
   };
 
-  const handleDeleteMedia = async (path: string) => {
-    if (!confirm("Bạn có chắc muốn xóa ảnh này?")) return;
+  const handleDeleteMedia = async (item: MediaItem) => {
+    if (!confirm(`Bạn có chắc muốn xóa ảnh "${item.name}"?`)) return;
     try {
-      if (!path.startsWith('mock-')) {
-        await supabase.storage.from('product-media').remove([path]);
+      deleteLocalUploadedMedia(item.id || item.url);
+      if (item.path && !item.path.startsWith('blob-') && !item.path.startsWith('base64-')) {
+        try {
+          await supabase.storage.from('product-media').remove([item.path]);
+        } catch (e) {}
       }
-      setMediaFiles(prev => prev.filter(f => f.path !== path));
-      showToast('Đã xóa hình ảnh!');
+      setMediaFiles(prev => prev.filter(f => f.url !== item.url));
+      showToast('Đã xóa hình ảnh khỏi thư viện!');
     } catch (error) {
       console.error('Delete error:', error);
       showToast('Lỗi khi xóa ảnh!');
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes || bytes === 0) return 'Tối ưu Web';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -2206,34 +2231,56 @@ export default function AdminDashboard() {
                               <button
                                 type="button"
                                 onClick={() => setCategoryForm(prev => ({ ...prev, image_url: '' }))}
-                                className="absolute top-2 right-2 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors"
+                                className="absolute top-2 right-2 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
                               >
                                 <X size={12} />
                               </button>
                             </div>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={() => categoryImageInputRef.current?.click()}
-                              disabled={isCategoryImageUploading}
-                              className="w-full border-2 border-dashed border-gray-200 hover:border-red-400 rounded-xl py-6 flex flex-col items-center gap-2 text-gray-400 hover:text-red-500 transition-all cursor-pointer"
-                            >
-                              {isCategoryImageUploading ? (
-                                <><Loader2 size={20} className="animate-spin" /><span className="text-xs font-medium">Đang tải lên...</span></>
-                              ) : (
-                                <><ImageIcon size={20} /><span className="text-xs font-medium">Chọn ảnh danh mục</span></>
-                              )}
-                            </button>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => categoryImageInputRef.current?.click()}
+                                disabled={isCategoryImageUploading}
+                                className="border-2 border-dashed border-gray-200 hover:border-red-400 rounded-xl py-5 px-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-red-500 transition-all cursor-pointer bg-gray-50/50"
+                              >
+                                {isCategoryImageUploading ? (
+                                  <><Loader2 size={18} className="animate-spin" /><span className="text-[11px] font-bold">Đang tải...</span></>
+                                ) : (
+                                  <><UploadCloud size={18} /><span className="text-[11px] font-bold">Tải từ máy</span></>
+                                )}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setIsCategoryMediaPickerOpen(true)}
+                                className="border-2 border-dashed border-gray-200 hover:border-red-400 rounded-xl py-5 px-3 flex flex-col items-center gap-1.5 text-gray-600 hover:text-red-600 transition-all cursor-pointer bg-gray-50/50"
+                              >
+                                <ImageIcon size={18} className="text-red-500" />
+                                <span className="text-[11px] font-bold">Thư viện Media</span>
+                              </button>
+                            </div>
                           )}
                           {/* URL input */}
-                          <input
-                            type="text"
-                            name="image_url"
-                            value={categoryForm.image_url}
-                            onChange={handleCategoryFormChange}
-                            placeholder="Hoặc dán URL ảnh..."
-                            className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-xs font-medium transition-all"
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              name="image_url"
+                              value={categoryForm.image_url}
+                              onChange={handleCategoryFormChange}
+                              placeholder="Hoặc dán URL ảnh..."
+                              className="flex-1 px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-xs font-medium transition-all"
+                            />
+                            {categoryForm.image_url && (
+                              <button
+                                type="button"
+                                onClick={() => setIsCategoryMediaPickerOpen(true)}
+                                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                              >
+                                Đổi ảnh
+                              </button>
+                            )}
+                          </div>
                           <input
                             ref={categoryImageInputRef}
                             type="file"
@@ -2241,16 +2288,6 @@ export default function AdminDashboard() {
                             className="hidden"
                             onChange={handleCategoryImageUpload}
                           />
-                          {categoryForm.image_url && (
-                            <button
-                              type="button"
-                              onClick={() => categoryImageInputRef.current?.click()}
-                              disabled={isCategoryImageUploading}
-                              className="text-xs text-blue-600 hover:text-blue-700 font-medium text-left"
-                            >
-                              Thay ảnh khác
-                            </button>
-                          )}
                         </div>
                       </div>
 
@@ -3139,6 +3176,15 @@ export default function AdminDashboard() {
                                 }}
                               />
                             </label>
+
+                            <button
+                              type="button"
+                              onClick={() => setIsAboutImageMediaPickerOpen(true)}
+                              className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs shadow-sm transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <ImageIcon size={16} />
+                              <span>Chọn từ Thư viện</span>
+                            </button>
                           </div>
 
                           <input
@@ -3481,15 +3527,94 @@ export default function AdminDashboard() {
 
             {activeMenu === 'media' && (
               <div className="flex flex-col h-full animate-in fade-in duration-300">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <h1 className="text-2xl font-black text-gray-900">Thư viện Media</h1>
-                    <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý và lưu trữ hình ảnh trên hệ thống.</p>
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-2xl font-black text-gray-900">Thư viện Media</h1>
+                      <span className="bg-red-50 text-red-600 border border-red-200 text-xs font-black px-2.5 py-1 rounded-full">
+                        {mediaFiles.length} hình ảnh
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">
+                      Quản lý, đồng bộ và lưu trữ toàn bộ hình ảnh trên hệ thống S-BUILD (Banner, Sản phẩm, Dự án, Tin tức, Logo).
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={handleSyncAllMedia}
+                      className="px-4 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                      <RefreshCw size={15} />
+                      <span>Quét & Đồng bộ ảnh hệ thống</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-red-600/20 flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                      <UploadCloud size={15} />
+                      <span>Tải ảnh từ máy</span>
+                    </button>
                   </div>
                 </div>
 
+                {/* Filter Tabs & Search Bar */}
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mb-6 space-y-3">
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                    {[
+                      { key: 'all', label: 'Tất cả' },
+                      { key: 'banner', label: 'Banner / Slider' },
+                      { key: 'product', label: 'Sản phẩm & Vật tư' },
+                      { key: 'project', label: 'Dự án thi công' },
+                      { key: 'article', label: 'Bài viết & Tin tức' },
+                      { key: 'system', label: 'Giao diện & Giới thiệu' },
+                      { key: 'upload', label: 'Ảnh đã tải lên' }
+                    ].map(tab => {
+                      const count = tab.key === 'all' 
+                        ? mediaFiles.length 
+                        : mediaFiles.filter(f => f.source === tab.key).length;
+                      const isActive = mediaTab === tab.key;
+                      return (
+                        <button
+                          key={tab.key}
+                          type="button"
+                          onClick={() => setMediaTab(tab.key as MediaSourceType)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                            isActive 
+                              ? 'bg-red-600 text-white shadow-sm shadow-red-600/20' 
+                              : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200/70'
+                          }`}
+                        >
+                          <span>{tab.label}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                            isActive ? 'bg-red-700 text-white' : 'bg-white text-gray-500 border border-gray-200/60'
+                          }`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 border-t border-gray-100">
+                    <div className="relative flex-1 w-full">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                      <input 
+                        type="text"
+                        value={mediaSearchQuery}
+                        onChange={(e) => setMediaSearchQuery(e.target.value)}
+                        placeholder="Tìm kiếm hình ảnh theo tên, tiêu đề hoặc URL..."
+                        className="w-full pl-10 pr-4 py-2 bg-gray-50 rounded-xl border border-gray-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-xs font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Drag Drop Area */}
                 <div 
-                  className={`w-full p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer mb-8
+                  className={`w-full p-6 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer mb-6
                     ${isDragging ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
@@ -3509,66 +3634,136 @@ export default function AdminDashboard() {
                     onChange={(e) => handleMediaUpload(e.target.files)}
                   />
                   {isUploading ? (
-                    <div className="flex flex-col items-center">
-                      <Loader2 size={40} className="text-red-500 animate-spin mb-3" />
-                      <p className="text-sm font-bold text-gray-700">Đang tải ảnh lên...</p>
+                    <div className="flex flex-col items-center py-2">
+                      <Loader2 size={36} className="text-red-500 animate-spin mb-2" />
+                      <p className="text-sm font-bold text-gray-700">Đang đồng bộ ảnh vào hệ thống...</p>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
-                        <UploadCloud size={28} className="text-red-600" />
+                    <div className="flex flex-col items-center py-2">
+                      <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-2">
+                        <UploadCloud size={24} className="text-red-600" />
                       </div>
-                      <p className="text-base font-bold text-gray-900 mb-1">Kéo thả hình ảnh vào đây</p>
-                      <p className="text-sm text-gray-500 font-medium">hoặc click để chọn file từ máy tính</p>
+                      <p className="text-sm font-bold text-gray-900 mb-0.5">Kéo thả hình ảnh vào đây để nạp vào Thư viện</p>
+                      <p className="text-xs text-gray-500 font-medium">hoặc click để chọn file từ máy tính (Hỗ trợ JPG, PNG, WEBP)</p>
                     </div>
                   )}
                 </div>
 
+                {/* Media Gallery */}
                 {!mediaLoaded && mediaFiles.length === 0 ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 size={32} className="text-red-500 animate-spin" />
+                  <div className="flex flex-col items-center justify-center py-16">
+                    <Loader2 size={36} className="text-red-500 animate-spin mb-2" />
+                    <p className="text-xs font-bold text-gray-500">Đang quét toàn bộ hình ảnh trong hệ thống...</p>
                   </div>
                 ) : mediaFiles.length === 0 ? (
-                  <div className="text-center py-12 border border-gray-100 bg-white rounded-2xl">
+                  <div className="text-center py-16 border border-gray-100 bg-white rounded-2xl">
                     <ImageIcon size={48} className="mx-auto text-gray-300 mb-3" />
                     <h3 className="text-lg font-bold text-gray-900">Chưa có hình ảnh nào</h3>
-                    <p className="text-sm text-gray-500 mt-1">Hãy tải lên hình ảnh đầu tiên của bạn.</p>
+                    <p className="text-sm text-gray-500 mt-1">Bấm nút "Quét & Đồng bộ ảnh hệ thống" hoặc tải ảnh đầu tiên lên.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {mediaFiles.map((file, idx) => (
-                      <div key={idx} className="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all">
-                        <div className="aspect-square bg-gray-100 overflow-hidden relative">
-                          <img 
-                            src={file.url} 
-                            alt={file.name} 
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
-                            <button 
-                              onClick={() => copyToClipboard(file.url)}
-                              className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-md transition-colors"
-                              title="Copy URL"
-                            >
-                              <Copy size={18} />
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteMedia(file.path)}
-                              className="p-2.5 bg-red-500/80 hover:bg-red-600 text-white rounded-xl backdrop-blur-md transition-colors"
-                              title="Xóa"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
+                  (() => {
+                    const filteredList = mediaFiles.filter(f => {
+                      const matchesSearch = 
+                        f.name?.toLowerCase().includes(mediaSearchQuery.toLowerCase()) ||
+                        f.sourceTitle?.toLowerCase().includes(mediaSearchQuery.toLowerCase()) ||
+                        f.url.toLowerCase().includes(mediaSearchQuery.toLowerCase());
+                      if (!matchesSearch) return false;
+                      if (mediaTab === 'all') return true;
+                      return f.source === mediaTab;
+                    });
+
+                    if (filteredList.length === 0) {
+                      return (
+                        <div className="text-center py-12 border border-gray-100 bg-white rounded-2xl">
+                          <ImageIcon size={40} className="mx-auto text-gray-300 mb-2" />
+                          <h3 className="text-base font-bold text-gray-800">Không tìm thấy ảnh phù hợp</h3>
+                          <p className="text-xs text-gray-500 mt-1">Thử chọn tab "Tất cả" hoặc xóa bộ lọc tìm kiếm.</p>
                         </div>
-                        <div className="p-3">
-                          <p className="text-sm font-bold text-gray-900 truncate" title={file.name}>{file.name}</p>
-                          <p className="text-xs font-medium text-gray-500 mt-0.5">{formatFileSize(file.size)}</p>
-                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-5 pb-8">
+                        {filteredList.map((file, idx) => {
+                          const getBadge = () => {
+                            switch (file.source) {
+                              case 'banner':
+                                return <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-xs">Banner</span>;
+                              case 'product':
+                                return <span className="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-xs">Sản phẩm</span>;
+                              case 'project':
+                                return <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-xs">Dự án</span>;
+                              case 'article':
+                                return <span className="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-xs">Bài viết</span>;
+                              case 'category':
+                                return <span className="bg-purple-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-xs">Danh mục</span>;
+                              case 'system':
+                                return <span className="bg-slate-700 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-xs">Hệ thống</span>;
+                              case 'upload':
+                                return <span className="bg-indigo-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-xs">Tải lên</span>;
+                              default:
+                                return null;
+                            }
+                          };
+
+                          return (
+                            <div key={file.id || idx} className="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all flex flex-col">
+                              <div className="aspect-square bg-gray-100 overflow-hidden relative">
+                                <img 
+                                  src={file.url} 
+                                  alt={file.name} 
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  loading="lazy"
+                                />
+
+                                {/* Source Tag */}
+                                <div className="absolute top-2 left-2 pointer-events-none z-10">
+                                  {getBadge()}
+                                </div>
+
+                                {/* Hover action buttons */}
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-xs">
+                                  <button 
+                                    onClick={() => setMediaPreviewImage(file)}
+                                    className="p-2.5 bg-white/20 hover:bg-white text-white hover:text-black rounded-xl backdrop-blur-md transition-colors cursor-pointer"
+                                    title="Xem ảnh lớn"
+                                  >
+                                    <Eye size={16} />
+                                  </button>
+                                  <button 
+                                    onClick={() => copyToClipboard(file.url)}
+                                    className="p-2.5 bg-white/20 hover:bg-white text-white hover:text-black rounded-xl backdrop-blur-md transition-colors cursor-pointer"
+                                    title="Copy liên kết ảnh"
+                                  >
+                                    <Copy size={16} />
+                                  </button>
+                                  {file.source === 'upload' && (
+                                    <button 
+                                      onClick={() => handleDeleteMedia(file)}
+                                      className="p-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl backdrop-blur-md transition-colors cursor-pointer"
+                                      title="Xóa ảnh này"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="p-3 bg-white flex flex-col justify-between flex-1">
+                                <p className="text-xs font-bold text-gray-900 truncate" title={file.sourceTitle || file.name}>
+                                  {file.sourceTitle || file.name}
+                                </p>
+                                <div className="flex items-center justify-between mt-1 text-[10px] text-gray-400 font-medium">
+                                  <span className="truncate max-w-[120px]">{file.name}</span>
+                                  <span>{formatFileSize(file.size)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })()
                 )}
               </div>
             )}
@@ -3738,6 +3933,67 @@ export default function AdminDashboard() {
           setIsProjectModalOpen(false);
         }}
       />
+
+      {/* Media Picker Modal cho Logo */}
+      <MediaPickerModal
+        isOpen={isLogoMediaPickerOpen}
+        onClose={() => setIsLogoMediaPickerOpen(false)}
+        onSelect={(urls) => {
+          if (urls && urls[0]) {
+            setSettingsForm(prev => ({ ...prev, logoUrl: urls[0] }));
+            showToast('Đã chọn Logo từ Thư viện!');
+          }
+        }}
+        contextData={{ banners, products, projects: adminProjects, posts, categories, settings: settingsForm }}
+      />
+
+      {/* Media Picker Modal cho Ảnh Giới Thiệu Doanh Nghiệp */}
+      <MediaPickerModal
+        isOpen={isAboutImageMediaPickerOpen}
+        onClose={() => setIsAboutImageMediaPickerOpen(false)}
+        onSelect={(urls) => {
+          if (urls && urls[0]) {
+            setSettingsForm(prev => ({ ...prev, aboutImageUrl: urls[0] }));
+            showToast('Đã chọn Ảnh Giới thiệu từ Thư viện!');
+          }
+        }}
+        contextData={{ banners, products, projects: adminProjects, posts, categories, settings: settingsForm }}
+      />
+
+      {/* Media Picker Modal cho Danh Mục Sản Phẩm */}
+      <MediaPickerModal
+        isOpen={isCategoryMediaPickerOpen}
+        onClose={() => setIsCategoryMediaPickerOpen(false)}
+        onSelect={(urls) => {
+          if (urls && urls[0]) {
+            setCategoryForm(prev => ({ ...prev, image_url: urls[0] }));
+            showToast('Đã chọn ảnh Danh mục từ Thư viện!');
+          }
+        }}
+        contextData={{ banners, products, projects: adminProjects, posts, categories, settings: settingsForm }}
+      />
+
+      {/* Lightbox Xem Ảnh Lớn */}
+      {mediaPreviewImage && (
+        <div 
+          className="fixed inset-0 z-[250] bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setMediaPreviewImage(null)}
+        >
+          <div className="max-w-4xl max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col p-4 relative" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setMediaPreviewImage(null)}
+              className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+            <img src={mediaPreviewImage.url} alt={mediaPreviewImage.name} className="max-h-[75vh] object-contain rounded-xl" />
+            <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
+              <span className="font-bold">{mediaPreviewImage.sourceTitle || mediaPreviewImage.name}</span>
+              <span className="text-gray-400 font-mono text-[11px] truncate max-w-md">{mediaPreviewImage.url}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

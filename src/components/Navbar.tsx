@@ -19,6 +19,7 @@ export const DEFAULT_MATERIAL_CATEGORIES = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const [categories, setCategories] = useState<any[]>(DEFAULT_MATERIAL_CATEGORIES);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
 
@@ -115,8 +116,13 @@ export default function Navbar() {
       <div className="max-w-7xl h-full mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         {/* Brand Logo */}
         <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.location.href = '/'}>
-          {settings.logoUrl ? (
-            <img src={settings.logoUrl} alt={settings.companyName} className="h-10 w-auto object-contain transition-transform group-hover:scale-105" />
+          {settings.logoUrl && !settings.logoUrl.startsWith('blob:') && !logoError ? (
+            <img 
+              src={settings.logoUrl} 
+              alt={settings.companyName || 'SBUILD'} 
+              onError={() => setLogoError(true)}
+              className="h-10 w-auto object-contain transition-transform group-hover:scale-105" 
+            />
           ) : (
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-tr from-red-600 to-rose-500 text-white flex items-center justify-center rounded-xl shadow-md shadow-red-500/20 transition-transform group-hover:rotate-3">

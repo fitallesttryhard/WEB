@@ -135,7 +135,8 @@ const isLegacyText = (val: any): boolean => {
   const normalized = str.toLowerCase().replace(/[^a-z0-9]/g, '');
   return (
     normalized.includes('fitallest') ||
-    normalized.includes('0909876817')
+    normalized.includes('0909876817') ||
+    normalized.includes('kientaokhonggiansong')
   );
 };
 
@@ -146,7 +147,6 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
   useEffect(() => {
     async function fetchTenantSettings() {
       try {
-        // 1. Fetch tenant metadata (status, subdomain, plan) from Supabase or localStorage
         let tenantStatus: 'active' | 'locked' = 'active';
         let tenantSubdomain = 'sbuild';
         let tenantPlan = 'Enterprise';
@@ -164,8 +164,15 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             });
             // Never allow stale legacy banner cache to override live Supabase banners
             if (parsed.banners && Array.isArray(parsed.banners)) {
-              parsed.banners = parsed.banners.filter((b: any) => !isLegacyText(b) && b.heading !== 'KIẾN TẠO KHÔNG GIAN SỐNG');
+              parsed.banners = parsed.banners.filter((b: any) => {
+                if (isLegacyText(b)) return false;
+                const h = (b.heading || '').toLowerCase();
+                return !h.includes('không gian sống') && !h.includes('khong gian song');
+              });
               if (parsed.banners.length === 0) delete parsed.banners;
+            }
+            if (parsed.logoUrl && typeof parsed.logoUrl === 'string' && parsed.logoUrl.startsWith('blob:')) {
+              delete parsed.logoUrl;
             }
             localCustomSettings = parsed;
             localStorage.setItem('sbuild_site_custom_settings', JSON.stringify(localCustomSettings));
@@ -185,34 +192,16 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           } catch (e) {}
         }
 
-        // 2. Fetch tenant_settings table from Supabase for this specific tenant
+        // 2. Fetch tenant_settings table from Supabase specifically for SBUILD tenant
+        const SBUILD_TENANT_ID = '00000000-0000-0000-0000-000000000002';
         let tenantRecord: any = null;
-        let activeTenantId: string | null = null;
 
-        const { data: tenant } = await supabase
-          .from('tenants')
-          .select('id, subdomain, status')
-          .eq('subdomain', tenantSubdomain)
+        const { data: tenantSetting } = await supabase
+          .from('tenant_settings')
+          .select('*')
+          .eq('tenant_id', SBUILD_TENANT_ID)
           .maybeSingle();
-
-        if (tenant?.id) {
-          activeTenantId = tenant.id;
-          const { data: tenantSetting } = await supabase
-            .from('tenant_settings')
-            .select('*')
-            .eq('tenant_id', tenant.id)
-            .maybeSingle();
-          tenantRecord = tenantSetting;
-        }
-
-        if (!tenantRecord) {
-          const { data: fallbackSetting } = await supabase
-            .from('tenant_settings')
-            .select('*')
-            .eq('tenant_id', '00000000-0000-0000-0000-000000000002')
-            .maybeSingle();
-          tenantRecord = fallbackSetting;
-        }
+        tenantRecord = tenantSetting;
 
         const data = tenantRecord;
 
@@ -265,10 +254,15 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           const rawBlocks = Array.isArray(fc) ? fc : (fc.blocks || []);
           const finalBlocks = Array.isArray(rawBlocks) && rawBlocks.length > 0 ? rawBlocks : DEFAULT_FOOTER_BLOCKS;
 
+          let safeLogoUrl = data.logo_url || prev.logoUrl || '';
+          if (typeof safeLogoUrl === 'string' && safeLogoUrl.startsWith('blob:')) {
+            safeLogoUrl = '';
+          }
+
           setSettings((prev) => ({
             ...prev,
             brandColor: (data.brand_color && data.brand_color !== '#6366f1') ? data.brand_color : '#dc2626',
-            logoUrl: data.logo_url || prev.logoUrl,
+            logoUrl: safeLogoUrl,
             companyName,
             companyDescription: fc.companyDescription || prev.companyDescription,
             aboutImageUrl: fc.aboutImageUrl || data.about_image_url || localCustomSettings.aboutImageUrl || prev.aboutImageUrl,
@@ -341,7 +335,11 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const updateSettings = async (newSettings: Partial<TenantSettings>) => {
     setSettings((prev) => {
-      const updated = { ...prev, ...newSettings };
+      const sanitizedSettings = { ...newSettings };
+      if (typeof sanitizedSettings.logoUrl === 'string' && sanitizedSettings.logoUrl.startsWith('blob:')) {
+        sanitizedSettings.logoUrl = '';
+      }
+      const updated = { ...prev, ...sanitizedSettings };
 
       // Save to localStorage for instant local site override (compact banner URLs)
       try {
