@@ -249,13 +249,8 @@ export default function Navbar() {
             </div>
           </div>
           
-          <a href="/projects" className="hover:text-red-600 transition-colors py-2 relative group">
-            Dự án
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
-          </a>
-
           <a href="/blog" className="hover:text-red-600 transition-colors py-2 relative group">
-            Tin tức
+            Cẩm nang & Kinh nghiệm
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full"></span>
           </a>
 
@@ -346,8 +341,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <a href="/projects" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Dự án</a>
-          <a href="/blog" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Tin tức</a>
+          <a href="/blog" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Cẩm nang & Kinh nghiệm</a>
           <a href="/contact" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Liên hệ</a>
           
           <a 

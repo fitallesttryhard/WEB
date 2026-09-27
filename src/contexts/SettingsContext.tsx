@@ -54,8 +54,8 @@ const defaultSbuildBanners = [
     image_url: '/images/banners/banner-1789704310932.png',
     heading: 'CHỈNH CHU TRONG TỪNG CÔNG TRÌNH',
     subheading: 'Lựa chọn đúng vật liệu hoàn thiện giúp hiện thực hóa thiết kế với độ chính xác và tính đồng bộ cao.',
-    cta_text: 'KHÁM PHÁ DỰ ÁN',
-    cta_link: '/projects',
+    cta_text: 'KHÁM PHÁ CẨM NANG',
+    cta_link: '/blog',
     layout_type: 'minimal',
     prop_1: 'Chuẩn CO/CQ Kiểm Định',
     prop_2: 'Giao Hàng Công Trình 24/7',
@@ -88,9 +88,8 @@ export const DEFAULT_FOOTER_BLOCKS = [
       { id: '1', label: 'Trang chủ', url: '/' },
       { id: '2', label: 'Giới thiệu công ty', url: '/about' },
       { id: '3', label: 'Danh mục sản phẩm', url: '/products' },
-      { id: '4', label: 'Dự án đã thi công', url: '/projects' },
-      { id: '5', label: 'Tin tức & Sự kiện', url: '/blog' },
-      { id: '6', label: 'Liên hệ', url: '/contact' }
+      { id: '4', label: 'Cẩm nang & Kinh nghiệm', url: '/blog' },
+      { id: '5', label: 'Liên hệ', url: '/contact' }
     ]
   },
   {
@@ -254,15 +253,15 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           const rawBlocks = Array.isArray(fc) ? fc : (fc.blocks || []);
           const finalBlocks = Array.isArray(rawBlocks) && rawBlocks.length > 0 ? rawBlocks : DEFAULT_FOOTER_BLOCKS;
 
-          let safeLogoUrl = data.logo_url || prev.logoUrl || '';
-          if (typeof safeLogoUrl === 'string' && safeLogoUrl.startsWith('blob:')) {
-            safeLogoUrl = '';
-          }
-
-          setSettings((prev) => ({
-            ...prev,
-            brandColor: (data.brand_color && data.brand_color !== '#6366f1') ? data.brand_color : '#dc2626',
-            logoUrl: safeLogoUrl,
+          setSettings((prev) => {
+            let safeLogoUrl = data.logo_url || prev.logoUrl || '';
+            if (typeof safeLogoUrl === 'string' && safeLogoUrl.startsWith('blob:')) {
+              safeLogoUrl = '';
+            }
+            return {
+              ...prev,
+              brandColor: (data.brand_color && data.brand_color !== '#6366f1') ? data.brand_color : '#dc2626',
+              logoUrl: safeLogoUrl,
             companyName,
             companyDescription: fc.companyDescription || prev.companyDescription,
             aboutImageUrl: fc.aboutImageUrl || data.about_image_url || localCustomSettings.aboutImageUrl || prev.aboutImageUrl,
@@ -281,7 +280,8 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
             aboutPageConfig: fc.aboutPageConfig || localCustomSettings.aboutPageConfig || DEFAULT_ABOUT_PAGE_CONFIG,
             ...localCustomSettings,
             banners: cleanBanners,
-          }));
+          };
+        });
         } else {
           setSettings((prev) => ({
             ...prev,

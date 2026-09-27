@@ -138,8 +138,8 @@ export default function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="/projects" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
-                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Dự án đã thi công
+                  <a href="/blog" className="text-slate-400 hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5 group">
+                    <ChevronRight size={12} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" /> Cẩm nang & Kinh nghiệm
                   </a>
                 </li>
                 <li>

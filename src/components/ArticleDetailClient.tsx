@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 
@@ -23,10 +23,10 @@ export default function ArticleDetailClient({ post, brandName = 'Sbuild' }: Arti
     <div className="bg-white min-h-screen pt-28 pb-24 selection:bg-gray-200 selection:text-gray-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center">
         <a href="/blog" className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors mb-10">
-          <ArrowLeft size={16} /> Quay lại danh sách bài viết
+          <ArrowLeft size={16} /> Quay lại Cẩm nang & Kinh nghiệm
         </a>
         <span className="block text-sm font-bold text-red-600 uppercase tracking-widest mb-6">
-          {post.category || 'Tin tức & Dự án'}
+          {post.category || 'Cẩm nang & Kinh nghiệm'}
         </span>
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-[1.1] mb-10 max-w-4xl mx-auto">
           {post.title}
@@ -56,7 +56,7 @@ export default function ArticleDetailClient({ post, brandName = 'Sbuild' }: Arti
         />
         <div className="mt-16 pt-8 border-t border-gray-100 flex justify-between items-center">
           <a href="/blog" className="inline-flex items-center gap-2 font-bold text-red-600 hover:underline">
-            <ArrowLeft size={16} /> Xem các bài viết khác
+            <ArrowLeft size={16} /> Xem các cẩm nang khác
           </a>
         </div>
       </div>

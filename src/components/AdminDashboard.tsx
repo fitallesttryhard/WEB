@@ -41,6 +41,13 @@ import {
   extractConstructionCategories, 
   encodeProductTags 
 } from '../constructionServices';
+import {
+  getSubcategoriesMap,
+  saveSubcategoriesMap,
+  getSubcategoriesForCategory,
+  extractSubcategory,
+  DEFAULT_SUBCATEGORIES
+} from '../subcategoryServices';
 
 const mockCategories = [
   { id: '1', name: 'Nẹp nhôm & Inox', slug: 'nep-nhom-inox', count: 12, description: 'Các loại nẹp trang trí hợp kim nhôm và inox 304.' },
@@ -177,7 +184,16 @@ export default function AdminDashboard() {
   const [selectedPosts, setSelectedPosts] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
   const [selectedPostCategories, setSelectedPostCategories] = useState<any[]>([]);
-  const [categoryForm, setCategoryForm] = useState({ id: null as any, name: '', slug: '', description: '', image_url: '' });
+  const [categoryForm, setCategoryForm] = useState({ 
+    id: null as any, 
+    name: '', 
+    slug: '', 
+    description: '', 
+    image_url: '',
+    subcategories: [] as string[]
+  });
+  const [subcategoriesMap, setSubcategoriesMap] = useState<Record<string, string[]>>({});
+  const [newSubcategoryInput, setNewSubcategoryInput] = useState('');
   const [isCategoryImageUploading, setIsCategoryImageUploading] = useState(false);
   const categoryImageInputRef = React.useRef<HTMLInputElement>(null);
   const [isCategorySlugEdited, setIsCategorySlugEdited] = useState(false);
@@ -454,6 +470,9 @@ export default function AdminDashboard() {
       const ccList = await getConstructionCategories();
       setConstructionCategories(ccList);
 
+      const subMap = await getSubcategoriesMap();
+      setSubcategoriesMap(subMap);
+
       const { data: settingsData, error: settingsError } = await supabase.from('tenant_settings').select('*').eq('tenant_id', SBUILD_TENANT_ID).limit(1).maybeSingle();
       if (settingsData && !settingsError) {
         const config = settingsData.config || {};
@@ -510,6 +529,7 @@ export default function AdminDashboard() {
           name: p.name,
           category: p.categories?.name || 'Chưa phân loại',
           categoryId: p.category_id,
+          subcategory: extractSubcategory(p.tags, p.name, p.categories?.name, subMap[p.categories?.name || ''] || []),
           construction_categories: extractConstructionCategories(p.tags, ccList),
           is_hot: p.is_hot,
           image: p.thumbnail_url || p.image_url,
@@ -689,7 +709,8 @@ export default function AdminDashboard() {
     const selectedCat = categories.find(c => c.id.toString() === formData.categoryId);
     const imageUrl = formData.thumbnailUrl || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=150&auto=format&fit=crop';
     const constructionCats = formData.constructionCategories || [];
-    const encodedTags = encodeProductTags(formData.tags, constructionCats);
+    const subcat = formData.subcategory || '';
+    const encodedTags = encodeProductTags(formData.tags, constructionCats, subcat);
     
     if (formData.id) {
       // Update
@@ -697,6 +718,7 @@ export default function AdminDashboard() {
         ...formData,
         id: formData.id,
         category: selectedCat?.name || 'Chưa phân loại',
+        subcategory: subcat,
         construction_categories: constructionCats,
         is_hot: formData.isHot,
         specs: formData.specs,
@@ -712,7 +734,7 @@ export default function AdminDashboard() {
           name: formData.name,
           category_id: formData.categoryId,
           is_hot: formData.isHot,
-        specs: formData.specs,
+          specs: formData.specs,
           image_url: imageUrl,
           slug: formData.slug,
           seo_title: formData.seoTitle,
@@ -737,6 +759,7 @@ export default function AdminDashboard() {
         ...formData,
         id: Date.now(),
         category: selectedCat?.name || 'Chưa phân loại',
+        subcategory: subcat,
         construction_categories: constructionCats,
         is_hot: formData.isHot,
         specs: formData.specs,
@@ -1199,6 +1222,27 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAddSubcategoryToForm = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e && 'key' in e && e.key !== 'Enter') return;
+    if (e && 'preventDefault' in e) e.preventDefault();
+    const val = newSubcategoryInput.trim();
+    if (!val) return;
+    if (!categoryForm.subcategories.includes(val)) {
+      setCategoryForm(prev => ({
+        ...prev,
+        subcategories: [...prev.subcategories, val]
+      }));
+    }
+    setNewSubcategoryInput('');
+  };
+
+  const handleRemoveSubcategoryFromForm = (sub: string) => {
+    setCategoryForm(prev => ({
+      ...prev,
+      subcategories: prev.subcategories.filter(s => s !== sub)
+    }));
+  };
+
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryForm.name) {
@@ -1207,6 +1251,20 @@ export default function AdminDashboard() {
     }
     
     const slug = categoryForm.slug || toSlug(categoryForm.name);
+
+    // Lưu subcategories vào subcategoriesMap
+    const updatedSubMap = {
+      ...subcategoriesMap,
+      [categoryForm.name]: categoryForm.subcategories || []
+    };
+    if (categoryForm.id) {
+      const oldCat = categories.find(c => c.id === categoryForm.id);
+      if (oldCat && oldCat.name !== categoryForm.name && updatedSubMap[oldCat.name]) {
+        delete updatedSubMap[oldCat.name];
+      }
+    }
+    setSubcategoriesMap(updatedSubMap);
+    saveSubcategoriesMap(updatedSubMap);
 
     if (categoryForm.id) {
       setCategories(categories.map(c => c.id === categoryForm.id ? { ...categoryForm, count: c.count || 0 } : c));
@@ -1246,23 +1304,34 @@ export default function AdminDashboard() {
         console.warn('Lỗi insert category:', err);
       }
     }
-    setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '' });
+    setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '', subcategories: [] });
+    setNewSubcategoryInput('');
     setIsCategorySlugEdited(false);
   };
 
   const handleEditCategory = (cat: any) => {
+    const existingSubs = subcategoriesMap[cat.name] || getSubcategoriesForCategory(cat.name, subcategoriesMap);
     setCategoryForm({
       id: cat.id,
       name: cat.name,
       slug: cat.slug || toSlug(cat.name),
       description: cat.description || '',
-      image_url: cat.image_url || ''
+      image_url: cat.image_url || '',
+      subcategories: existingSubs ? [...existingSubs] : []
     });
+    setNewSubcategoryInput('');
     setIsCategorySlugEdited(true);
   };
 
   const handleDeleteCategory = async (id: any) => {
     if (!confirm("Bạn có chắc muốn xóa danh mục này?")) return;
+    const catToDelete = categories.find(c => c.id === id);
+    if (catToDelete && subcategoriesMap[catToDelete.name]) {
+      const updatedSubMap = { ...subcategoriesMap };
+      delete updatedSubMap[catToDelete.name];
+      setSubcategoriesMap(updatedSubMap);
+      saveSubcategoriesMap(updatedSubMap);
+    }
     setCategories(categories.filter(c => c.id !== id));
     showToast('Đã xóa danh mục!');
     try {
@@ -1685,6 +1754,12 @@ export default function AdminDashboard() {
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
                                 {product.category}
                               </span>
+                              {product.subcategory && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200" title="Danh mục con">
+                                  <span className="text-amber-500 font-normal">↳</span>
+                                  {product.subcategory}
+                                </span>
+                              )}
                               {product.construction_categories && product.construction_categories.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-0.5">
                                   {product.construction_categories.map((cc: string, cIdx: number) => (
@@ -1757,15 +1832,15 @@ export default function AdminDashboard() {
               <>
                 <div className="flex justify-between items-end mb-8">
                   <div>
-                    <h1 className="text-2xl font-black text-gray-900">Quản lý Bài viết</h1>
-                    <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách, nội dung và trạng thái của các bài viết.</p>
+                    <h1 className="text-2xl font-black text-gray-900">Cẩm nang & Kinh nghiệm thi công</h1>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách, nội dung và trạng thái cẩm nang kỹ thuật.</p>
                   </div>
                   <button 
                     onClick={handleAddNewPost}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95"
+                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 cursor-pointer"
                   >
                     <Plus size={18} />
-                    Viết bài mới
+                    Viết cẩm nang mới
                   </button>
                 </div>
 
@@ -2247,11 +2322,73 @@ export default function AdminDashboard() {
                           name="description"
                           value={categoryForm.description}
                           onChange={handleCategoryFormChange}
-                          rows={4}
+                          rows={3}
                           placeholder="Mô tả ngắn gọn về danh mục này..."
                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-sm font-medium transition-all resize-none"
                         />
                       </div>
+
+                      {/* Danh mục con (Chủng loại chi tiết) */}
+                      <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider">
+                            Danh mục con (Chủng loại chi tiết)
+                          </label>
+                          <span className="text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                            {categoryForm.subcategories.length} nhóm
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 mb-2.5 leading-relaxed font-medium">
+                          Dùng để gom nhóm và hiển thị sản phẩm theo từng nhóm con khi khách hàng xem danh mục vật tư này (ví dụ: Nẹp nhôm chữ V, Nẹp nhôm chữ U,...).
+                        </p>
+
+                        {/* List of subcategory chips */}
+                        {categoryForm.subcategories.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-2.5 max-h-36 overflow-y-auto p-1 bg-white rounded-lg border border-gray-200">
+                            {categoryForm.subcategories.map((sub, sIdx) => (
+                              <span 
+                                key={sIdx} 
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 group"
+                              >
+                                <span>{sub}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveSubcategoryFromForm(sub)}
+                                  className="text-amber-500 hover:text-red-600 hover:bg-amber-100 rounded p-0.5 transition-colors cursor-pointer"
+                                  title="Xóa danh mục con này"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Input to add new subcategory */}
+                        <div className="flex gap-1.5">
+                          <input 
+                            type="text" 
+                            value={newSubcategoryInput}
+                            onChange={(e) => setNewSubcategoryInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddSubcategoryToForm();
+                              }
+                            }}
+                            placeholder="Nhập tên danh mục con rồi ấn Thêm..."
+                            className="flex-1 px-3 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-xs font-medium transition-all"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddSubcategoryToForm}
+                            className="px-3 py-2 bg-slate-900 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+                          >
+                            <Plus size={13} /> Thêm
+                          </button>
+                        </div>
+                      </div>
+
                       {/* Image Upload */}
                       <div>
                         <label className="block text-sm font-bold text-gray-700 mb-1.5">Ảnh danh mục</label>
@@ -2328,7 +2465,8 @@ export default function AdminDashboard() {
                           <button 
                             type="button"
                             onClick={() => {
-                              setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '' });
+                              setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '', subcategories: [] });
+                              setNewSubcategoryInput('');
                               setIsCategorySlugEdited(false);
                             }}
                             className="flex-1 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 py-2.5 rounded-xl font-bold text-sm transition-all"
@@ -2373,66 +2511,91 @@ export default function AdminDashboard() {
                           </th>
                           <th className="px-5 py-4">Ảnh</th>
                           <th className="px-5 py-4">Tên danh mục</th>
+                          <th className="px-5 py-4">Danh mục con</th>
                           <th className="px-5 py-4">Mô tả</th>
                           <th className="px-5 py-4 text-center">Số lượng</th>
                           <th className="px-5 py-4 text-right">Hành động</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {categories.map((cat) => (
-                          <tr key={cat.id} className={`transition-colors ${selectedCategories.includes(cat.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
-                            <td className="px-5 py-4">
-                              <input 
-                                type="checkbox" 
-                                checked={selectedCategories.includes(cat.id)}
-                                onChange={() => handleSelectCategory(cat.id)}
-                                className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
-                              />
-                            </td>
-                            <td className="px-5 py-4">
-                              {cat.image_url ? (
-                                <img src={cat.image_url} alt={cat.name} className="w-12 h-12 rounded-lg object-cover border border-gray-100" />
-                              ) : (
-                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
-                                  <ImageIcon size={16} className="text-gray-400" />
+                        {categories.map((cat) => {
+                          const subs = subcategoriesMap[cat.name] || getSubcategoriesForCategory(cat.name, subcategoriesMap) || [];
+                          return (
+                            <tr key={cat.id} className={`transition-colors ${selectedCategories.includes(cat.id) ? 'bg-red-50/50' : 'hover:bg-gray-50/50'}`}>
+                              <td className="px-5 py-4">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedCategories.includes(cat.id)}
+                                  onChange={() => handleSelectCategory(cat.id)}
+                                  className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
+                                />
+                              </td>
+                              <td className="px-5 py-4">
+                                {cat.image_url ? (
+                                  <img src={cat.image_url} alt={cat.name} className="w-12 h-12 rounded-lg object-cover border border-gray-100" />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <ImageIcon size={16} className="text-gray-400" />
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-5 py-4">
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-sm text-gray-900">{cat.name}</span>
+                                  <span className="text-[11px] font-medium text-gray-400 mt-0.5">{cat.slug}</span>
                                 </div>
-                              )}
-                            </td>
-                            <td className="px-5 py-4">
-                              <div className="flex flex-col">
-                                <span className="font-bold text-sm text-gray-900">{cat.name}</span>
-                                <span className="text-[11px] font-medium text-gray-400 mt-0.5">{cat.slug}</span>
-                              </div>
-                            </td>
-                            <td className="px-5 py-4 max-w-[200px]">
-                              <p className="text-sm font-medium text-gray-500 line-clamp-2">{cat.description || '—'}</p>
-                            </td>
-                            <td className="px-5 py-4 text-center">
-                              <span className="inline-flex items-center justify-center px-2 py-1 rounded bg-gray-100 text-gray-600 text-xs font-bold">
-                                {cat.count || 0}
-                              </span>
-                            </td>
-                            <td className="px-5 py-4">
-                              <div className="flex items-center justify-end gap-1.5">
-                                <button 
-                                  onClick={() => handleEditCategory(cat)}
-                                  className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
-                                >
-                                  <Edit size={15} />
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteCategory(cat.id)}
-                                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Xóa"
-                                >
-                                  <Trash2 size={15} />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
+                              </td>
+                              <td className="px-5 py-4 max-w-[220px]">
+                                {subs.length === 0 ? (
+                                  <span className="text-xs text-gray-400 italic">Chưa có danh mục con</span>
+                                ) : (
+                                  <div className="flex flex-col gap-1">
+                                    <div className="flex flex-wrap gap-1">
+                                      {subs.slice(0, 3).map((s, idx) => (
+                                        <span key={idx} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                                          {s}
+                                        </span>
+                                      ))}
+                                      {subs.length > 3 && (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600">
+                                          +{subs.length - 3}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-[10px] text-gray-400 font-medium">{subs.length} nhóm con</span>
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-5 py-4 max-w-[200px]">
+                                <p className="text-sm font-medium text-gray-500 line-clamp-2">{cat.description || '—'}</p>
+                              </td>
+                              <td className="px-5 py-4 text-center">
+                                <span className="inline-flex items-center justify-center px-2 py-1 rounded bg-gray-100 text-gray-600 text-xs font-bold">
+                                  {cat.count || 0}
+                                </span>
+                              </td>
+                              <td className="px-5 py-4">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button 
+                                    onClick={() => handleEditCategory(cat)}
+                                    className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
+                                  >
+                                    <Edit size={15} />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteCategory(cat.id)}
+                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Xóa"
+                                  >
+                                    <Trash2 size={15} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
                         {categories.length === 0 && (
                           <tr>
-                            <td colSpan={6} className="px-5 py-8 text-center text-gray-500 font-medium">Chưa có danh mục nào.</td>
+                            <td colSpan={7} className="px-5 py-8 text-center text-gray-500 font-medium">Chưa có danh mục nào.</td>
                           </tr>
                         )}
                       </tbody>
@@ -2445,8 +2608,8 @@ export default function AdminDashboard() {
             {activeMenu === 'post_categories' && (
               <div className="flex flex-col h-full animate-in fade-in duration-300">
                 <div className="mb-8">
-                  <h1 className="text-2xl font-black text-gray-900">Chuyên mục Bài viết</h1>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Tạo và phân loại các chuyên mục cho bài viết/tin tức.</p>
+                  <h1 className="text-2xl font-black text-gray-900">Chuyên mục Cẩm nang</h1>
+                  <p className="text-sm text-gray-500 mt-1 font-medium">Tạo và phân loại các chuyên mục cho cẩm nang & kinh nghiệm thi công.</p>
                 </div>
                 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -2600,128 +2763,7 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {activeMenu === 'projects' && (
-              <div className="animate-in fade-in duration-300">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h1 className="text-2xl font-black text-gray-900">Quản lý Dự án thi công</h1>
-                    <p className="text-sm text-gray-500 mt-1 font-medium">Quản lý danh sách các công trình tiêu biểu đã cung ứng vật tư SBUILD.</p>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      setProjectForm({ id: null, title: '', category: 'Chung cư cao cấp', location: '', scale: '', image: '', materials: '', description: '' });
-                      setIsProjectModalOpen(true);
-                    }}
-                    className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] flex items-center gap-2 active:scale-95 cursor-pointer"
-                  >
-                    <Plus size={18} />
-                    Thêm Dự án mới
-                  </button>
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50/50 border-b border-gray-100 text-xs uppercase tracking-wider font-bold text-gray-500">
-                        <th className="px-6 py-4 w-16">STT</th>
-                        <th className="px-6 py-4">Tên Dự án</th>
-                        <th className="px-6 py-4">Loại hình</th>
-                        <th className="px-6 py-4">Vị trí & Quy mô</th>
-                        <th className="px-6 py-4">Vật tư cung ứng</th>
-                        <th className="px-6 py-4 text-right">Hành động</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {adminProjects.map((proj, idx) => (
-                        <tr key={proj.id || idx} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-4 font-bold text-sm text-gray-400">{idx + 1}</td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={proj.image || proj.image_url || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop'} 
-                                alt={proj.title} 
-                                className="w-16 h-12 rounded-lg object-cover border border-gray-100 shadow-xs shrink-0"
-                              />
-                              <div>
-                                <h4 className="font-bold text-sm text-gray-900 line-clamp-1">{proj.title}</h4>
-                                <p className="text-[11px] text-gray-400 font-medium line-clamp-1">{proj.description}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="bg-red-50 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md border border-red-100 whitespace-nowrap">
-                              {proj.category}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-xs font-medium text-gray-600">
-                            <p className="font-bold text-gray-900">{proj.location}</p>
-                            <p className="text-gray-400 mt-0.5">{proj.scale}</p>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-wrap gap-1 max-w-[250px]">
-                              {(Array.isArray(proj.materials) ? proj.materials : String(proj.materials || '').split(',')).map((m: any, i: number) => (
-                                <span key={i} className="text-[10px] font-semibold bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
-                                  {m.trim()}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center justify-end gap-2">
-                              <button 
-                                onClick={() => {
-                                  setProjectForm({
-                                    id: proj.id,
-                                    title: proj.title,
-                                    category: proj.category,
-                                    location: proj.location,
-                                    scale: proj.scale,
-                                    image: proj.image || proj.image_url,
-                                    materials: Array.isArray(proj.materials) ? proj.materials.join(', ') : proj.materials,
-                                    description: proj.description
-                                  });
-                                  setIsProjectModalOpen(true);
-                                }}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Chỉnh sửa"
-                              >
-                                <Edit size={16} />
-                              </button>
-                              <button 
-                                onClick={async () => {
-                                  if (confirm(`Bạn có chắc muốn xóa dự án "${proj.title}"?`)) {
-                                    const ok = await deleteProject(proj.id);
-                                    if (ok) {
-                                      setAdminProjects(prev => prev.filter(p => p.id !== proj.id));
-                                      showToast('Đã xóa dự án thành công.');
-                                    } else {
-                                      showToast('Lỗi khi xóa dự án!');
-                                    }
-                                  }
-                                }}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Xóa"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                      {adminProjects.length === 0 && (
-                        <tr>
-                          <td colSpan={6} className="px-6 py-8 text-center text-gray-500 font-medium">
-                            Chưa có dự án nào. Bấm "Thêm Dự án mới" để bắt đầu.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'projects', 'media', 'appearance', 'settings', 'about_page'].includes(activeMenu) && (
+            {!['dashboard', 'products', 'posts', 'pages', 'banners', 'categories', 'post_categories', 'orders', 'media', 'appearance', 'settings', 'about_page'].includes(activeMenu) && (
               <div>
                 <h1 className="text-2xl font-black text-gray-900 mb-2 capitalize">{activeMenu}</h1>
                 <p className="text-sm text-gray-500 font-medium mb-8">Phân hệ quản lý {activeMenu}.</p>

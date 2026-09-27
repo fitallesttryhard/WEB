@@ -10,9 +10,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-red-200 selection:text-red-900 overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-red-200 selection:text-red-900 overflow-x-clip">
       <Navbar />
-      {children}
+      <main className="flex-1 flex flex-col w-full relative">
+        {children}
+      </main>
       <Footer />
       <CartDrawer />
       <FloatingWidgets onOpenCatalogModal={() => setIsCatalogModalOpen(true)} />

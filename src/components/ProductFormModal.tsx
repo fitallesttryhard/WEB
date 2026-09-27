@@ -8,6 +8,11 @@ import {
   ConstructionCategory, 
   extractConstructionCategories 
 } from '../constructionServices';
+import { 
+  getSubcategoriesMap, 
+  getSubcategoriesForCategory, 
+  extractSubcategory 
+} from '../subcategoryServices';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -35,6 +40,7 @@ export default function ProductFormModal({
     id: undefined as number | undefined,
     name: '',
     categoryId: '',
+    subcategory: '',
     constructionCategories: [] as string[],
     slug: '',
     description: '', specs: '',
@@ -63,6 +69,11 @@ export default function ProductFormModal({
   const [isSlugEdited, setIsSlugEdited] = useState(false);
   const [mediaPickerConfig, setMediaPickerConfig] = useState<{isOpen: boolean, type: 'thumbnail' | 'gallery' | 'tinymce'}>({ isOpen: false, type: 'thumbnail' });
   const [autoSyncSpecs, setAutoSyncSpecs] = useState(true);
+  const [subcategoriesMap, setSubcategoriesMap] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    getSubcategoriesMap().then(map => setSubcategoriesMap(map));
+  }, []);
   const tinyMCECallbackRef = useRef<any>(null);
 
   const buildSpecsFromCompareFields = (fields: { id?: string; key: string; value: string }[]) => {
@@ -121,10 +132,15 @@ export default function ProductFormModal({
               ? initialData.construction_categories
               : extractConstructionCategories(initialData.tags, availableConstructionCategories));
 
+        const curCat = categories.find(c => String(c.id) === String(initialData.categoryId || ''));
+        const curCatName = curCat?.name || initialData.category || '';
+        const initSubcat = initialData.subcategory || extractSubcategory(initialData.tags, initialData.name, curCatName);
+
         setFormData({
           id: initialData.id,
           name: initialData.name || '',
           categoryId: initialData.categoryId || '',
+          subcategory: initSubcat,
           constructionCategories: initialCC,
           slug: initialData.slug || '',
           description: initialData.description || '',
@@ -159,6 +175,7 @@ export default function ProductFormModal({
           id: undefined,
           name: '',
           categoryId: '',
+          subcategory: '',
           constructionCategories: [],
           slug: '',
           description: '',
@@ -747,6 +764,61 @@ export default function ProductFormModal({
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Danh mục con (Subcategory / Phân loại chi tiết) */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-bold text-gray-700">
+                      Danh mục con (Phân loại chi tiết)
+                    </label>
+                    <span className="text-[10px] font-extrabold uppercase bg-red-50 text-red-600 px-2 py-0.5 rounded-full border border-red-100">
+                      Nhóm hiển thị trên website
+                    </span>
+                  </div>
+
+                  {(() => {
+                    const selCat = categories.find(c => String(c.id || '') === String(formData.categoryId || ''));
+                    const availableSubs = selCat ? getSubcategoriesForCategory(selCat.name, subcategoriesMap) : [];
+
+                    return (
+                      <div className="flex flex-col gap-2">
+                        <select
+                          value={availableSubs.includes(formData.subcategory) ? formData.subcategory : (formData.subcategory ? '__custom__' : '')}
+                          onChange={(e) => {
+                            if (e.target.value === '__custom__') {
+                              setFormData(prev => ({ ...prev, subcategory: prev.subcategory || 'Nẹp khác' }));
+                            } else {
+                              setFormData(prev => ({ ...prev, subcategory: e.target.value }));
+                            }
+                          }}
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm font-medium transition-all text-gray-700 bg-white cursor-pointer"
+                        >
+                          <option value="">-- Chọn danh mục con theo {selCat?.name || 'loại vật tư'} --</option>
+                          {availableSubs.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                          <option value="__custom__">+ Nhập danh mục con khác / Tùy chỉnh...</option>
+                        </select>
+
+                        {/* Input tùy chỉnh khi chọn custom hoặc giá trị không có trong danh sách */}
+                        {(!availableSubs.includes(formData.subcategory) || formData.subcategory === '__custom__') && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <input
+                              type="text"
+                              placeholder="Nhập tên danh mục con tùy chỉnh..."
+                              value={formData.subcategory === '__custom__' ? '' : formData.subcategory}
+                              onChange={(e) => setFormData(prev => ({ ...prev, subcategory: e.target.value }))}
+                              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 bg-gray-50/50"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  <p className="text-xs text-gray-400 mt-1.5 font-medium">
+                    Khi người dùng chọn lọc theo danh mục chính này ở trang Sản phẩm, các sản phẩm sẽ được gom nhóm và hiển thị theo từng danh mục con.
+                  </p>
                 </div>
 
                 {/* Hạng mục thi công (Dual-Taxonomy: Multi-select) */}

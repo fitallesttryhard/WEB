@@ -196,12 +196,12 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                       </button>
                       <button
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, cta_link: '/projects' }))}
+                        onClick={() => setFormData(prev => ({ ...prev, cta_link: '/blog' }))}
                         className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition-colors ${
-                          formData.cta_link === '/projects' ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                          formData.cta_link === '/blog' ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
                         }`}
                       >
-                        🏗️ /projects
+                        📚 /blog
                       </button>
                       <button
                         type="button"

@@ -37,32 +37,6 @@ export const SEED_CATEGORIES = [
 export const SEED_PRODUCTS = [
   // 1. Nẹp Nhôm
   {
-    name: 'Nẹp Nhôm Chữ T T10mm Vàng Xước',
-    slug: 'nep-nhom-chu-t-t10mm-vang-xuoc',
-    category_slug: 'nep-nhom',
-    sku: 'NEP-T10-VX',
-    original_price: 120000,
-    sale_price: 95000,
-    stock_status: 'in_stock',
-    is_hot: true,
-    status: 'published',
-    thumbnail_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
-    tags: ['Nẹp nhôm', 'Chữ T', 'Trang trí nội thất'],
-    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
-    seo_description: 'Nẹp nhôm chữ T10mm xử lý khe hở giữa các mảng tường, sàn gỗ và gạch men. Mạ Anode chống phai màu.',
-    description: `
-      <h3>Nẹp Nhôm Chữ T T10mm Vàng Xước Cao Cấp</h3>
-      <p>Nẹp nhôm chữ T10mm là giải pháp hoàn hảo để xử lý các khe giãn cách, khe nối giữa các vật liệu lát sàn như gạch, đá, gỗ, kính trong thi công nội thất hiện đại.</p>
-      <h4>Ưu điểm nổi bật:</h4>
-      <ul>
-        <li>Chất liệu hợp kim nhôm 6063-T5 mạ Anode độ bền màu trên 10 năm.</li>
-        <li>Tạo đường nét trang trí sang trọng, tinh tế trên vách tường và sàn nhà.</li>
-        <li>Thi công đơn giản bằng keo chuyên dụng (Silicon / Titebond).</li>
-      </ul>
-    `,
-    specs: `<p><strong>Quy cách:</strong> Rộng 10mm x Dài 2.5m</p><p><strong>Màu sắc:</strong> Vàng xước (Gold Brushed)</p><p><strong>Chất liệu:</strong> Hợp kim nhôm cao cấp</p>`
-  },
-  {
     name: 'Nẹp Nhôm Góc V V20mm Bạc Mờ',
     slug: 'nep-nhom-goc-v-v20mm-bac-mo',
     category_slug: 'nep-nhom',
@@ -73,14 +47,28 @@ export const SEED_PRODUCTS = [
     is_hot: true,
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop',
-    tags: ['Nẹp nhôm', 'Góc V', 'Bảo vệ góc'],
+    tags: ['Nẹp nhôm', 'Góc V', 'sub:Nẹp nhôm chữ V góc'],
     construction_categories: ['Trát tường', 'Hoàn thiện nội thất', 'Hoàn thiện ngoại thất'],
     seo_description: 'Nẹp V20mm bảo vệ góc tường, cạnh cột chống sứt mẻ và tạo đường gờ sắc nét cho công trình.',
-    description: `
-      <h3>Nẹp Nhôm Góc V20mm Bạc Mờ</h3>
-      <p>Sản phẩm chuyên dùng để ốp bảo vệ các góc vuông 90 độ, mép cột, cạnh tủ vừa tránh trầy xước va đập vừa trang trí không gian sắc nét.</p>
-    `,
-    specs: `<p><strong>Quy cách:</strong> 20mm x 20mm x Dài 2.5m</p><p><strong>Màu sắc:</strong> Bạc mờ (Silver Matte)</p><p><strong>Độ dày:</strong> 1.0mm</p>`
+    description: `<h3>Nẹp Nhôm Góc V20mm Bạc Mờ</h3><p>Bảo vệ góc vuông 90 độ, mép cột, cạnh tủ vừa tránh trầy xước va đập vừa trang trí sắc nét.</p>`,
+    specs: `<p><strong>Quy cách:</strong> 20mm x 20mm x Dài 2.5m</p><p><strong>Màu sắc:</strong> Bạc mờ (Silver Matte)</p>`
+  },
+  {
+    name: 'Nẹp Nhôm Góc V V15mm Vàng Bóng Anode',
+    slug: 'nep-nhom-goc-v-v15mm-vang-bong',
+    category_slug: 'nep-nhom',
+    sku: 'NEP-V15-VB',
+    original_price: 105000,
+    sale_price: 80000,
+    stock_status: 'in_stock',
+    is_hot: false,
+    status: 'published',
+    thumbnail_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
+    tags: ['Nẹp nhôm', 'Góc V', 'sub:Nẹp nhôm chữ V góc'],
+    construction_categories: ['Hoàn thiện nội thất', 'Ốp lát gạch'],
+    seo_description: 'Nẹp nhôm chữ V15mm vàng bóng mạ Anodizing cao cấp tạo điểm nhấn góc cột, góc tường nội thất.',
+    description: `<h3>Nẹp Nhôm Góc V15mm Vàng Bóng</h3><p>Ốp bảo vệ góc cạnh gạch men, đá hoa cương và vách gỗ.</p>`,
+    specs: `<p><strong>Quy cách:</strong> 15mm x 15mm x Dài 2.5m</p><p><strong>Màu sắc:</strong> Vàng bóng</p>`
   },
   {
     name: 'Nẹp Nhôm Chỉ Âm U12mm Nhôm Mờ',
@@ -93,14 +81,96 @@ export const SEED_PRODUCTS = [
     is_hot: false,
     status: 'published',
     thumbnail_url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop',
-    tags: ['Nẹp nhôm', 'Chỉ âm', 'Vách thạch cao'],
+    tags: ['Nẹp nhôm', 'Chỉ âm', 'sub:Nẹp nhôm chữ U trang trí'],
     construction_categories: ['Thạch cao', 'Hoàn thiện nội thất'],
     seo_description: 'Nẹp U12mm tạo chỉ âm trang trí vách tường thạch cao, vách gỗ nội thất cao cấp.',
-    description: `
-      <h3>Nẹp Nhôm Chỉ Âm U12mm</h3>
-      <p>Tạo khe âm trang trí hiện đại cho vách gỗ, vách đá tự nhiên hoặc trần thạch cao kiến trúc Minimalist.</p>
-    `,
+    description: `<h3>Nẹp Nhôm Chỉ Âm U12mm</h3><p>Tạo khe âm trang trí hiện đại cho vách gỗ, vách đá tự nhiên hoặc trần thạch cao kiến trúc Minimalist.</p>`,
     specs: `<p><strong>Quy cách:</strong> Rộng 12mm x Sâu 10mm x Dài 2.5m</p><p><strong>Màu sắc:</strong> Nhôm nguyên bản mờ</p>`
+  },
+  {
+    name: 'Nẹp Nhôm Chữ U U20mm Vàng Xước Cao Cấp',
+    slug: 'nep-nhom-chu-u-u20mm-vang-xuoc',
+    category_slug: 'nep-nhom',
+    sku: 'NEP-U20-VX',
+    original_price: 155000,
+    sale_price: 125000,
+    stock_status: 'in_stock',
+    is_hot: true,
+    status: 'published',
+    thumbnail_url: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop',
+    tags: ['Nẹp nhôm', 'Chữ U', 'sub:Nẹp nhôm chữ U trang trí'],
+    construction_categories: ['Hoàn thiện nội thất', 'Ốp lát gạch'],
+    seo_description: 'Nẹp nhôm chữ U20mm màu vàng xước mạ Anode tạo đường rãnh trang trí sang trọng trên vách đá, vách gỗ.',
+    description: `<h3>Nẹp Nhôm Chữ U U20mm Vàng Xước</h3><p>Chỉ âm vách trang trí cao cấp cho phòng khách và sảnh lễ tân.</p>`,
+    specs: `<p><strong>Quy cách:</strong> Rộng 20mm x Sâu 10mm x Dài 2.5m</p>`
+  },
+  {
+    name: 'Nẹp Nhôm Chữ T T10mm Vàng Xước',
+    slug: 'nep-nhom-chu-t-t10mm-vang-xuoc',
+    category_slug: 'nep-nhom',
+    sku: 'NEP-T10-VX',
+    original_price: 120000,
+    sale_price: 95000,
+    stock_status: 'in_stock',
+    is_hot: true,
+    status: 'published',
+    thumbnail_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
+    tags: ['Nẹp nhôm', 'Chữ T', 'sub:Nẹp nhôm chữ T trang trí'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
+    seo_description: 'Nẹp nhôm chữ T10mm xử lý khe hở giữa các mảng tường, sàn gỗ và gạch men. Mạ Anode chống phai màu.',
+    description: `<h3>Nẹp Nhôm Chữ T T10mm Vàng Xước Cao Cấp</h3><p>Xử lý khe nối sàn gạch, sàn gỗ và chỉ trang trí vách tường.</p>`,
+    specs: `<p><strong>Quy cách:</strong> Rộng 10mm x Dài 2.5m</p><p><strong>Màu sắc:</strong> Vàng xước (Gold Brushed)</p>`
+  },
+  {
+    name: 'Nẹp Nhôm Chữ T T20mm Nhôm Bóng',
+    slug: 'nep-nhom-chu-t-t20mm-nhom-bong',
+    category_slug: 'nep-nhom',
+    sku: 'NEP-T20-NB',
+    original_price: 140000,
+    sale_price: 110000,
+    stock_status: 'in_stock',
+    is_hot: false,
+    status: 'published',
+    thumbnail_url: 'https://images.unsplash.com/photo-1541888086925-920a0b40eb45?q=80&w=800&auto=format&fit=crop',
+    tags: ['Nẹp nhôm', 'Chữ T', 'sub:Nẹp nhôm chữ T trang trí'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
+    seo_description: 'Nẹp nhôm chữ T bản rộng 20mm xử lý khe chuyển tiếp sàn lớn, che khuyết điểm cắt gạch men hiệu quả.',
+    description: `<h3>Nẹp Nhôm Chữ T T20mm Nhôm Bóng</h3><p>Thanh nẹp nối sàn bản rộng 20mm chịu lực đi lại tốt.</p>`,
+    specs: `<p><strong>Quy cách:</strong> Rộng 20mm x Dài 2.5m</p>`
+  },
+  {
+    name: 'Nẹp Nhôm Bo Góc Tròn YV10mm Nhôm Bóng',
+    slug: 'nep-nhom-bo-goc-tron-yv10mm-nhom-bong',
+    category_slug: 'nep-nhom',
+    sku: 'NEP-YV10-NB',
+    original_price: 125000,
+    sale_price: 98000,
+    stock_status: 'in_stock',
+    is_hot: true,
+    status: 'published',
+    thumbnail_url: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop',
+    tags: ['Nẹp nhôm', 'Bo góc', 'sub:Nẹp nhôm bo góc gạch men'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất'],
+    seo_description: 'Nẹp nhôm bo góc tròn gạch men YV10 thay thế mài mòi 45 độ, bảo vệ mép gạch không bị mẻ cạnh.',
+    description: `<h3>Nẹp Nhôm Bo Góc Tròn YV10mm</h3><p>Chuyên dụng thi công ốp góc tường nhà tắm, góc bếp tạo đường bo tròn tinh tế và an toàn.</p>`,
+    specs: `<p><strong>Quy cách:</strong> Dày 1.0mm, dùng cho gạch 8-10mm x Dài 2.5m</p>`
+  },
+  {
+    name: 'Nẹp Nhôm Chống Trơn Cầu Thang NLP20 Cao Su Đen',
+    slug: 'nep-nhom-chong-tron-cau-thang-nlp20',
+    category_slug: 'nep-nhom',
+    sku: 'NEP-NLP20-CS',
+    original_price: 160000,
+    sale_price: 130000,
+    stock_status: 'in_stock',
+    is_hot: true,
+    status: 'published',
+    thumbnail_url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=800&auto=format&fit=crop',
+    tags: ['Nẹp nhôm', 'Chống trơn', 'sub:Nẹp nhôm chống trơn sàn'],
+    construction_categories: ['Ốp lát gạch', 'Hoàn thiện nội thất', 'Hoàn thiện ngoại thất'],
+    seo_description: 'Nẹp nhôm mũi bậc cầu thang lồng cao su chống trượt NLP20, an toàn tuyệt đối cho công trình công cộng.',
+    description: `<h3>Nẹp Nhôm Chống Trơn Cầu Thang NLP20</h3><p>Bảo vệ mép đá hoa cương bậc cầu thang không bị sứt mẻ và tạo ma sát chống trượt ngã hiệu quả.</p>`,
+    specs: `<p><strong>Quy cách:</strong> Mặt rộng 40mm x Chân cao 20mm x Dài 2.5m kèm dải cao su gân</p>`
   },
 
   // 2. Nẹp Inox

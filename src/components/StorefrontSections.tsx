@@ -1,34 +1,33 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, ShoppingBag, ArrowRight, Calendar, User, Loader2, ArrowLeftRight, X, Check, Eye } from 'lucide-react';
+import { ShoppingCart, ShoppingBag, ArrowRight, Loader2, ArrowLeftRight, X, Check, Eye } from 'lucide-react';
 import { getProducts } from '../productServices';
-import { getArticles, SBUILD_TENANT_ID } from '../articleServices';
+import { SBUILD_TENANT_ID } from '../projectServices';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
 import { extractConstructionCategories } from '../constructionServices';
 
+// In-memory cache for storefront products
+let cachedStorefrontProducts: any[] | null = null;
+
 export default function StorefrontSections() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>(() => cachedStorefrontProducts || []);
+  const [loading, setLoading] = useState(!cachedStorefrontProducts);
   const [compareList, setCompareList] = useState<any[]>([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const { addToCart, openDrawer } = useCart();
 
   useEffect(() => {
     async function loadData() {
-      setLoading(true);
+      if (!cachedStorefrontProducts) {
+        setLoading(true);
+      }
       try {
         // Tải sản phẩm từ productServices.ts
         const res = await getProducts({ limit: 8, status: 'published', tenantId: SBUILD_TENANT_ID });
         if (res.success && res.data) {
+          cachedStorefrontProducts = res.data;
           setProducts(res.data);
-        }
-
-        // Tải bài viết S-BUILD độc lập từ articleServices
-        const articleData = await getArticles();
-        if (articleData && articleData.length > 0) {
-          setPosts(articleData.slice(0, 3));
         }
       } catch (err) {
         console.error('Lỗi khi nạp dữ liệu Storefront:', err);
@@ -73,20 +72,9 @@ export default function StorefrontSections() {
     }
   };
 
-  const displayArticles = posts.map((p) => ({
-    id: p.id,
-    title: p.title,
-    slug: p.slug,
-    category: p.category || 'Tin tức & Dự án',
-    excerpt: p.excerpt || 'Bài viết thông tin dự án & kỹ thuật thi công.',
-    image: p.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
-    date: new Date(p.created_at).toLocaleDateString('vi-VN'),
-    author: p.author || 'Ban Kỹ Thuật S-BUILD',
-  }));
-
   return (
     <div className="bg-slate-50/50 w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full flex flex-col gap-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full flex flex-col">
         
         {/* SECTION 1: SẢN PHẨM NỔI BẬT */}
         <section>
@@ -224,81 +212,6 @@ export default function StorefrontSections() {
             </div>
           )}
         </section>
-
-        {/* SECTION 2: BÀI VIẾT NỔI BẬT */}
-        {displayArticles.length > 0 && (
-          <section>
-            {/* Section Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
-              <div>
-                <span className="text-red-600 font-extrabold text-xs uppercase tracking-widest block mb-2">
-                  TIN TỨC & DỰ ÁN
-                </span>
-                <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">
-                  Kiến Thức & Kinh Nghiệm Thi Công
-                </h2>
-              </div>
-              <a
-                href="/blog"
-                className="inline-flex items-center gap-2 font-bold text-sm text-red-600 hover:text-red-700 transition-colors uppercase tracking-wider group"
-              >
-                Xem tất cả bài viết
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
-
-            {/* Articles Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {displayArticles.map((article, idx) => (
-                <article
-                  key={article.id}
-                  style={{ animationDelay: `${idx * 150}ms` }}
-                  className="group flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 animate-fade-in-up"
-                >
-                  <a href={`/bai-viet/${(article as any).slug || (article as any).id}`} className="aspect-[16/10] w-full overflow-hidden bg-slate-100 block">
-                    <img
-                      src={article.image}
-                      alt={article.title}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                  </a>
-
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="flex items-center gap-4 text-xs font-bold text-slate-400 mb-3">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar size={14} className="text-red-600" />
-                        <span>{article.date}</span>
-                      </div>
-                      <span>•</span>
-                      <div className="flex items-center gap-1.5">
-                        <User size={14} className="text-red-600" />
-                        <span>{article.author}</span>
-                      </div>
-                    </div>
-
-                    <a href={`/bai-viet/${(article as any).slug || (article as any).id}`} className="text-lg font-bold text-slate-900 mb-3 line-clamp-2 leading-snug group-hover:text-red-600 transition-colors">
-                      {article.title}
-                    </a>
-
-                    <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6 font-medium">
-                      {article.excerpt}
-                    </p>
-
-                    <div className="mt-auto pt-4 border-t border-slate-100">
-                      <a
-                        href={`/bai-viet/${(article as any).slug || (article as any).id}`}
-                        className="inline-flex items-center gap-2 text-xs font-extrabold text-red-600 uppercase tracking-wider group-hover:gap-3 transition-all"
-                      >
-                        Đọc tiếp
-                        <ArrowRight size={14} />
-                      </a>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        )}
 
       </div>
 

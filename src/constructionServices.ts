@@ -204,10 +204,12 @@ export function extractNormalTags(
  */
 export function encodeProductTags(
   normalTags: string[],
-  constructionCategories: string[]
+  constructionCategories: string[],
+  subcategory?: string
 ): string[] {
-  const cleanNormal = (normalTags || []).map(t => t.trim()).filter(Boolean);
+  const cleanNormal = (normalTags || []).map(t => t.trim()).filter(t => Boolean(t) && !t.startsWith('sub:') && !t.startsWith('dmc:'));
   const cleanCC = (constructionCategories || []).map(c => `hm:${c.trim()}`).filter(Boolean);
+  const subTag = subcategory?.trim() ? [`sub:${subcategory.trim()}`] : [];
   
-  return Array.from(new Set([...cleanNormal, ...cleanCC]));
+  return Array.from(new Set([...cleanNormal, ...cleanCC, ...subTag]));
 }

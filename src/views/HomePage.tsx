@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import Hero from '../components/Hero';
 import Categories from '../components/Categories';
 import StorefrontSections from '../components/StorefrontSections';
-import ProjectsShowcase from '../components/ProjectsShowcase';
+import KnowledgeShowcase from '../components/KnowledgeShowcase';
 import AboutUs, { AboutCoreValuesAndCTA } from '../components/AboutUs';
 
 export function HomePage() {
@@ -14,7 +14,7 @@ export function HomePage() {
       <Categories />
       <StorefrontSections />
       <Suspense fallback={<div>Loading...</div>}>
-        <ProjectsShowcase />
+        <KnowledgeShowcase />
         <AboutCoreValuesAndCTA />
       </Suspense>
     </main>

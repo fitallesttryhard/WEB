@@ -119,24 +119,13 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
           <ul className="space-y-1">
             <li>
               <button
-                onClick={() => setActiveMenu('projects')}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium cursor-pointer ${
-                  activeMenu === 'projects' ? 'bg-red-600 text-white font-bold shadow-md shadow-red-600/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
-              >
-                <Building2 size={18} className={activeMenu === 'projects' ? 'text-white' : 'text-red-400'} />
-                <span>Công trình & Dự án</span>
-              </button>
-            </li>
-            <li>
-              <button
                 onClick={() => setActiveMenu('posts')}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all font-medium cursor-pointer ${
                   activeMenu === 'posts' ? 'bg-red-600 text-white font-bold shadow-md shadow-red-600/20' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
                 <FileText size={18} className={activeMenu === 'posts' ? 'text-white' : 'text-red-400'} />
-                <span>Bài viết & Tin tức</span>
+                <span>Cẩm nang & Kinh nghiệm</span>
               </button>
             </li>
             <li>
@@ -147,7 +136,7 @@ export default function AdminSidebar({ activeMenu, setActiveMenu }: SidebarProps
                 }`}
               >
                 <Tags size={18} className={activeMenu === 'post_categories' ? 'text-white' : 'text-red-400'} />
-                <span>Chuyên mục Bài viết</span>
+                <span>Chuyên mục Cẩm nang</span>
               </button>
             </li>
             <li>

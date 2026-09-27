@@ -86,7 +86,7 @@ export default function CartDrawer() {
       
       {/* Drawer */}
       <div 
-        className={`fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out flex flex-col ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out flex flex-col ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none invisible select-none'}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0 bg-gray-50/50">

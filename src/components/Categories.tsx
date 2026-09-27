@@ -296,13 +296,19 @@ function FullBleedCategoryCard({
 }
 
 // ─── Main Categories Component ─────────────────────────────────────
+// In-memory cache for taxonomy to prevent double-load across navigations
+let cachedCategoriesMaterial: any[] | null = null;
+let cachedCategoriesConstruction: ConstructionCategory[] | null = null;
+
 export default function Categories() {
   const [activeTab, setActiveTab] = useState<'material' | 'construction'>('material');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const [dbCategories, setDbCategories] = useState<any[]>(INITIAL_MATERIAL_CATEGORIES);
-  const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
+  const [dbCategories, setDbCategories] = useState<any[]>(() => cachedCategoriesMaterial || INITIAL_MATERIAL_CATEGORIES);
+  const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(
+    () => cachedCategoriesConstruction || DEFAULT_CONSTRUCTION_CATEGORIES
+  );
 
   // Responsive visible cards count: 4 on desktop, 2 on tablet, 1 on mobile
   const [visibleCards, setVisibleCards] = useState(4);
@@ -356,10 +362,26 @@ export default function Categories() {
             return (a.name || '').localeCompare(b.name || '');
           });
 
-          setDbCategories(sorted);
+          // Hợp nhất với ảnh & mô tả mẫu nếu dữ liệu DB trống để không bị nhấp nháy mất ảnh
+          const merged = sorted.map((cat: any) => {
+            const fallback = INITIAL_MATERIAL_CATEGORIES.find(
+              (c) => c.name.toLowerCase() === cat.name.toLowerCase() || c.slug === cat.slug
+            );
+            return {
+              ...fallback,
+              ...cat,
+              image_url: cat.image_url || fallback?.image_url,
+              description: cat.description || fallback?.description,
+              count: fallback?.count || cat.count
+            };
+          });
+
+          cachedCategoriesMaterial = merged;
+          setDbCategories(merged);
         }
 
         if (ccList && ccList.length > 0) {
+          cachedCategoriesConstruction = ccList;
           setConstructionCategories(ccList);
         }
       } catch (err) {
