@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { X, Save, UploadCloud, Image as ImageIcon, ToggleLeft, ToggleRight, Award, Truck, ShieldCheck } from 'lucide-react';
+import { X, Save, UploadCloud, Image as ImageIcon, ToggleLeft, ToggleRight, Award, Truck, ShieldCheck, Info, Sparkles } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
 
 interface BannerFormModalProps {
@@ -102,7 +102,17 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                 
                 {/* Upload Ảnh nền */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Ảnh nền (Landscape 16:9) *</label>
+                  <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
+                    <label className="text-sm font-bold text-gray-700 flex items-center gap-1.5">
+                      <span>Ảnh nền Banner Slide</span>
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      <Sparkles size={11} className="text-blue-500" />
+                      Chuẩn: 1920 × 750 px (Landscape)
+                    </span>
+                  </div>
+
                   {formData.image_url ? (
                     <div className="relative rounded-xl border border-gray-200 overflow-hidden group bg-gray-50 aspect-video flex items-center justify-center">
                       <img src={formData.image_url} alt="Banner Preview" className="w-full h-full object-cover" />
@@ -110,7 +120,7 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                         <button 
                           type="button"
                           onClick={() => setMediaPickerConfig({ isOpen: true })}
-                          className="bg-white text-gray-700 hover:text-red-600 px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-colors"
+                          className="bg-white text-gray-700 hover:text-red-600 px-4 py-2 rounded-lg font-bold text-sm shadow-sm transition-colors cursor-pointer"
                         >
                           Xóa / Đổi ảnh
                         </button>
@@ -125,11 +135,19 @@ export default function BannerFormModal({ isOpen, onClose, onSubmit, initialData
                         <UploadCloud size={24} className="text-gray-400" />
                       </div>
                       <div className="text-center">
-                        <p className="text-sm font-bold text-gray-700">Kéo thả ảnh ngang vào đây</p>
-                        <p className="text-xs text-gray-500 mt-1">Hoặc click để chọn file (Khuyến nghị: 1920x1080px)</p>
+                        <p className="text-sm font-bold text-gray-700">Click chọn ảnh nền Banner</p>
+                        <p className="text-xs font-semibold text-blue-600 mt-1">Khuyên dùng: 1920 × 750 px (hoặc 1920 × 1080 px)</p>
+                        <p className="text-[11px] text-gray-400 mt-0.5">Tối đa 5MB • JPG / PNG / WEBP</p>
                       </div>
                     </div>
                   )}
+
+                  <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-start gap-2">
+                    <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
+                    <div className="leading-relaxed">
+                      <span className="font-bold text-slate-800">Mẹo thiết kế Banner:</span> Độ phân giải lý tưởng <strong>1920 × 750 px</strong> (hoặc 16:9). Hãy bố trí chủ thể hoặc phối cảnh chính nằm ở giữa hoặc bên phải để không bị tiêu đề chữ và nút bấm che khuất.
+                    </div>
+                  </div>
                 </div>
 
                 {/* Nội dung chữ */}

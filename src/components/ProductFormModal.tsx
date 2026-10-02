@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Upload, Search, CheckCircle2, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock } from 'lucide-react';
+import { X, Upload, Search, CheckCircle2, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock, Plus, Info, Sparkles } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import MediaPickerModal from './MediaPickerModal';
 import { 
@@ -1060,7 +1060,17 @@ export default function ProductFormModal({
               
               <div className="flex flex-col gap-8 pl-11">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">Ảnh Đại Diện (Thumbnail) <span className="text-red-500">*</span></label>
+                  <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
+                    <label className="text-sm font-bold text-gray-700 flex items-center gap-1.5">
+                      <span>Ảnh Đại Diện (Thumbnail)</span>
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      <Sparkles size={11} className="text-blue-500" />
+                      Chuẩn: 800 × 800 px (Vuông 1:1)
+                    </span>
+                  </div>
+                  
                   <div 
                     onClick={handleThumbnailUpload}
                     className={`w-full aspect-video md:aspect-square rounded-2xl border-2 border-dashed ${formData.thumbnailUrl ? 'border-gray-200 p-1.5' : 'border-gray-300 bg-gray-50 hover:bg-gray-100'} transition-colors flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group`}
@@ -1074,19 +1084,33 @@ export default function ProductFormModal({
                       </>
                     ) : (
                       <>
-                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                          <Upload size={28} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
+                        <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                          <Upload size={24} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
                         </div>
-                        <p className="text-sm font-bold text-gray-600">Click tải ảnh lên</p>
-                        <p className="text-xs font-medium text-gray-400 mt-2">Tỉ lệ 1:1, Tối đa 5MB</p>
+                        <p className="text-sm font-bold text-gray-700">Click chọn ảnh đại diện</p>
+                        <p className="text-xs font-semibold text-blue-600 mt-1">Khuyên dùng: 800 × 800 px</p>
+                        <p className="text-[11px] font-medium text-gray-400 mt-0.5">Tối đa 5MB • PNG / JPG / WEBP</p>
                       </>
                     )}
+                  </div>
+                  
+                  {/* Hướng dẫn chi tiết kích thước */}
+                  <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-start gap-2">
+                    <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
+                    <div className="leading-relaxed">
+                      <span className="font-bold text-slate-800">Hiển thị chuẩn:</span> Tỷ lệ vuông <strong>1:1</strong> (800×800px hoặc 1000×1000px). Nên dùng nền trắng sáng hoặc tách nền PNG để sản phẩm hiển thị đồng đều trên lưới giao diện.
+                    </div>
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-end mb-3">
-                    <label className="block text-sm font-bold text-gray-700">Album Ảnh (Gallery)</label>
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
+                      <label className="block text-sm font-bold text-gray-700">Album Ảnh Phụ (Gallery)</label>
+                      <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-md">
+                        Chuẩn: 800 × 800 px (1:1)
+                      </span>
+                    </div>
                     <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-md">{formData.galleryUrls.length} ảnh</span>
                   </div>
                   
@@ -1114,6 +1138,11 @@ export default function ProductFormModal({
                       <span className="text-[10px] font-bold text-gray-500 uppercase">Thêm ảnh</span>
                     </div>
                   </div>
+                  
+                  <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5">
+                    <Info size={13} className="text-slate-400 shrink-0" />
+                    Các ảnh album nên cùng tỷ lệ <strong>800 × 800 px</strong> với ảnh chính để slider chuyển ảnh không bị co giật khung hình.
+                  </p>
                 </div>
               </div>
             </div>
@@ -1127,7 +1156,23 @@ export default function ProductFormModal({
               
               <div className="pl-11 space-y-8">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-3">Mô tả chi tiết</label>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <label className="block text-sm font-bold text-gray-700">Mô tả chi tiết</label>
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                      <span className="px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+                        📐 Ảnh phối cảnh: 800 × 450 px (16:9)
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md font-semibold bg-purple-50 text-purple-700 border border-purple-200/70">
+                        📐 Bản vẽ / mặt cắt: 800 × 600 px (4:3)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mb-2 p-2.5 rounded-xl bg-blue-50/70 border border-blue-200/60 text-[11px] text-blue-800 flex items-center gap-2">
+                    <Info size={14} className="text-blue-600 shrink-0" />
+                    <span><strong>Mẹo ảnh nội dung:</strong> Để thay đổi ảnh có sẵn trong bài viết, hãy <strong>nhấp đúp chuột (double click)</strong> trực tiếp vào ảnh trong khung soạn thảo bên dưới.</span>
+                  </div>
+                  
                   <div 
                     className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all shadow-sm"
                   >
@@ -1427,11 +1472,3 @@ export default function ProductFormModal({
     </div>
   );
 }
-
-// Giả lập icon Plus (Do import thiếu ở trên)
-const Plus = ({ size, className }: { size: number, className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M5 12h14" />
-    <path d="M12 5v14" />
-  </svg>
-);

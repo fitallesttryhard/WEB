@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Upload, Search, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock } from 'lucide-react';
+import { X, Upload, Search, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock, Info, Sparkles } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import MediaPickerModal from './MediaPickerModal';
 
@@ -463,9 +463,15 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
 
             {/* HÌNH ẢNH */}
             <div className="flex flex-col gap-6 h-fit" onClick={() => setFocusedField('thumbnail')}>
-              <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-black text-sm">2</span>
-                <h3 className="text-lg font-black text-gray-900 uppercase tracking-wider">Ảnh Đại Diện</h3>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-black text-sm">2</span>
+                  <h3 className="text-lg font-black text-gray-900 uppercase tracking-wider">Ảnh Đại Diện / Ảnh Bìa</h3>
+                </div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  <Sparkles size={11} className="text-blue-500" />
+                  Chuẩn: 1200 × 630 px (Tỷ lệ 1.91:1)
+                </span>
               </div>
               
               <div className="pl-11">
@@ -482,25 +488,46 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
                     </>
                   ) : (
                     <>
-                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                        <Upload size={28} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
+                      <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                        <Upload size={24} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
                       </div>
-                      <p className="text-sm font-bold text-gray-600">Click tải ảnh lên</p>
-                      <p className="text-xs font-medium text-gray-400 mt-2">Tối đa 5MB</p>
+                      <p className="text-sm font-bold text-gray-700">Click chọn ảnh bìa bài viết</p>
+                      <p className="text-xs font-semibold text-blue-600 mt-1">Khuyên dùng: 1200 × 630 px (hoặc 16:9 - 1200×675px)</p>
+                      <p className="text-[11px] font-medium text-gray-400 mt-0.5">Tối đa 5MB • Chuẩn chia sẻ Facebook, Zalo & Trang chủ</p>
                     </>
                   )}
+                </div>
+
+                {/* Hướng dẫn chi tiết kích thước */}
+                <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-start gap-2">
+                  <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
+                  <div className="leading-relaxed">
+                    <span className="font-bold text-slate-800">Hiển thị chuẩn:</span> Tỷ lệ <strong>1200 × 630 px</strong> (1.91:1) hoặc <strong>1200 × 675 px</strong> (16:9). Tỷ lệ này đảm bảo khi bài viết được chia sẻ qua mạng xã hội (Facebook, Zalo) hoặc hiển thị trên danh sách tin tức sẽ hiển thị trọn vẹn, không bị mất góc.
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* NỘI DUNG CHI TIẾT (Spans 2 cols when Off) */}
             <div className={`flex flex-col gap-6 h-fit ${previewMode === 'off' ? 'col-span-2' : ''}`}>
-              <div className="flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-black text-sm">3</span>
-                <h3 className="text-lg font-black text-gray-900 uppercase tracking-wider">Nội dung chi tiết</h3>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-black text-sm">3</span>
+                  <h3 className="text-lg font-black text-gray-900 uppercase tracking-wider">Nội dung chi tiết</h3>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                  <span className="px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+                    📐 Ảnh ngang bài viết: 1200 × 675 px hoặc 800 × 450 px (16:9)
+                  </span>
+                </div>
               </div>
               
-              <div className="pl-11">
+              <div className="pl-11 space-y-2">
+                <div className="p-2.5 rounded-xl bg-blue-50/70 border border-blue-200/60 text-[11px] text-blue-800 flex items-center gap-2">
+                  <Info size={14} className="text-blue-600 shrink-0" />
+                  <span><strong>Mẹo ảnh nội dung:</strong> Để đổi ảnh có sẵn trong bài viết, hãy <strong>nhấp đúp chuột (double click)</strong> vào ảnh đó trong khung soạn thảo bên dưới.</span>
+                </div>
+
                 <div 
                   className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all shadow-sm"
                 >

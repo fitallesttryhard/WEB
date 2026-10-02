@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { X, UploadCloud, Image as ImageIcon, Sparkles, Plus, Trash2, Check } from 'lucide-react';
+import { X, UploadCloud, Image as ImageIcon, Sparkles, Plus, Trash2, Check, Info } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
 import { supabase } from '../supabaseClient';
 
@@ -167,9 +167,15 @@ export default function ProjectFormModal({
             
             {/* 1. Ảnh Đại Diện Dự Án (Visual Drag & Drop / Media Picker) */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Hình Ảnh Đại Diện Dự Án (Khuyên dùng tỷ lệ 16:9) *
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Hình Ảnh Dự Án *
+                </label>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  <Sparkles size={11} className="text-blue-500" />
+                  Chuẩn: 800 × 450 px hoặc 1200 × 675 px (16:9)
+                </span>
+              </div>
 
               {formData.image ? (
                 <div className="relative rounded-2xl border border-slate-200 overflow-hidden group bg-slate-900 aspect-video flex items-center justify-center shadow-md">
@@ -245,6 +251,13 @@ export default function ProjectFormModal({
                   placeholder="https://images.unsplash.com/photo-..."
                   className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:border-red-500"
                 />
+              </div>
+
+              <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 flex items-start gap-2">
+                <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <span className="font-bold text-slate-800">Hiển thị chuẩn:</span> Tỷ lệ <strong>16:9</strong> ngang (800×450px hoặc 1200×675px). Ảnh chụp công trình góc rộng, rõ nét giúp các thẻ dự án trên trang chủ và danh sách dự án hiển thị đồng nhất, chuyên nghiệp.
+                </div>
               </div>
             </div>
 

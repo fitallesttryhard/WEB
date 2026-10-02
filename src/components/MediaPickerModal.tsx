@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   X, UploadCloud, Loader2, CheckCircle2, Image as ImageIcon, 
-  Search, Trash2, Copy, Check, Filter, RefreshCw, Eye
+  Search, Trash2, Copy, Check, Filter, RefreshCw, Eye, Sparkles, Info
 } from 'lucide-react';
 import { 
   MediaItem, 
@@ -357,6 +357,29 @@ export default function MediaPickerModal({
                 Kéo thả file ảnh vào đây hoặc <strong className="text-red-600 underline">chọn từ máy tính</strong> (JPG, PNG, WEBP)
               </span>
             )}
+          </div>
+
+          {/* Hướng dẫn kích thước chuẩn nhanh */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px] text-slate-600">
+            <span className="font-bold text-slate-700 flex items-center gap-1 shrink-0">
+              <Sparkles size={12} className="text-amber-500" />
+              Kích thước chuẩn:
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold border border-blue-200">
+              🖼️ Banner: 1920 × 750 px
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 font-bold border border-orange-200">
+              📦 Sản phẩm: 800 × 800 px (1:1)
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+              📰 Bài viết: 1200 × 630 px
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold border border-purple-200">
+              🏗️ Dự án: 1200 × 675 px (16:9)
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold border border-slate-200">
+              🏷️ Logo: 400 × 120 px (PNG)
+            </span>
           </div>
         </div>
 

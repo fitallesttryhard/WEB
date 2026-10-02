@@ -4,7 +4,8 @@ import {
   CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
   UploadCloud, Copy, Image as ImageIcon, Loader2, Save,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
-  Menu, X, Layers, MapPin, Phone, Mail, ChevronRight, Search, RefreshCw, Check
+  Menu, X, Layers, MapPin, Phone, Mail, ChevronRight, Search, RefreshCw, Check,
+  Info, Sparkles
 } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -2830,7 +2831,13 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {/* Logo Upload */}
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-3">Logo chính</label>
+                        <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
+                          <label className="block text-sm font-bold text-gray-700">Logo chính Website</label>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            <Sparkles size={10} className="text-blue-500" />
+                            Chuẩn: 400 × 120 px (3:1 / 4:1)
+                          </span>
+                        </div>
                         {appearanceForm.logo_url ? (
                           <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 flex flex-col items-center justify-center gap-4 relative group">
                             <img src={appearanceForm.logo_url} alt="Logo preview" className="h-20 object-contain" />
@@ -2857,15 +2864,25 @@ export default function AdminDashboard() {
                             </div>
                             <div className="text-center">
                               <p className="text-sm font-bold text-gray-700">Kéo thả logo vào đây</p>
-                              <p className="text-xs text-gray-500 mt-1">hoặc click để chọn file (PNG, JPG)</p>
+                              <p className="text-xs text-gray-500 mt-1">Khuyên dùng PNG trong suốt (400×120px)</p>
                             </div>
                           </div>
                         )}
+                        <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5">
+                          <Info size={13} className="text-slate-400 shrink-0" />
+                          Định dạng PNG nền trong suốt (transparent) để logo hiển thị đẹp trên mọi màu nền.
+                        </p>
                       </div>
 
                       {/* Favicon Upload */}
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-3">Favicon (Biểu tượng tab)</label>
+                        <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
+                          <label className="block text-sm font-bold text-gray-700">Favicon (Biểu tượng tab)</label>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            <Sparkles size={10} className="text-blue-500" />
+                            Chuẩn: 64 × 64 px (1:1)
+                          </span>
+                        </div>
                         {appearanceForm.favicon_url ? (
                           <div className="border border-gray-200 rounded-xl p-6 bg-gray-50 flex flex-col items-center justify-center gap-4 relative group">
                             <img src={appearanceForm.favicon_url} alt="Favicon preview" className="h-16 w-16 object-contain" />
@@ -2892,10 +2909,14 @@ export default function AdminDashboard() {
                             </div>
                             <div className="text-center">
                               <p className="text-sm font-bold text-gray-700">Kéo thả favicon vào đây</p>
-                              <p className="text-xs text-gray-500 mt-1">Khuyến nghị file .ICO hoặc .PNG (32x32)</p>
+                              <p className="text-xs text-gray-500 mt-1">Khuyến nghị file .ICO hoặc .PNG (64×64 hoặc 32×32)</p>
                             </div>
                           </div>
                         )}
+                        <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5">
+                          <Info size={13} className="text-slate-400 shrink-0" />
+                          Biểu tượng góc tab trình duyệt. Định dạng PNG hoặc ICO vuông 1:1.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -3156,9 +3177,15 @@ export default function AdminDashboard() {
 
                     {/* Logo Website */}
                     <div className="md:col-span-2 p-5 rounded-2xl bg-slate-50 border border-slate-200/80">
-                      <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
-                        Logo Website (Hiển thị trên Thanh điều hướng & Chân trang)
-                      </label>
+                      <div className="flex flex-wrap items-center justify-between gap-1 mb-3">
+                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                          Logo Website (Hiển thị trên Thanh điều hướng & Chân trang)
+                        </label>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                          <Sparkles size={10} className="text-blue-500" />
+                          Chuẩn: 400 × 120 px (PNG trong suốt)
+                        </span>
+                      </div>
                       <div className="flex flex-col sm:flex-row items-center gap-5">
                         {settingsForm.logoUrl ? (
                           <div className="relative w-48 h-20 bg-slate-900 rounded-xl border border-slate-200 p-2 flex items-center justify-center shrink-0 shadow-sm group">
@@ -3226,17 +3253,27 @@ export default function AdminDashboard() {
                             placeholder="Hoặc dán URL Logo: https://..."
                             className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-red-500"
                           />
+                          <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+                            <Info size={13} className="text-slate-400 shrink-0" />
+                            Định dạng file PNG nền trong suốt, tỷ lệ ngang 3:1 hoặc 4:1 để hiển thị tối ưu trên Header & Footer.
+                          </p>
                         </div>
                       </div>
                     </div>
 
                     {/* Ảnh Giới Thiệu Doanh Nghiệp (Khối "Không chỉ là vật tư") */}
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-bold text-gray-700 mb-1">
-                        Ảnh Giới Thiệu Doanh Nghiệp (Khối "Không chỉ là vật tư")
-                      </label>
+                      <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
+                        <label className="block text-sm font-bold text-gray-700">
+                          Ảnh Giới Thiệu Doanh Nghiệp (Khối "Không chỉ là vật tư")
+                        </label>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                          <Sparkles size={10} className="text-blue-500" />
+                          Chuẩn: 600 × 800 px (Dọc 3:4)
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-500 mb-3">
-                        Hình ảnh đứng hiển thị ở trang chủ ngay dưới Slide Banner chính.
+                        Hình ảnh đứng hiển thị ở trang chủ ngay dưới Slide Banner chính. Đề xuất ảnh dọc tỷ lệ 3:4 hoặc 4:5 (600×800px hoặc 800×1000px).
                       </p>
                       <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl border border-slate-200 bg-slate-50/50">
                         {settingsForm.aboutImageUrl ? (
