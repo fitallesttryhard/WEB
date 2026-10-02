@@ -347,7 +347,9 @@ export default function ProductDetail({ slug }: { slug?: string }) {
             {activeTab === 'mô tả chi tiết' && (
               <div 
                 className="prose prose-lg max-w-none prose-p:text-gray-600 prose-li:text-gray-600 prose-headings:text-gray-900 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: product.description || '<p>Đang cập nhật thông tin mô tả chi tiết cho sản phẩm này.</p>' }}
+                dangerouslySetInnerHTML={{ 
+                  __html: product.description || product.html_content || '<p>Đang cập nhật thông tin mô tả chi tiết cho sản phẩm này.</p>' 
+                }}
               />
             )}
             {activeTab === 'thông số kỹ thuật' && (

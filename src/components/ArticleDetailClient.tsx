@@ -52,7 +52,7 @@ export default function ArticleDetailClient({ post, brandName = 'Sbuild' }: Arti
         )}
         <div
           className="prose prose-lg prose-gray max-w-none leading-relaxed prose-headings:font-black prose-a:text-red-600"
-          dangerouslySetInnerHTML={{ __html: post.html_content || post.excerpt || '<p>Nội dung chi tiết đang được cập nhật...</p>' }}
+          dangerouslySetInnerHTML={{ __html: post.html_content || (post as any).content || post.excerpt || '<p>Nội dung chi tiết đang được cập nhật...</p>' }}
         />
         <div className="mt-16 pt-8 border-t border-gray-100 flex justify-between items-center">
           <a href="/blog" className="inline-flex items-center gap-2 font-bold text-red-600 hover:underline">

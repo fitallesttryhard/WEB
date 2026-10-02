@@ -75,6 +75,8 @@ export default function ProductFormModal({
     getSubcategoriesMap().then(map => setSubcategoriesMap(map));
   }, []);
   const tinyMCECallbackRef = useRef<any>(null);
+  const editorRef = useRef<any>(null);
+  const selectedImgNodeRef = useRef<any>(null);
 
   const buildSpecsFromCompareFields = (fields: { id?: string; key: string; value: string }[]) => {
     const validFields = fields.filter(f => f && f.key && f.key.trim() && f.value && f.value.trim());
@@ -277,7 +279,33 @@ export default function ProductFormModal({
 
   const handleMediaSelected = (urls: string[]) => {
     if (urls.length === 0) return;
-    if (tinyMCECallbackRef.current) {
+    if (selectedImgNodeRef.current && editorRef.current) {
+      const editor = editorRef.current;
+      const imgNode = selectedImgNodeRef.current;
+      const newUrl = urls[0];
+
+      // Dùng API chính thức của TinyMCE để thay đổi src, data-mce-src và lưu vào undo stack
+      editor.undoManager.transact(() => {
+        editor.dom.setAttrib(imgNode, 'src', newUrl);
+        editor.dom.setAttrib(imgNode, 'data-mce-src', newUrl);
+        editor.dom.setAttrib(imgNode, 'title', '');
+        editor.dom.setStyle(imgNode, 'opacity', '1');
+        editor.dom.setStyle(imgNode, 'filter', 'none');
+      });
+
+      // Báo cho TinyMCE biết node đã thay đổi và kích hoạt event
+      editor.nodeChanged();
+      editor.fire('change');
+
+      // Cập nhật ngay vào formData.description để khung Preview cập nhật tức thì
+      const latestHtml = editor.getContent();
+      setFormData(prev => ({
+        ...prev,
+        description: latestHtml
+      }));
+
+      selectedImgNodeRef.current = null;
+    } else if (tinyMCECallbackRef.current) {
       tinyMCECallbackRef.current(urls[0], { title: 'Hình ảnh từ thư viện S-BUILD' });
       tinyMCECallbackRef.current = null;
     } else if (mediaPickerConfig.type === 'thumbnail') {
@@ -296,18 +324,21 @@ export default function ProductFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Luôn lấy nội dung mới nhất từ TinyMCE editor nếu editor đã khởi tạo
+    const finalDescription = editorRef.current ? editorRef.current.getContent() : formData.description;
     onSubmit({
       ...formData,
+      description: finalDescription,
       autoSyncSpecs
     });
   };
 
   const getHighlightClass = (fieldName: string) => {
-    if (!focusedField) return 'transition-all duration-300';
+    if (!focusedField) return 'transition-all duration-200';
     if (focusedField === fieldName) {
-      return 'ring-4 ring-red-500/50 ring-offset-4 ring-offset-white scale-[1.02] transition-all duration-300 shadow-2xl z-10 bg-white rounded-xl relative';
+      return 'ring-2 ring-blue-500 ring-offset-2 scale-[1.01] transition-all duration-200 z-10 bg-white rounded-xl relative shadow-md';
     }
-    return 'opacity-40 transition-all duration-300 pointer-events-none blur-[1px]';
+    return 'transition-all duration-200 opacity-95';
   };
 
   const categoryName = categories.find(c => String(c.id || (c as any).slug || '') === String(formData.categoryId || ''))?.name || 'Danh mục sản phẩm';
@@ -1106,9 +1137,14 @@ export default function ProductFormModal({
                       onEditorChange={(content) => setFormData({ ...formData, description: content })}
                       onFocus={() => setFocusedField('description')}
                       onBlur={() => setFocusedField(null)}
+                      onInit={(_evt, editor) => {
+                        editorRef.current = editor;
+                      }}
                       init={{
                         height: 500,
                         menubar: false,
+                        quickbars_selection_toolbar: false,
+                        quickbars_insert_toolbar: false,
                         plugins: [
                           'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
                           'searchreplace', 'visualblocks', 'code', 'fullscreen', 'insertdatetime',
@@ -1119,13 +1155,33 @@ export default function ProductFormModal({
                           'bold italic underline strikethrough subscript superscript | removeformat | numlist bullist outdent indent | blockquote alignleft aligncenter alignright alignjustify | link unlink anchor | image media table hr charmap',
                           'styles blocks fontfamily fontsize lineheight | forecolor backcolor | fullscreen help'
                         ].join(' | '),
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:15px; line-height: 1.6; }',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:15px; line-height: 1.6; } img { cursor: pointer; transition: outline 0.2s; } img:hover { outline: 3px solid #2563eb; }',
                         language: 'en',
                         file_picker_callback: (callback, _value, meta) => {
                           if (meta.filetype === 'image') {
                             tinyMCECallbackRef.current = callback;
                             setMediaPickerConfig({ isOpen: true, type: 'tinymce' });
                           }
+                        },
+                        setup: (editor) => {
+                          // Bất kỳ thay đổi nào trong editor cũng tự động đồng bộ ngay vào formData.description
+                          editor.on('change SetContent NodeChange keyup paste undo redo', () => {
+                            const html = editor.getContent();
+                            setFormData(prev => ({
+                              ...prev,
+                              description: html
+                            }));
+                          });
+
+                          editor.on('dblclick', (e) => {
+                            const target = e.target;
+                            if (target && target.nodeName === 'IMG') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              selectedImgNodeRef.current = target;
+                              setMediaPickerConfig({ isOpen: true, type: 'tinymce' });
+                            }
+                          });
                         }
                       }}
                     />

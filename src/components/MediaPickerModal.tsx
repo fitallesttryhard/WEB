@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, UploadCloud, Loader2, CheckCircle2, Image as ImageIcon, 
   Search, Trash2, Copy, Check, Filter, RefreshCw, Eye
@@ -48,7 +49,12 @@ export default function MediaPickerModal({
   const [selectedTab, setSelectedTab] = useState<MediaSourceType>('all');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<MediaItem | null>(null);
+  const [mounted, setMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -218,10 +224,10 @@ export default function MediaPickerModal({
     upload: mediaFiles.filter(f => f.source === 'upload').length,
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-gray-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-gray-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[90vh] border border-gray-100 animate-in zoom-in-95 duration-200">
         
         {/* Header */}
@@ -473,7 +479,7 @@ export default function MediaPickerModal({
       {/* Lightbox Preview */}
       {previewImage && (
         <div 
-          className="fixed inset-0 z-[250] bg-black/80 flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100000] bg-black/80 flex items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setPreviewImage(null)}
         >
           <div className="max-w-4xl max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col p-4 relative" onClick={e => e.stopPropagation()}>
@@ -491,6 +497,7 @@ export default function MediaPickerModal({
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }

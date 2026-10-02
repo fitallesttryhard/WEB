@@ -1,7 +1,10 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/src/supabaseServer';
 import ProductDetailClient from '@/src/components/ProductDetailClient';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -9,18 +12,19 @@ interface PageProps {
 
 async function getProduct(slug: string) {
   const supabase = createServerSupabaseClient();
+  const cleanSlug = decodeURIComponent(slug).trim();
 
   const { data: bySlug } = await supabase
     .from('products')
     .select('*, categories(name)')
-    .eq('slug', slug)
+    .eq('slug', cleanSlug)
     .maybeSingle();
   if (bySlug) return bySlug;
 
   const { data: byId } = await supabase
     .from('products')
     .select('*, categories(name)')
-    .eq('id', slug)
+    .eq('id', cleanSlug)
     .maybeSingle();
   return byId;
 }
@@ -43,8 +47,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Sản phẩm không tồn tại | Sbuild' };
   }
 
+  const rawDesc = product.description || product.html_content || '';
   const description = product.seo_description
-    || product.description?.replace(/<[^>]*>?/gm, '').slice(0, 160)
+    || rawDesc.replace(/<[^>]*>?/gm, '').slice(0, 160)
     || `${product.name} — Sản phẩm từ Sbuild`;
   const image = product.thumbnail_url || product.image_url;
 
@@ -92,11 +97,12 @@ export default async function ProductSlugPage({ params }: PageProps) {
   const relatedProducts = await getRelatedProducts(product.id);
   const price = product.sale_price || product.original_price || product.regular_price || 0;
 
+  const rawDesc = product.description || product.html_content || '';
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: product.seo_description || product.description?.replace(/<[^>]*>?/gm, '').slice(0, 300) || '',
+    description: product.seo_description || rawDesc.replace(/<[^>]*>?/gm, '').slice(0, 300) || '',
     image: product.thumbnail_url || product.image_url || undefined,
     sku: product.sku || undefined,
     brand: { '@type': 'Brand', name: 'Sbuild' },

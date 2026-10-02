@@ -544,7 +544,7 @@ export default function AdminDashboard() {
           salePrice: p.sale_price,
           stockStatus: p.stock_status,
           tags: p.tags,
-          description: p.description,
+          description: p.description || p.html_content || '',
           status: p.status
         })));
       } else {
@@ -711,6 +711,15 @@ export default function AdminDashboard() {
     const constructionCats = formData.constructionCategories || [];
     const subcat = formData.subcategory || '';
     const encodedTags = encodeProductTags(formData.tags, constructionCats, subcat);
+
+    const parseNum = (val: any) => {
+      if (val === undefined || val === null || val === '') return null;
+      const n = Number(String(val).replace(/[^0-9.-]+/g, ''));
+      return isNaN(n) ? null : n;
+    };
+    const regPrice = parseNum(formData.regularPrice);
+    const sPrice = parseNum(formData.salePrice);
+    const origPrice = regPrice || sPrice || 0;
     
     if (formData.id) {
       // Update
@@ -722,12 +731,11 @@ export default function AdminDashboard() {
         construction_categories: constructionCats,
         is_hot: formData.isHot,
         specs: formData.specs,
-        image: imageUrl
+        image: imageUrl,
+        regularPrice: regPrice,
+        salePrice: sPrice,
+        original_price: origPrice
       };
-      
-      setProducts(products.map(p => p.id === formData.id ? updatedProduct : p));
-      setIsModalOpen(false);
-      showToast('Đã cập nhật sản phẩm thành công!');
 
       try {
         const { error } = await supabase.from('products').update({
@@ -742,16 +750,23 @@ export default function AdminDashboard() {
           thumbnail_url: formData.thumbnailUrl,
           gallery_urls: formData.galleryUrls,
           sku: formData.sku,
-          regular_price: formData.regularPrice,
-          sale_price: formData.salePrice,
+          regular_price: regPrice,
+          sale_price: sPrice,
+          original_price: origPrice,
           stock_status: formData.stockStatus,
           tags: encodedTags,
           description: formData.description,
+          html_content: formData.description,
           status: formData.status
         }).eq('id', formData.id);
         if (error) throw error;
+
+        setProducts(products.map(p => p.id === formData.id ? updatedProduct : p));
+        setIsModalOpen(false);
+        showToast('Đã cập nhật sản phẩm thành công!');
       } catch (err: any) {
-        console.log('Update Error (might be missing column):', err.message);
+        console.error('Update Error:', err);
+        showToast('Lỗi khi lưu sản phẩm: ' + (err.message || 'Vui lòng thử lại'));
       }
     } else {
       // Create
@@ -763,19 +778,18 @@ export default function AdminDashboard() {
         construction_categories: constructionCats,
         is_hot: formData.isHot,
         specs: formData.specs,
-        image: imageUrl
+        image: imageUrl,
+        regularPrice: regPrice,
+        salePrice: sPrice,
+        original_price: origPrice
       };
 
-      setProducts([newProduct, ...products]);
-      setIsModalOpen(false);
-      showToast('Đã thêm sản phẩm thành công!');
-
       try {
-        const { error } = await supabase.from('products').insert([{
+        const { data: insertedData, error } = await supabase.from('products').insert([{
           name: formData.name,
           category_id: formData.categoryId,
           is_hot: formData.isHot,
-        specs: formData.specs,
+          specs: formData.specs,
           image_url: imageUrl,
           slug: formData.slug,
           seo_title: formData.seoTitle,
@@ -783,16 +797,27 @@ export default function AdminDashboard() {
           thumbnail_url: formData.thumbnailUrl,
           gallery_urls: formData.galleryUrls,
           sku: formData.sku,
-          regular_price: formData.regularPrice,
-          sale_price: formData.salePrice,
+          regular_price: regPrice,
+          sale_price: sPrice,
+          original_price: origPrice,
           stock_status: formData.stockStatus,
           tags: encodedTags,
           description: formData.description,
+          html_content: formData.description,
           status: formData.status
-        }]);
+        }]).select();
         if (error) throw error;
+
+        if (insertedData && insertedData[0]) {
+          newProduct.id = insertedData[0].id;
+        }
+
+        setProducts([newProduct, ...products]);
+        setIsModalOpen(false);
+        showToast('Đã thêm sản phẩm thành công!');
       } catch (err: any) {
-        console.log('Insert Error (might be missing column):', err.message);
+        console.error('Insert Error:', err);
+        showToast('Lỗi khi thêm sản phẩm: ' + (err.message || 'Vui lòng thử lại'));
       }
     }
   };
@@ -1784,12 +1809,15 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
-                              <button 
-                                onClick={() => showToast('Tính năng Xem trước đang được phát triển.')}
-                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
+                              <a 
+                                href={`/san-pham/${product.slug || product.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors cursor-pointer" 
+                                title="Xem trước trên website"
                               >
                                 <Eye size={16} />
-                              </button>
+                              </a>
                               <button 
                                 onClick={() => handleEditProduct(product)}
                                 className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"
@@ -2067,12 +2095,21 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
-                              <button 
-                                onClick={() => showToast('Tính năng Xem trước đang được phát triển.')}
-                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Xem trước"
+                              <a 
+                                href={page.slug ? `/${page.slug}` : '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => {
+                                  if (!page.slug) {
+                                    e.preventDefault();
+                                    showToast('Trang này chưa có đường dẫn (slug).');
+                                  }
+                                }}
+                                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors cursor-pointer" 
+                                title="Xem trước trên website"
                               >
                                 <Eye size={16} />
-                              </button>
+                              </a>
                               <button 
                                 onClick={() => handleEditPage(page)}
                                 className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Chỉnh sửa"

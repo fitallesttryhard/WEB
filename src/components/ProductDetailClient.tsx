@@ -32,6 +32,23 @@ export default function ProductDetailClient({ product: initialProduct, initialRe
         setRelatedProducts(initialRelatedProducts);
       }
       setLoading(false);
+
+      // Đồng bộ dữ liệu mới nhất từ Supabase ngay phía client để không bao giờ bị kẹt cache Vercel
+      const targetSlug = initialProduct.slug || slug;
+      const targetId = initialProduct.id;
+      if (targetSlug || targetId) {
+        let query = supabase.from('products').select('*, categories(name)');
+        if (targetSlug) {
+          query = query.eq('slug', targetSlug);
+        } else {
+          query = query.eq('id', targetId);
+        }
+        query.maybeSingle().then(({ data }) => {
+          if (data) {
+            setProduct((prev: any) => ({ ...prev, ...data }));
+          }
+        });
+      }
       return;
     }
     async function loadProduct() {
@@ -361,7 +378,9 @@ export default function ProductDetailClient({ product: initialProduct, initialRe
             {activeTab === 'mô tả chi tiết' && (
               <div 
                 className="prose prose-lg max-w-none prose-p:text-gray-600 prose-li:text-gray-600 prose-headings:text-gray-900 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: product.description || '<p>Đang cập nhật thông tin mô tả chi tiết cho sản phẩm này.</p>' }}
+                dangerouslySetInnerHTML={{ 
+                  __html: product.description || product.html_content || '<p>Đang cập nhật thông tin mô tả chi tiết cho sản phẩm này.</p>' 
+                }}
               />
             )}
             {activeTab === 'thông số kỹ thuật' && (

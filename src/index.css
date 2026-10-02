@@ -170,3 +170,13 @@
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
+
+/* TinyMCE Modal & Dialog Isolation */
+.tox-tinymce-aux {
+  z-index: 1200 !important;
+}
+
+/* Khi người dùng tương tác, ẩn các floating toolbar tự động xuất hiện làm phiền */
+.tox .tox-pop {
+  display: none !important;
+}

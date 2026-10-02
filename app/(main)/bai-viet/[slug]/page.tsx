@@ -1,7 +1,10 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createServerSupabaseClient, SBUILD_TENANT_ID } from '@/src/supabaseServer';
 import ArticleDetailClient from '@/src/components/ArticleDetailClient';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -27,13 +30,14 @@ function parsePageToArticle(row: any) {
 
 async function getPost(slug: string) {
   const supabase = createServerSupabaseClient();
+  const cleanSlug = decodeURIComponent(slug).trim();
 
   const { data: bySlug } = await supabase
     .from('pages')
     .select('*')
     .eq('tenant_id', SBUILD_TENANT_ID)
     .eq('template_type', 'article')
-    .eq('slug', slug)
+    .eq('slug', cleanSlug)
     .maybeSingle();
 
   if (bySlug) return parsePageToArticle(bySlug);
@@ -42,7 +46,7 @@ async function getPost(slug: string) {
     .from('pages')
     .select('*')
     .eq('tenant_id', SBUILD_TENANT_ID)
-    .eq('id', slug)
+    .eq('id', cleanSlug)
     .maybeSingle();
 
   if (byId) return parsePageToArticle(byId);
