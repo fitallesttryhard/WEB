@@ -51,7 +51,7 @@ export default function StorefrontSections() {
       id: product.id,
       name: product.name,
       price: product.original_price || product.price || 0,
-      image: product.thumbnail_url || product.image_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop',
+      image: product.thumbnail_url || product.image_url || '',
       quantity: 1,
     });
     openDrawer();
@@ -108,7 +108,7 @@ export default function StorefrontSections() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((product, idx) => {
-                const defaultImg = 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop';
+                const defaultImg = '';
                 const img = product.thumbnail_url || product.image_url || defaultImg;
                 const rawCatName = product.categories?.name || '';
                 const catName = (rawCatName && rawCatName.trim().toLowerCase() !== 'vật tư xây dựng') ? rawCatName : '';

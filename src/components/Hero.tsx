@@ -4,7 +4,7 @@ import { ArrowRight, ShieldCheck, Award, Truck, ChevronLeft, ChevronRight } from
 import { useSettings } from '../contexts/SettingsContext';
 
 export default function Hero() {
-  const { settings } = useSettings();
+  const { settings, loading } = useSettings();
 
   const banners = settings.banners || [];
   const activeBanners = banners.filter((b: any) => {
@@ -16,20 +16,8 @@ export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadedImages, setLoadedImages] = useState<{ [key: string]: boolean }>({});
 
-  // Fallback banner if none configured or active
-  const defaultBanner = {
-    image_url: "/images/banners/banner-1789704147477.png",
-    heading: "KIẾN TẠO ĐÔ THỊ TỪ NỀN TẢNG",
-    subheading: "SBUILD cung cấp vật tư và giải pháp hoàn thiện, góp phần tạo nên những công trình chỉn chu và bền vững.",
-    cta_text: "KHÁM PHÁ GIẢI PHÁP",
-    cta_link: "/products",
-    layout_type: "badge_pills",
-    prop_1: "GIẢI PHÁP CHUYÊN DỤNG",
-    prop_2: "DANH MỤC ĐA DẠNG",
-    prop_3: "HỖ TRỢ CÔNG TRÌNH",
-  };
-
-  const displayBanners = activeBanners.length > 0 ? activeBanners : [defaultBanner];
+  // Chỉ hiển thị banner thật do admin cấu hình. Không có banner mặc định/dữ liệu ảo.
+  const displayBanners = activeBanners;
 
   // Preload all admin-configured banner images into browser cache immediately
   useEffect(() => {
@@ -56,9 +44,9 @@ export default function Hero() {
 
   const activeBanner = displayBanners[currentIndex] || displayBanners[0];
 
-  const heading = activeBanner?.heading || defaultBanner.heading;
-  const subheading = activeBanner?.subheading || defaultBanner.subheading;
-  const ctaText = activeBanner?.cta_text || defaultBanner.cta_text;
+  const heading = activeBanner?.heading || '';
+  const subheading = activeBanner?.subheading || '';
+  const ctaText = activeBanner?.cta_text || '';
   const rawCtaLink = activeBanner?.cta_link || activeBanner?.ctaLink;
   const ctaLink = (rawCtaLink && rawCtaLink.trim() !== '' && rawCtaLink !== '#') ? rawCtaLink : '/products';
 
@@ -70,10 +58,20 @@ export default function Hero() {
     setCurrentIndex((prev) => (prev + 1) % displayBanners.length);
   };
 
-  const layoutType = activeBanner?.layout_type || defaultBanner.layout_type;
-  const prop1 = activeBanner?.prop_1 || defaultBanner.prop_1;
-  const prop2 = activeBanner?.prop_2 || defaultBanner.prop_2;
-  const prop3 = activeBanner?.prop_3 || defaultBanner.prop_3;
+  const layoutType = activeBanner?.layout_type || 'minimal';
+  const prop1 = activeBanner?.prop_1 || '';
+  const prop2 = activeBanner?.prop_2 || '';
+  const prop3 = activeBanner?.prop_3 || '';
+
+  // Chưa có banner thật (đang nạp hoặc chưa cấu hình): chỉ hiển thị khung nền tối, không chữ/ảnh giả
+  if (!activeBanner) {
+    return (
+      <section
+        aria-hidden="true"
+        className={`relative min-h-[90dvh] w-full bg-slate-950 mt-[80px] shrink-0 overflow-hidden ${loading ? 'animate-pulse' : ''}`}
+      />
+    );
+  }
 
   return (
     <section className="relative min-h-[90dvh] w-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950 flex items-center mt-[80px] shrink-0 overflow-hidden group">
@@ -83,7 +81,7 @@ export default function Hero() {
 
       {/* Background Image Layers with Double Buffering from Admin Selection */}
       {displayBanners.map((banner: any, idx: number) => {
-        const url = banner.image_url || banner.image || defaultBanner.image_url;
+        const url = banner.image_url || banner.image || '';
         const isActive = idx === currentIndex;
         return (
           <div
@@ -92,7 +90,7 @@ export default function Hero() {
               isActive ? 'opacity-70 z-0 pointer-events-auto' : 'opacity-0 -z-10 pointer-events-none'
             }`}
           >
-            <img 
+            {url && <img 
               src={url}
               alt={banner.heading || "Hero Background"}
               fetchPriority={isActive ? "high" : "low"}
@@ -101,7 +99,7 @@ export default function Hero() {
               className={`w-full h-full object-cover transform ${
                 isActive ? 'scale-105 animate-kenburns' : 'scale-100'
               } transition-transform duration-1000`}
-            />
+            />}
           </div>
         );
       })}
@@ -183,17 +181,17 @@ export default function Hero() {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
             </span>
             <ShieldCheck size={15} className="text-red-400" />
-            <span>{settings.companyName || 'SBUILD Vật Tư Xây Dựng'}</span>
+            <span>{settings.companyName}</span>
           </div>
         )}
 
         {/* Hero Title */}
-        <h1 
+        {heading && <h1 
           key={`heading-${currentIndex}`}
           className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.05] mb-8 uppercase tracking-tight text-left max-w-4xl drop-shadow-xl animate-fade-in-up delay-200"
         >
           {heading}
-        </h1>
+        </h1>}
 
         {/* Subheading */}
         <p 

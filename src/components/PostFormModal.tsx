@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Upload, Search, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock, Info, Sparkles } from 'lucide-react';
+import { X, Upload, Search, AlertCircle, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock, Info, Sparkles } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import MediaPickerModal from './MediaPickerModal';
 
@@ -15,6 +15,7 @@ interface PostFormModalProps {
 export default function PostFormModal({ isOpen, onClose, onSubmit, categories, initialData }: PostFormModalProps) {
   const [previewMode, setPreviewMode] = useState<'off' | 'desktop' | 'mobile'>('desktop');
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     id: undefined as number | undefined,
@@ -36,6 +37,7 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
 
   useEffect(() => {
     if (isOpen) {
+      setFormError(null);
       if (initialData) {
         setFormData({
           id: initialData.id,
@@ -154,13 +156,36 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
     }
   };
 
+  const handleSaveAction = (targetStatus: 'draft' | 'published') => {
+    setFormError(null);
+    const finalTitle = (formData.title || '').trim();
+
+    if (!finalTitle) {
+      setFormError('Vui lòng nhập tiêu đề bài viết trước khi lưu!');
+      setFocusedField('title');
+      return;
+    }
+
+    if (targetStatus === 'published' && (!formData.categoryId || !formData.categoryId.trim())) {
+      setFormError('Vui lòng chọn chuyên mục cho bài viết trước khi xuất bản!');
+      setFocusedField('categoryId');
+      return;
+    }
+
+    const finalContent = editorRef.current ? editorRef.current.getContent() : formData.content;
+    const finalData = {
+      ...formData,
+      title: finalTitle,
+      status: targetStatus,
+      content: finalContent
+    };
+    setFormData(finalData);
+    onSubmit(finalData);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalContent = editorRef.current ? editorRef.current.getContent() : formData.content;
-    onSubmit({
-      ...formData,
-      content: finalContent
-    });
+    handleSaveAction(formData.status as any || 'published');
   };
 
   const getHighlightClass = (fieldName: string) => {
@@ -223,11 +248,7 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
 
           <button 
             type="button"
-            onClick={() => {
-              const draftData = { ...formData, status: 'draft' };
-              setFormData(draftData);
-              onSubmit(draftData);
-            }}
+            onClick={() => handleSaveAction('draft')}
             className="bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 px-5 py-2 rounded-xl font-bold text-sm transition-all shadow-sm active:scale-95"
           >
             Lưu Bản Nháp
@@ -235,12 +256,7 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
 
           <button 
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              const publishedData = { ...formData, status: 'published' };
-              setFormData(publishedData);
-              onSubmit(publishedData);
-            }}
+            onClick={() => handleSaveAction('published')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl font-black text-sm uppercase tracking-wide transition-all shadow-[0_4px_12px_rgba(37,99,235,0.2)] hover:shadow-[0_6px_16px_rgba(37,99,235,0.3)] active:scale-95"
           >
             {formData.id ? 'Cập nhật' : 'Xuất Bản'}
@@ -405,6 +421,13 @@ export default function PostFormModal({ isOpen, onClose, onSubmit, categories, i
               previewMode === 'off' ? 'grid-cols-2 max-w-5xl w-full' : 'grid-cols-1 max-w-3xl w-full'
             }`}
           >
+            {/* THÔNG BÁO LỖI NẾU NHẬP THIẾU */}
+            {formError && (
+              <div className="col-span-full bg-red-50 border-2 border-red-200 text-red-700 px-5 py-3.5 rounded-2xl flex items-center gap-3 animate-in fade-in duration-200 shadow-sm">
+                <AlertCircle size={20} className="text-red-600 shrink-0" />
+                <span className="text-sm font-bold">{formError}</span>
+              </div>
+            )}
             
             {/* THÔNG TIN CƠ BẢN */}
             <div className="flex flex-col gap-6 h-fit">

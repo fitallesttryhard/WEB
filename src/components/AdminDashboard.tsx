@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   LogOut, ExternalLink, Plus, Edit, Trash2, 
-  CheckCircle2, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
+  CheckCircle2, AlertCircle, AlertTriangle, Eye, EyeOff, TrendingUp, DollarSign, Filter, ShoppingBag,
   UploadCloud, Copy, Image as ImageIcon, Loader2, Save,
   Facebook, Instagram, Youtube, Twitter, Globe, ArrowUp, ArrowDown, PlusCircle, GripVertical, MessageCircle, Video,
   Menu, X, Layers, MapPin, Phone, Mail, ChevronRight, Search, RefreshCw, Check,
@@ -49,6 +49,61 @@ import {
   extractSubcategory,
   DEFAULT_SUBCATEGORIES
 } from '../subcategoryServices';
+
+const isValidUUID = (str?: any): boolean => {
+  if (!str || typeof str !== 'string') return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str.trim());
+};
+
+export function getFriendlyErrorMessage(err: any, fallbackMessage: string = 'Đã có lỗi xảy ra. Vui lòng thử lại!'): string {
+  if (!err) return fallbackMessage;
+  const msg = typeof err === 'string' ? err : (err.message || err.error_description || String(err));
+  const lower = msg.toLowerCase();
+
+  // 1. Trùng lặp dữ liệu (Unique constraint / Slug)
+  if (lower.includes('unique_product_slug_per_tenant') || (lower.includes('duplicate key') && lower.includes('products'))) {
+    return 'Đường dẫn (slug) sản phẩm này đã tồn tại trong hệ thống. Vui lòng đổi đường dẫn slug hoặc tên khác!';
+  }
+  if (lower.includes('unique_category_slug_per_tenant') || (lower.includes('duplicate key') && lower.includes('categories'))) {
+    return 'Tên danh mục hoặc đường dẫn (slug) này đã tồn tại. Vui lòng chọn tên hoặc slug khác!';
+  }
+  if (lower.includes('unique_post_slug_per_tenant') || lower.includes('unique_page_slug_per_tenant') || (lower.includes('duplicate key') && (lower.includes('pages') || lower.includes('posts')))) {
+    return 'Tiêu đề hoặc đường dẫn (slug) bài viết này đã tồn tại. Vui lòng đổi tiêu đề khác!';
+  }
+  if (lower.includes('duplicate key') || lower.includes('already exists')) {
+    return 'Dữ liệu hoặc đường dẫn (slug) này đã tồn tại trong hệ thống. Vui lòng kiểm tra lại!';
+  }
+
+  // 2. Vi phạm trường bắt buộc (Not-null constraint)
+  if (lower.includes('violates not-null constraint') || lower.includes('null value in column')) {
+    if (lower.includes('"name"')) return 'Vui lòng nhập tên (bắt buộc)!';
+    if (lower.includes('"title"')) return 'Vui lòng nhập tiêu đề (bắt buộc)!';
+    if (lower.includes('"slug"')) return 'Vui lòng nhập đường dẫn URL (slug)!';
+    if (lower.includes('"category_id"')) return 'Vui lòng chọn danh mục hợp lệ!';
+    if (lower.includes('"tenant_id"')) return 'Lỗi định danh cửa hàng. Vui lòng làm mới trang (F5)!';
+    return 'Vui lòng điền đầy đủ các thông tin bắt buộc trước khi lưu!';
+  }
+
+  // 3. Sai định dạng UUID hoặc dữ liệu
+  if (lower.includes('invalid input syntax for type uuid')) {
+    return 'Danh mục hoặc mã định danh không hợp lệ. Vui lòng chọn lại danh mục!';
+  }
+
+  // 4. Lỗi bảo mật / quyền / session
+  if (lower.includes('row-level security') || lower.includes('permission denied')) {
+    return 'Bạn không có quyền thực hiện thao tác này. Vui lòng kiểm tra lại quyền tài khoản!';
+  }
+  if (lower.includes('jwt') || lower.includes('session') || lower.includes('unauthorized')) {
+    return 'Phiên đăng nhập đã hết hạn. Vui lòng tải lại trang hoặc đăng nhập lại!';
+  }
+
+  // 5. Lỗi mạng / Không kết nối được
+  if (lower.includes('network') || lower.includes('failed to fetch') || lower.includes('fetch failed')) {
+    return 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng Internet của bạn!';
+  }
+
+  return msg || fallbackMessage;
+}
 
 const mockCategories = [
   { id: '1', name: 'Nẹp nhôm & Inox', slug: 'nep-nhom-inox', count: 12, description: 'Các loại nẹp trang trí hợp kim nhôm và inox 304.' },
@@ -180,7 +235,7 @@ export default function AdminDashboard() {
   const [isPageModalOpen, setIsPageModalOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<any>(null);
   const [selectedPages, setSelectedPages] = useState<any[]>([]);
-  const [toast, setToast] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
   const [selectedPosts, setSelectedPosts] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
@@ -191,12 +246,16 @@ export default function AdminDashboard() {
     slug: '', 
     description: '', 
     image_url: '',
+    banner_image_url: '',
     subcategories: [] as string[]
   });
   const [subcategoriesMap, setSubcategoriesMap] = useState<Record<string, string[]>>({});
   const [newSubcategoryInput, setNewSubcategoryInput] = useState('');
   const [isCategoryImageUploading, setIsCategoryImageUploading] = useState(false);
   const categoryImageInputRef = React.useRef<HTMLInputElement>(null);
+  const [isCategoryBannerUploading, setIsCategoryBannerUploading] = useState(false);
+  const categoryBannerInputRef = React.useRef<HTMLInputElement>(null);
+  const [isCategoryBannerPickerOpen, setIsCategoryBannerPickerOpen] = useState(false);
   const [isCategorySlugEdited, setIsCategorySlugEdited] = useState(false);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
   const [constructionCategoryForm, setConstructionCategoryForm] = useState<{ id: string | null; name: string; slug: string; description: string }>({
@@ -610,9 +669,18 @@ export default function AdminDashboard() {
     }
   };
 
-  const showToast = (message: string) => {
-    setToast(message);
-    setTimeout(() => setToast(''), 3000);
+  const showToast = (message: string, type?: 'success' | 'error' | 'warning') => {
+    let resolvedType: 'success' | 'error' | 'warning' = type || 'success';
+    if (!type) {
+      const lower = message.toLowerCase();
+      if (lower.includes('lỗi') || lower.includes('thất bại') || lower.includes('hết hạn')) {
+        resolvedType = 'error';
+      } else if (lower.includes('vui lòng') || lower.includes('cảnh báo') || lower.includes('chưa') || lower.includes('đã tồn tại')) {
+        resolvedType = 'warning';
+      }
+    }
+    setToast({ message, type: resolvedType });
+    setTimeout(() => setToast(null), 4000);
   };
 
   const handleSaveAppearance = async (e: React.FormEvent) => {
@@ -635,9 +703,8 @@ export default function AdminDashboard() {
         await supabase.from('tenant_settings').update(payload).eq('id', existing.id);
       } else {
         const { data: tenant } = await supabase.from('tenants').select('id').limit(1).maybeSingle();
-        if (tenant?.id) {
-          await supabase.from('tenant_settings').insert([{ ...payload, tenant_id: tenant.id }]);
-        }
+        const targetTenantId = tenant?.id || SBUILD_TENANT_ID;
+        await supabase.from('tenant_settings').insert([{ ...payload, tenant_id: targetTenantId }]);
       }
       showToast('Đã lưu và áp dụng giao diện mới!');
     } catch (error) {
@@ -678,9 +745,8 @@ export default function AdminDashboard() {
         await supabase.from('tenant_settings').update(payload).eq('id', existing.id);
       } else {
         const { data: tenant } = await supabase.from('tenants').select('id').limit(1).maybeSingle();
-        if (tenant?.id) {
-          await supabase.from('tenant_settings').insert([{ ...payload, tenant_id: tenant.id }]);
-        }
+        const targetTenantId = tenant?.id || SBUILD_TENANT_ID;
+        await supabase.from('tenant_settings').insert([{ ...payload, tenant_id: targetTenantId }]);
       }
       showToast('Đã lưu cài đặt và áp dụng toàn hệ thống!');
     } catch (error) {
@@ -702,8 +768,14 @@ export default function AdminDashboard() {
   };
 
   const handleProductSubmit = async (formData: any) => {
-    if (!formData.name || !formData.categoryId) {
-      alert("Vui lòng nhập tên sản phẩm và chọn danh mục!");
+    const name = (formData.name || '').trim();
+    if (!name) {
+      showToast('Vui lòng nhập tên sản phẩm!', 'warning');
+      return;
+    }
+
+    if (formData.status === 'published' && (!formData.categoryId || !String(formData.categoryId).trim())) {
+      showToast('Vui lòng chọn danh mục cho sản phẩm trước khi xuất bản!', 'warning');
       return;
     }
 
@@ -720,7 +792,29 @@ export default function AdminDashboard() {
     };
     const regPrice = parseNum(formData.regularPrice);
     const sPrice = parseNum(formData.salePrice);
+
+    if (regPrice !== null && regPrice < 0) {
+      showToast('Giá gốc sản phẩm không được là số âm!', 'warning');
+      return;
+    }
+    if (sPrice !== null && sPrice < 0) {
+      showToast('Giá khuyến mãi không được là số âm!', 'warning');
+      return;
+    }
+    if (regPrice !== null && sPrice !== null && sPrice > regPrice) {
+      showToast('Giá khuyến mãi không thể lớn hơn giá gốc!', 'warning');
+      return;
+    }
+
     const origPrice = regPrice || sPrice || 0;
+    const catId = (formData.categoryId && isValidUUID(formData.categoryId)) ? formData.categoryId : null;
+    const validSlug = formData.slug?.trim() || toSlug(name || 'san-pham');
+
+    // Kiểm tra trùng lặp slug cho sản phẩm mới
+    if (!formData.id && products.some(p => p.slug === validSlug)) {
+      showToast('Đường dẫn (slug) sản phẩm này đã tồn tại. Vui lòng đổi slug hoặc tên khác!', 'warning');
+      return;
+    }
     
     if (formData.id) {
       // Update
@@ -740,12 +834,12 @@ export default function AdminDashboard() {
 
       try {
         const { error } = await supabase.from('products').update({
-          name: formData.name,
-          category_id: formData.categoryId,
+          name,
+          category_id: catId,
           is_hot: formData.isHot,
           specs: formData.specs,
           image_url: imageUrl,
-          slug: formData.slug,
+          slug: validSlug,
           seo_title: formData.seoTitle,
           seo_description: formData.seoDescription,
           thumbnail_url: formData.thumbnailUrl,
@@ -767,7 +861,7 @@ export default function AdminDashboard() {
         showToast('Đã cập nhật sản phẩm thành công!');
       } catch (err: any) {
         console.error('Update Error:', err);
-        showToast('Lỗi khi lưu sản phẩm: ' + (err.message || 'Vui lòng thử lại'));
+        showToast(getFriendlyErrorMessage(err, 'Lỗi khi lưu sản phẩm. Vui lòng thử lại!'), 'error');
       }
     } else {
       // Create
@@ -787,12 +881,13 @@ export default function AdminDashboard() {
 
       try {
         const { data: insertedData, error } = await supabase.from('products').insert([{
-          name: formData.name,
-          category_id: formData.categoryId,
+          tenant_id: SBUILD_TENANT_ID,
+          name,
+          category_id: catId,
           is_hot: formData.isHot,
           specs: formData.specs,
           image_url: imageUrl,
-          slug: formData.slug,
+          slug: validSlug,
           seo_title: formData.seoTitle,
           seo_description: formData.seoDescription,
           thumbnail_url: formData.thumbnailUrl,
@@ -818,7 +913,7 @@ export default function AdminDashboard() {
         showToast('Đã thêm sản phẩm thành công!');
       } catch (err: any) {
         console.error('Insert Error:', err);
-        showToast('Lỗi khi thêm sản phẩm: ' + (err.message || 'Vui lòng thử lại'));
+        showToast(getFriendlyErrorMessage(err, 'Lỗi khi thêm sản phẩm. Vui lòng thử lại!'), 'error');
       }
     }
   };
@@ -889,14 +984,31 @@ export default function AdminDashboard() {
   };
 
   const handlePostSubmit = async (formData: any) => {
+    const title = (formData.title || '').trim();
+    if (!title) {
+      showToast('Vui lòng nhập tiêu đề bài viết!', 'warning');
+      return;
+    }
+
+    if (formData.status === 'published' && (!formData.categoryId || !String(formData.categoryId).trim())) {
+      showToast('Vui lòng chọn chuyên mục cho bài viết trước khi xuất bản!', 'warning');
+      return;
+    }
+
     const selectedCat = postCategories.find(c => c.id.toString() === formData.categoryId || c.name === formData.categoryId);
     const catName = selectedCat?.name || formData.category || formData.categoryId || 'Kỹ Thuật Thi Công';
     const imageUrl = formData.thumbnailUrl || formData.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop';
-    const slug = formData.slug || toSlug(formData.title || 'bai-viet');
+    const slug = formData.slug?.trim() || toSlug(title || 'bai-viet');
+
+    // Kiểm tra trùng lặp slug cho bài viết mới
+    if (!formData.id && posts.some(p => p.slug === slug)) {
+      showToast('Tiêu đề hoặc đường dẫn (slug) bài viết này đã tồn tại. Vui lòng đổi tiêu đề khác!', 'warning');
+      return;
+    }
 
     const res = await saveArticle({
       id: formData.id,
-      title: formData.title,
+      title,
       slug,
       category: catName,
       cover_image: imageUrl,
@@ -932,10 +1044,10 @@ export default function AdminDashboard() {
         setPosts([mappedPost, ...posts]);
         showToast('Đã thêm bài viết mới!');
       }
+      setIsPostModalOpen(false);
     } else {
-      showToast('Lỗi khi lưu bài viết: ' + (res.error || 'Vui lòng thử lại'));
+      showToast(getFriendlyErrorMessage(res.error, 'Lỗi khi lưu bài viết. Vui lòng thử lại!'), 'error');
     }
-    setIsPostModalOpen(false);
   };
 
   const handleDeletePost = async (id: any) => {
@@ -1048,23 +1160,31 @@ export default function AdminDashboard() {
         id: newId,
         lastUpdated: new Date().toISOString().split('T')[0]
       };
-      setPages([newPage, ...pages]);
-      showToast('Đã thêm trang tĩnh mới!');
 
       try {
         const { data: tenant } = await supabase.from('tenants').select('id').limit(1).maybeSingle();
+        const targetTenantId = tenant?.id || SBUILD_TENANT_ID;
         const payload: any = {
-          id: newId,
+          tenant_id: targetTenantId,
           title: formData.title,
           slug,
           template_type: formData.template || 'default',
           html_content: formData.content || ''
         };
-        if (tenant?.id) payload.tenant_id = tenant.id;
+        if (isValidUUID(newId)) {
+          payload.id = newId;
+        }
 
-        await supabase.from('pages').insert([payload]);
-      } catch (err) {
+        const { data: inserted, error } = await supabase.from('pages').insert([payload]).select();
+        if (error) throw error;
+        if (inserted?.[0]) {
+          newPage.id = inserted[0].id;
+        }
+        setPages([newPage, ...pages]);
+        showToast('Đã thêm trang tĩnh mới!');
+      } catch (err: any) {
         console.warn('Lỗi insert page:', err);
+        showToast('Lỗi khi lưu trang tĩnh: ' + (err.message || 'Vui lòng thử lại'));
       }
     }
     setIsPageModalOpen(false);
@@ -1248,6 +1368,27 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleCategoryBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsCategoryBannerUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `cat-banner-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const { error } = await supabase.storage.from('product-media').upload(fileName, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('product-media').getPublicUrl(fileName);
+      setCategoryForm(prev => ({ ...prev, banner_image_url: publicUrl }));
+    } catch (err) {
+      const localUrl = URL.createObjectURL(file);
+      setCategoryForm(prev => ({ ...prev, banner_image_url: localUrl }));
+      console.warn('Upload lỗi, dùng URL cục bộ:', err);
+    } finally {
+      setIsCategoryBannerUploading(false);
+      if (categoryBannerInputRef.current) categoryBannerInputRef.current.value = '';
+    }
+  };
+
   const handleAddSubcategoryToForm = (e?: React.MouseEvent | React.KeyboardEvent) => {
     if (e && 'key' in e && e.key !== 'Enter') return;
     if (e && 'preventDefault' in e) e.preventDefault();
@@ -1271,21 +1412,30 @@ export default function AdminDashboard() {
 
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!categoryForm.name) {
-      showToast('Vui lòng nhập tên danh mục!');
+    const name = (categoryForm.name || '').trim();
+    if (!name) {
+      showToast('Vui lòng nhập tên danh mục sản phẩm!', 'warning');
       return;
     }
     
-    const slug = categoryForm.slug || toSlug(categoryForm.name);
+    const slug = categoryForm.slug?.trim() || toSlug(name);
+
+    if (!categoryForm.id) {
+      const isDup = categories.some(c => c.name.toLowerCase() === name.toLowerCase() || c.slug === slug);
+      if (isDup) {
+        showToast('Tên danh mục hoặc đường dẫn (slug) này đã tồn tại trong hệ thống!', 'warning');
+        return;
+      }
+    }
 
     // Lưu subcategories vào subcategoriesMap
     const updatedSubMap = {
       ...subcategoriesMap,
-      [categoryForm.name]: categoryForm.subcategories || []
+      [name]: categoryForm.subcategories || []
     };
     if (categoryForm.id) {
       const oldCat = categories.find(c => c.id === categoryForm.id);
-      if (oldCat && oldCat.name !== categoryForm.name && updatedSubMap[oldCat.name]) {
+      if (oldCat && oldCat.name !== name && updatedSubMap[oldCat.name]) {
         delete updatedSubMap[oldCat.name];
       }
     }
@@ -1293,44 +1443,71 @@ export default function AdminDashboard() {
     saveSubcategoriesMap(updatedSubMap);
 
     if (categoryForm.id) {
-      setCategories(categories.map(c => c.id === categoryForm.id ? { ...categoryForm, count: c.count || 0 } : c));
-      showToast('Đã cập nhật danh mục!');
       try {
-        await supabase.from('categories').update({ 
-          name: categoryForm.name, 
+        const updatePayload: any = { 
+          name, 
           slug,
           description: categoryForm.description || '',
-          image_url: categoryForm.image_url || null
-        }).eq('id', categoryForm.id);
-      } catch (err) {
-        console.warn('Lỗi update category:', err);
+          image_url: categoryForm.image_url || null,
+          banner_image_url: categoryForm.banner_image_url || null
+        };
+        let { error } = await supabase.from('categories').update(updatePayload).eq('id', categoryForm.id);
+        if (error && /banner_image_url/i.test(error.message || '')) {
+          // Cột chưa được migrate: lưu tạm không có banner
+          delete updatePayload.banner_image_url;
+          ({ error } = await supabase.from('categories').update(updatePayload).eq('id', categoryForm.id));
+          showToast('Chưa chạy migration cột banner_image_url trong Supabase nên ảnh banner chưa được lưu!', 'warning');
+        }
+        if (error) throw error;
+        setCategories(categories.map(c => c.id === categoryForm.id ? { ...categoryForm, name, slug, count: c.count || 0 } : c));
+        showToast('Đã cập nhật danh mục thành công!');
+      } catch (err: any) {
+        console.error('Lỗi update category:', err);
+        showToast(getFriendlyErrorMessage(err, 'Lỗi khi cập nhật danh mục. Vui lòng thử lại!'), 'error');
+        return;
       }
     } else {
-      const newId = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
       const newCategory = {
         ...categoryForm,
-        id: newId,
+        name,
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
         slug,
         count: 0
       };
-      setCategories([newCategory, ...categories]);
-      showToast('Đã thêm danh mục mới!');
 
       try {
         const payload: any = { 
-          id: newId, 
           tenant_id: SBUILD_TENANT_ID,
-          name: categoryForm.name, 
+          name, 
           slug,
           description: categoryForm.description || '',
-          image_url: categoryForm.image_url || null
+          image_url: categoryForm.image_url || null,
+          banner_image_url: categoryForm.banner_image_url || null
         };
-        await supabase.from('categories').insert([payload]);
-      } catch (err) {
-        console.warn('Lỗi insert category:', err);
+        if (isValidUUID(newCategory.id)) {
+          payload.id = newCategory.id;
+        }
+        let { data: inserted, error } = await supabase.from('categories').insert([payload]).select();
+        if (error && /banner_image_url/i.test(error.message || '')) {
+          // Cột chưa được migrate: lưu tạm không có banner
+          delete payload.banner_image_url;
+          ({ data: inserted, error } = await supabase.from('categories').insert([payload]).select());
+          showToast('Chưa chạy migration cột banner_image_url trong Supabase nên ảnh banner chưa được lưu!', 'warning');
+        }
+        if (error) throw error;
+
+        if (inserted?.[0]) {
+          newCategory.id = inserted[0].id;
+        }
+        setCategories([newCategory, ...categories]);
+        showToast('Đã thêm danh mục mới thành công!');
+      } catch (err: any) {
+        console.error('Lỗi insert category:', err);
+        showToast(getFriendlyErrorMessage(err, 'Lỗi khi thêm danh mục. Vui lòng thử lại!'), 'error');
+        return;
       }
     }
-    setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '', subcategories: [] });
+    setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '', banner_image_url: '', subcategories: [] });
     setNewSubcategoryInput('');
     setIsCategorySlugEdited(false);
   };
@@ -1343,6 +1520,7 @@ export default function AdminDashboard() {
       slug: cat.slug || toSlug(cat.name),
       description: cat.description || '',
       image_url: cat.image_url || '',
+      banner_image_url: cat.banner_image_url || '',
       subcategories: existingSubs ? [...existingSubs] : []
     });
     setNewSubcategoryInput('');
@@ -1358,12 +1536,14 @@ export default function AdminDashboard() {
       setSubcategoriesMap(updatedSubMap);
       saveSubcategoriesMap(updatedSubMap);
     }
-    setCategories(categories.filter(c => c.id !== id));
-    showToast('Đã xóa danh mục!');
     try {
-      await supabase.from('categories').delete().eq('id', id);
-    } catch (err) {
-      console.warn('Lỗi delete category:', err);
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) throw error;
+      setCategories(categories.filter(c => c.id !== id));
+      showToast('Đã xóa danh mục thành công!');
+    } catch (err: any) {
+      console.error('Lỗi delete category:', err);
+      showToast(getFriendlyErrorMessage(err, 'Lỗi khi xóa danh mục. Vui lòng thử lại!'), 'error');
     }
   };
 
@@ -1487,22 +1667,31 @@ export default function AdminDashboard() {
 
   const handlePostCategorySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!postCategoryForm.name) {
-      showToast('Vui lòng nhập tên chuyên mục!');
+    const name = (postCategoryForm.name || '').trim();
+    if (!name) {
+      showToast('Vui lòng nhập tên chuyên mục bài viết!', 'warning');
+      return;
+    }
+
+    const slug = postCategoryForm.slug?.trim() || toSlug(name);
+    if (!postCategoryForm.id && postCategories.some(c => c.name.toLowerCase() === name.toLowerCase() || c.slug === slug)) {
+      showToast('Chuyên mục bài viết này đã tồn tại trong hệ thống!', 'warning');
       return;
     }
     
     if (postCategoryForm.id) {
-      setPostCategories(postCategories.map(c => c.id === postCategoryForm.id ? { ...postCategoryForm, count: c.count || 0 } : c));
-      showToast('Đã cập nhật chuyên mục!');
+      setPostCategories(postCategories.map(c => c.id === postCategoryForm.id ? { ...postCategoryForm, name, slug, count: c.count || 0 } : c));
+      showToast('Đã cập nhật chuyên mục bài viết thành công!');
     } else {
       const newCategory = {
         ...postCategoryForm,
+        name,
+        slug,
         id: Date.now().toString(),
         count: 0
       };
       setPostCategories([newCategory, ...postCategories]);
-      showToast('Đã thêm chuyên mục mới!');
+      showToast('Đã thêm chuyên mục bài viết mới thành công!');
     }
     setPostCategoryForm({ id: null, name: '', slug: '', description: '' });
     setIsPostCategorySlugEdited(false);
@@ -1546,9 +1735,21 @@ export default function AdminDashboard() {
       
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed top-6 right-6 z-[9999] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-5 duration-300 border border-white/10">
-          <CheckCircle2 size={18} className="text-green-400 shrink-0" />
-          <span className="font-bold text-sm">{toast}</span>
+        <div className={`fixed top-6 right-6 z-[99999] px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-5 duration-300 border backdrop-blur-md max-w-md ${
+          toast.type === 'error'
+            ? 'bg-red-950/95 text-red-100 border-red-700 shadow-red-950/40'
+            : toast.type === 'warning'
+              ? 'bg-amber-950/95 text-amber-100 border-amber-700 shadow-amber-950/40'
+              : 'bg-gray-900/95 text-white border-gray-700 shadow-gray-950/40'
+        }`}>
+          {toast.type === 'error' ? (
+            <AlertCircle size={20} className="text-red-400 shrink-0" />
+          ) : toast.type === 'warning' ? (
+            <AlertTriangle size={20} className="text-amber-400 shrink-0" />
+          ) : (
+            <CheckCircle2 size={20} className="text-emerald-400 shrink-0" />
+          )}
+          <span className="font-bold text-sm leading-snug">{toast.message}</span>
         </div>
       )}
 
@@ -2429,7 +2630,8 @@ export default function AdminDashboard() {
 
                       {/* Image Upload */}
                       <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1.5">Ảnh danh mục</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-0.5">Ảnh danh mục (trang chủ)</label>
+                        <p className="text-[11px] text-gray-400 mb-1.5">Ảnh dạng thẻ dọc hiển thị ở slider danh mục trang chủ.</p>
                         <div className="flex flex-col gap-2">
                           {/* Preview */}
                           {categoryForm.image_url ? (
@@ -2498,12 +2700,81 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
+                      {/* Banner Image (trang trong danh mục) */}
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-0.5">Ảnh banner trang trong</label>
+                        <p className="text-[11px] text-gray-400 mb-1.5">Ảnh nền ngang (khuyến nghị 1920×800px) hiển thị ở đầu trang danh mục. Độc lập với ảnh danh mục ở trang chủ. Bỏ trống sẽ dùng ảnh mặc định.</p>
+                        <div className="flex flex-col gap-2">
+                          {categoryForm.banner_image_url ? (
+                            <div className="relative rounded-xl overflow-hidden border border-gray-200" style={{ aspectRatio: '12/5' }}>
+                              <img src={categoryForm.banner_image_url} alt="banner preview" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => setCategoryForm(prev => ({ ...prev, banner_image_url: '' }))}
+                                className="absolute top-2 right-2 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                              >
+                                <X size={12} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => categoryBannerInputRef.current?.click()}
+                                disabled={isCategoryBannerUploading}
+                                className="border-2 border-dashed border-gray-200 hover:border-red-400 rounded-xl py-5 px-3 flex flex-col items-center gap-1.5 text-gray-400 hover:text-red-500 transition-all cursor-pointer bg-gray-50/50"
+                              >
+                                {isCategoryBannerUploading ? (
+                                  <><Loader2 size={18} className="animate-spin" /><span className="text-[11px] font-bold">Đang tải...</span></>
+                                ) : (
+                                  <><UploadCloud size={18} /><span className="text-[11px] font-bold">Tải từ máy</span></>
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setIsCategoryBannerPickerOpen(true)}
+                                className="border-2 border-dashed border-gray-200 hover:border-red-400 rounded-xl py-5 px-3 flex flex-col items-center gap-1.5 text-gray-600 hover:text-red-600 transition-all cursor-pointer bg-gray-50/50"
+                              >
+                                <ImageIcon size={18} className="text-red-500" />
+                                <span className="text-[11px] font-bold">Thư viện Media</span>
+                              </button>
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              name="banner_image_url"
+                              value={categoryForm.banner_image_url}
+                              onChange={handleCategoryFormChange}
+                              placeholder="Hoặc dán URL ảnh banner..."
+                              className="flex-1 px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 text-xs font-medium transition-all"
+                            />
+                            {categoryForm.banner_image_url && (
+                              <button
+                                type="button"
+                                onClick={() => setIsCategoryBannerPickerOpen(true)}
+                                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                              >
+                                Đổi ảnh
+                              </button>
+                            )}
+                          </div>
+                          <input
+                            ref={categoryBannerInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleCategoryBannerUpload}
+                          />
+                        </div>
+                      </div>
+
                       <div className="pt-2 flex gap-2">
                         {categoryForm.id && (
                           <button 
                             type="button"
                             onClick={() => {
-                              setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '', subcategories: [] });
+                              setCategoryForm({ id: null, name: '', slug: '', description: '', image_url: '', banner_image_url: '', subcategories: [] });
                               setNewSubcategoryInput('');
                               setIsCategorySlugEdited(false);
                             }}
@@ -4103,6 +4374,19 @@ export default function AdminDashboard() {
           if (urls && urls[0]) {
             setSettingsForm(prev => ({ ...prev, aboutImageUrl: urls[0] }));
             showToast('Đã chọn Ảnh Giới thiệu từ Thư viện!');
+          }
+        }}
+        contextData={{ banners, products, projects: adminProjects, posts, categories, settings: settingsForm }}
+      />
+
+      {/* Media Picker Modal cho Ảnh Banner Danh Mục (trang trong) */}
+      <MediaPickerModal
+        isOpen={isCategoryBannerPickerOpen}
+        onClose={() => setIsCategoryBannerPickerOpen(false)}
+        onSelect={(urls) => {
+          if (urls && urls[0]) {
+            setCategoryForm(prev => ({ ...prev, banner_image_url: urls[0] }));
+            showToast('Đã chọn ảnh Banner danh mục từ Thư viện!');
           }
         }}
         contextData={{ banners, products, projects: adminProjects, posts, categories, settings: settingsForm }}

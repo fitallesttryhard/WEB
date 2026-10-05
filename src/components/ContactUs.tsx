@@ -63,7 +63,7 @@ export default function ContactUs() {
 
     const defaultAddress = addressFallback && addressFallback.trim() 
       ? addressFallback.trim() 
-      : 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP. Hồ Chí Minh';
+      : '';
 
     const addressEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(defaultAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 
@@ -89,8 +89,9 @@ export default function ContactUs() {
     return `https://maps.google.com/maps?q=${encodeURIComponent(cleaned)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
   };
 
-  const mapSrc = getGoogleMapEmbedUrl(settings.mapUrl, settings.address);
-  const directMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address || 'Sbuild, TP.HCM')}`;
+  const hasMapData = Boolean((settings.mapUrl || '').trim() || (settings.address || '').trim());
+  const mapSrc = hasMapData ? getGoogleMapEmbedUrl(settings.mapUrl, settings.address) : '';
+  const directMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address || '')}`;
 
   return (
     <div className="bg-slate-50/50 min-h-screen pt-28 pb-20 selection:bg-red-200 selection:text-red-900">
@@ -122,7 +123,7 @@ export default function ContactUs() {
             </div>
             <div>
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Văn phòng / Showroom</span>
-              <p className="text-sm font-bold text-slate-900 leading-snug">{settings.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP. Hồ Chí Minh'}</p>
+              <p className="text-sm font-bold text-slate-900 leading-snug">{settings.address}</p>
             </div>
           </div>
 
@@ -134,7 +135,7 @@ export default function ContactUs() {
             <div>
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Hotline & Zalo Kỹ Thuật</span>
               <a href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} className="text-lg font-black text-red-600 hover:underline">
-                {settings.hotline || '0901 234 567'}
+                {settings.hotline}
               </a>
               <span className="block text-xs font-medium text-slate-500 mt-0.5">Phản hồi ngay trong 5 phút</span>
             </div>
@@ -148,7 +149,7 @@ export default function ContactUs() {
             <div>
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Email Báo Giá</span>
               <a href={`mailto:${settings.email}`} className="text-sm font-bold text-slate-900 hover:text-red-600 transition-colors block">
-                {settings.email || 'contact@sbuild.vn'}
+                {settings.email}
               </a>
               <span className="block text-xs font-medium text-slate-500 mt-0.5">Gửi hồ sơ bản vẽ dự án 24/7</span>
             </div>
@@ -311,7 +312,7 @@ export default function ContactUs() {
             </div>
 
             <div className="flex-1 w-full rounded-2xl overflow-hidden bg-slate-100 relative min-h-[400px]">
-              <iframe 
+              {mapSrc && <iframe 
                 src={mapSrc} 
                 width="100%" 
                 height="100%" 
@@ -321,7 +322,7 @@ export default function ContactUs() {
                 referrerPolicy="no-referrer-when-downgrade"
                 className="w-full h-full min-h-[400px]"
                 title="Bản đồ Google Maps Sbuild"
-              ></iframe>
+              ></iframe>}
             </div>
           </div>
 

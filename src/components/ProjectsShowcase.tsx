@@ -103,7 +103,7 @@ export default function ProjectsShowcase() {
                 {/* Image Container with Floating Badges */}
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
                   <img 
-                    src={article.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop'} 
+                    src={article.cover_image || ''} 
                     alt={article.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
@@ -195,7 +195,7 @@ export default function ProjectsShowcase() {
             {/* Banner Image */}
             <div className="relative aspect-[16/8] w-full overflow-hidden bg-slate-100">
               <img 
-                src={selectedArticle.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop'} 
+                src={selectedArticle.cover_image || ''} 
                 alt={selectedArticle.title} 
                 className="w-full h-full object-cover" 
               />

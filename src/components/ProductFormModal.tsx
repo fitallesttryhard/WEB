@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Upload, Search, CheckCircle2, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock, Plus, Info, Sparkles } from 'lucide-react';
+import { X, Upload, Search, CheckCircle2, AlertCircle, Image as ImageIcon, EyeOff, Monitor, Smartphone, Lock, Plus, Info, Sparkles } from 'lucide-react';
 import { Editor } from '@tinymce/tinymce-react';
 import MediaPickerModal from './MediaPickerModal';
 import { 
@@ -33,6 +33,7 @@ export default function ProductFormModal({
 }: ProductFormModalProps) {
   const [previewMode, setPreviewMode] = useState<'off' | 'desktop' | 'mobile'>('desktop');
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const availableConstructionCategories = constructionCategories.length > 0 ? constructionCategories : DEFAULT_CONSTRUCTION_CATEGORIES;
 
@@ -96,6 +97,7 @@ export default function ProductFormModal({
 
   useEffect(() => {
     if (isOpen) {
+      setFormError(null);
       if (initialData) {
         let fields: { id: string; key: string; value: string }[] = [];
 
@@ -322,15 +324,57 @@ export default function ProductFormModal({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Luôn lấy nội dung mới nhất từ TinyMCE editor nếu editor đã khởi tạo
+  const handleSaveAction = (targetStatus: 'draft' | 'published') => {
+    setFormError(null);
+    const finalName = (formData.name || '').trim();
+
+    if (!finalName) {
+      setFormError('Vui lòng nhập tên sản phẩm trước khi lưu!');
+      setFocusedField('name');
+      return;
+    }
+
+    if (targetStatus === 'published' && (!formData.categoryId || !formData.categoryId.trim())) {
+      setFormError('Vui lòng chọn danh mục cho sản phẩm trước khi xuất bản!');
+      setFocusedField('categoryId');
+      return;
+    }
+
+    const parseNum = (val: any) => {
+      if (val === undefined || val === null || val === '') return null;
+      const n = Number(String(val).replace(/[^0-9.-]+/g, ''));
+      return isNaN(n) ? null : n;
+    };
+    const regPrice = parseNum(formData.regularPrice);
+    const sPrice = parseNum(formData.salePrice);
+    if (regPrice !== null && regPrice < 0) {
+      setFormError('Giá gốc sản phẩm không được là số âm!');
+      return;
+    }
+    if (sPrice !== null && sPrice < 0) {
+      setFormError('Giá khuyến mãi không được là số âm!');
+      return;
+    }
+    if (regPrice !== null && sPrice !== null && sPrice > regPrice) {
+      setFormError('Giá khuyến mãi không thể lớn hơn giá gốc!');
+      return;
+    }
+
     const finalDescription = editorRef.current ? editorRef.current.getContent() : formData.description;
-    onSubmit({
+    const finalData = {
       ...formData,
+      name: finalName,
+      status: targetStatus,
       description: finalDescription,
       autoSyncSpecs
-    });
+    };
+    setFormData(finalData);
+    onSubmit(finalData);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSaveAction(formData.status as any || 'published');
   };
 
   const getHighlightClass = (fieldName: string) => {
@@ -393,11 +437,7 @@ export default function ProductFormModal({
 
           <button 
             type="button"
-            onClick={() => {
-              const draftData = { ...formData, status: 'draft' };
-              setFormData(draftData);
-              onSubmit(draftData);
-            }}
+            onClick={() => handleSaveAction('draft')}
             className="bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 px-5 py-2 rounded-xl font-bold text-sm transition-all shadow-sm active:scale-95"
           >
             Lưu Bản Nháp
@@ -405,12 +445,7 @@ export default function ProductFormModal({
 
           <button 
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              const publishedData = { ...formData, status: 'published' };
-              setFormData(publishedData);
-              onSubmit(publishedData);
-            }}
+            onClick={() => handleSaveAction('published')}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl font-black text-sm uppercase tracking-wide transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)] hover:shadow-[0_6px_16px_rgba(220,38,38,0.3)] active:scale-95"
           >
             {formData.id ? 'Cập nhật' : 'Xuất Bản'}
@@ -703,6 +738,13 @@ export default function ProductFormModal({
               previewMode === 'off' ? 'grid-cols-2 max-w-5xl w-full' : 'grid-cols-1 max-w-3xl w-full'
             }`}
           >
+            {/* THÔNG BÁO LỖI NẾU NHẬP THIẾU */}
+            {formError && (
+              <div className="col-span-full bg-red-50 border-2 border-red-200 text-red-700 px-5 py-3.5 rounded-2xl flex items-center gap-3 animate-in fade-in duration-200 shadow-sm">
+                <AlertCircle size={20} className="text-red-600 shrink-0" />
+                <span className="text-sm font-bold">{formError}</span>
+              </div>
+            )}
             
             {/* THÔNG TIN CƠ BẢN (Col 1) */}
             <div className="flex flex-col gap-6 h-fit">

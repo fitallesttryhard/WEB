@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { SBUILD_TENANT_ID } from './projectServices';
 
 export interface ProductData {
   id?: string;
@@ -101,9 +102,17 @@ export async function getProducts(options: GetProductsOptions = {}) {
  */
 export async function createProduct(productData: ProductData) {
   try {
+    const payload = {
+      tenant_id: productData.tenant_id || SBUILD_TENANT_ID,
+      ...productData,
+      category_id: (productData.category_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(productData.category_id))) 
+        ? productData.category_id 
+        : null
+    };
+
     const { data, error } = await supabase
       .from('products')
-      .insert([productData])
+      .insert([payload])
       .select()
       .single();
 

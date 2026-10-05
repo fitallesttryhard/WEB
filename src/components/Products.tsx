@@ -14,16 +14,13 @@ import { getProducts } from '../productServices';
 import { 
   getConstructionCategories, 
   extractConstructionCategories, 
-  DEFAULT_CONSTRUCTION_CATEGORIES, 
   ConstructionCategory 
 } from '../constructionServices';
 import { 
   getSubcategoriesMap, 
   getSubcategoriesForCategory, 
-  extractSubcategory, 
-  DEFAULT_SUBCATEGORIES 
+  extractSubcategory
 } from '../subcategoryServices';
-import { SEED_PRODUCTS } from '../seedData';
 
 interface CategoryBannerInfo {
   badge: string;
@@ -43,62 +40,40 @@ const CATEGORY_BANNER_META: Record<string, CategoryBannerInfo> = {
     badge: 'CHỦNG LOẠI VẬT TƯ // HỢP KIM CAO CẤP',
     title: 'GIẢI PHÁP NẸP NHÔM TRANG TRÍ & HOÀN THIỆN KIẾN TRÚC CAO CẤP',
     description: 'Nẹp nhôm chữ T, V, U, L mạ Anode cao cấp chống ăn mòn, tạo đường nét sắc sảo, tinh tế cho vách tường, sàn nhà và góc cạnh công trình.',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop'
+    image: ''
   },
   'Nẹp inox': {
     badge: 'CHỦNG LOẠI VẬT TƯ // INOX 304 CAO CẤP',
     title: 'NẸP INOX 304 MẠ PVD BẢO VỆ & TRANG TRÍ SANG TRỌNG',
     description: 'Gia công từ inox 304 mạ PVD vàng gương, vàng xước, đen bóng đạt chuẩn sang trọng, kháng hóa chất và chịu lực va đập vượt trội.',
-    image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1600&auto=format&fit=crop'
+    image: ''
   },
   'Nẹp nhựa': {
     badge: 'CHỦNG LOẠI VẬT TƯ // PVC NGUYÊN SINH',
     title: 'NẸP NHỰA PVC BO GÓC & NGẮT NƯỚC CHUYÊN DỤNG',
     description: 'Nẹp nhựa PVC bo góc gạch men, nẹp chỉ ngắt nước và nẹp trát tường định hình chính xác, thi công nhanh chóng và tiết kiệm chi phí.',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1600&auto=format&fit=crop'
+    image: ''
   },
   'Dụng cụ': {
     badge: 'THIẾT BỊ & DỤNG CỤ // THI CÔNG CHUẨN',
     title: 'DỤNG CỤ & THIẾT BỊ THI CÔNG XÂY DỰNG CHUYÊN NGHIỆP',
     description: 'Dụng cụ thi công ốp lát, bay răng cưa, búa cao su, kìm siết ke cân bằng chuẩn kỹ thuật, nâng cao năng suất thi công.',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1600&auto=format&fit=crop'
+    image: ''
   },
   'Phụ kiện': {
     badge: 'PHỤ KIỆN XÂY DỰNG // GIÀN GIÁO & LIÊN KẾT',
     title: 'PHỤ KIỆN CÔNG TRÌNH, KE CÂN BẰNG & VẬT TƯ PHỤ TRỢ',
     description: 'Ke cân bằng, nêm chêm gạch, nút bịt đầu nẹp, phụ kiện liên kết và đỡ giàn giáo chuẩn an toàn cho công trình.',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1600&auto=format&fit=crop'
+    image: ''
   },
   'Hóa chất': {
     badge: 'HÓA CHẤT XÂY DỰNG // KEO DÁN & CHỐNG THẤM',
     title: 'KEO DÁN GẠCH, KEO CHÀ RON & HÓA CHẤT XÂY DỰNG ĐẶC CHỦNG',
     description: 'Keo dán gạch, keo chà ron, keo dán nẹp chuyên dụng và phụ gia chống thấm chất lượng cao bảo vệ công trình bền vững.',
-    image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1600&auto=format&fit=crop'
+    image: ''
   }
 };
 
-const SLUG_TO_CATEGORY_NAME: Record<string, string> = {
-  'nep-nhua': 'Nẹp nhựa',
-  'nep-nhom': 'Nẹp nhôm',
-  'nep-inox': 'Nẹp inox',
-  'dung-cu': 'Dụng cụ',
-  'phu-kien': 'Phụ kiện',
-  'hoa-chat': 'Hóa chất',
-  'nep-nhom-trang-tri': 'Nẹp nhôm',
-  'nep-inox-304-cao-cap': 'Nẹp inox',
-  'nep-nhua-pvc-chong-tham': 'Nẹp nhựa'
-};
-
-const FALLBACK_PRODUCTS = SEED_PRODUCTS.map((p, idx) => ({
-  id: `fb-${idx + 1}`,
-  name: p.name,
-  slug: p.slug,
-  category: SLUG_TO_CATEGORY_NAME[p.category_slug] || 'Phụ kiện',
-  price: p.sale_price || p.original_price,
-  image: p.thumbnail_url,
-  is_hot: p.is_hot,
-  construction_categories: p.construction_categories || ['Hoàn thiện nội thất']
-}));
 
 const STANDARD_CATEGORIES_ORDER = ['Nẹp nhựa', 'Nẹp nhôm', 'Nẹp inox', 'Dụng cụ', 'Phụ kiện', 'Hóa chất'];
 
@@ -217,7 +192,7 @@ export default function ProductsPage() {
   const [sortOption, setSortOption] = useState('newest');
 
   // Bản đồ danh mục con
-  const [subcategoriesMap, setSubcategoriesMap] = useState<Record<string, string[]>>(() => DEFAULT_SUBCATEGORIES);
+  const [subcategoriesMap, setSubcategoriesMap] = useState<Record<string, string[]>>({});
   const [quoteFeedback, setQuoteFeedback] = useState<string | null>(null);
 
   // Phân trang & số sản phẩm hiển thị trên 1 trang (tránh đứng máy & dài trang)
@@ -227,17 +202,9 @@ export default function ProductsPage() {
   // Khởi tạo trực tiếp từ Cache nếu đã từng nạp trước đó để trang hiện NGAY LẬP TỨC (0ms)
   const [dbProducts, setDbProducts] = useState<any[]>(() => cachedProducts || []);
   const [dbCategoriesData, setDbCategoriesData] = useState<any[]>(() => cachedCategoriesData || []);
-  const [dbCategories, setDbCategories] = useState<string[]>(() => cachedCategories || [
-    'Tất cả', 
-    'Nẹp nhựa', 
-    'Nẹp nhôm', 
-    'Nẹp inox', 
-    'Dụng cụ', 
-    'Phụ kiện', 
-    'Hóa chất'
-  ]);
+  const [dbCategories, setDbCategories] = useState<string[]>(() => cachedCategories || ['Tất cả']);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(
-    () => cachedConstructionCategories || DEFAULT_CONSTRUCTION_CATEGORIES
+    () => cachedConstructionCategories || []
   );
   // Nếu đã có cache thì không cần bật loading, nếu chưa có thì bật loading true
   const [loading, setLoading] = useState<boolean>(() => !cachedProducts || cachedProducts.length === 0);
@@ -315,10 +282,7 @@ export default function ProductsPage() {
         }
       } catch (err) {
         console.warn('Lỗi khi nạp dữ liệu sản phẩm từ Supabase:', err);
-        // Chỉ dùng FALLBACK khi mạng lỗi hoặc timeout, không bao giờ chớp giật trước khi nạp
-        if (!cachedProducts || cachedProducts.length === 0) {
-          setDbProducts(FALLBACK_PRODUCTS);
-        }
+        // Không dùng dữ liệu mẫu khi lỗi mạng: danh sách để trống thay vì hiển thị sản phẩm ảo
       } finally {
         setLoading(false);
       }
@@ -351,7 +315,7 @@ export default function ProductsPage() {
       badge: meta.badge,
       title: meta.title,
       description: dbCat?.description?.trim() ? dbCat.description : meta.description,
-      image: dbCat?.image_url?.trim() ? dbCat.image_url : meta.image
+      image: dbCat?.banner_image_url?.trim() ? dbCat.banner_image_url : (meta.image || aboutHeroImage)
     };
   }, [selectedCategory, dbCategoriesData, aboutHeroImage]);
 
@@ -369,7 +333,7 @@ export default function ProductsPage() {
           category: catName,
           subcategory: subcat,
           price: p.sale_price || p.original_price || p.regular_price || 0,
-          image: p.thumbnail_url || p.image_url || 'https://images.unsplash.com/photo-1504307651254-35680f356f58?q=80&w=800&auto=format&fit=crop',
+          image: p.thumbnail_url || p.image_url || '',
           is_hot: p.is_hot,
           construction_categories: cc.length > 0 ? cc : ['Hoàn thiện nội thất'],
           created_at: p.created_at,
@@ -378,15 +342,9 @@ export default function ProductsPage() {
         };
       });
     }
-    // Chỉ kích hoạt dữ liệu dự phòng khi đã tải xong mà không có sản phẩm nào
-    if (!loading) {
-      return FALLBACK_PRODUCTS.map(p => ({
-        ...p,
-        subcategory: extractSubcategory([], p.name, p.category, subcategoriesMap[p.category] || [])
-      }));
-    }
+    // Không có sản phẩm thật (đang nạp hoặc chưa có): trả về rỗng, không hiển thị sản phẩm ảo
     return [];
-  }, [dbProducts, constructionCategories, subcategoriesMap, loading]);
+  }, [dbProducts, constructionCategories, subcategoriesMap]);
 
   // LOGIC LỌC DỮ LIỆU KẾT HỢP (AND FILTER)
   const filteredProducts = useMemo(() => {

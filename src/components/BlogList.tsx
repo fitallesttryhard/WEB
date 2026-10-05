@@ -30,11 +30,11 @@ export default function BlogList() {
         if (data && data.length > 0) {
           setArticles(data.filter(a => a.is_published !== false));
         } else {
-          setArticles(DEFAULT_SBUILD_ARTICLES);
+          setArticles([]);
         }
       } catch (err) {
         console.error('Lỗi lấy bài viết cẩm nang S-BUILD:', err);
-        setArticles(DEFAULT_SBUILD_ARTICLES);
+        setArticles([]);
       } finally {
         setLoading(false);
       }
@@ -277,7 +277,7 @@ export default function BlogList() {
                     {/* Image Container with Floating Badges */}
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
                       <img 
-                        src={article.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop'} 
+                        src={article.cover_image || ''} 
                         alt={article.title} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       />
@@ -403,7 +403,7 @@ export default function BlogList() {
             {/* Banner Image */}
             <div className="relative aspect-[16/8] w-full overflow-hidden bg-slate-100">
               <img 
-                src={selectedArticle.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop'} 
+                src={selectedArticle.cover_image || ''} 
                 alt={selectedArticle.title} 
                 className="w-full h-full object-cover" 
               />

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { X, UploadCloud, Image as ImageIcon, Sparkles, Plus, Trash2, Check, Info } from 'lucide-react';
+import { X, UploadCloud, Image as ImageIcon, Sparkles, Plus, Trash2, Check, Info, AlertCircle } from 'lucide-react';
 import MediaPickerModal from './MediaPickerModal';
 import { supabase } from '../supabaseClient';
 
@@ -42,9 +42,11 @@ export default function ProjectFormModal({
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    setFormError(null);
     if (initialData) {
       const isPreset = PRESET_CATEGORIES.includes(initialData.category);
       setFormData({
@@ -120,8 +122,17 @@ export default function ProjectFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.location) {
-      alert('Vui lòng điền Tên dự án và Vị trí!');
+    setFormError(null);
+
+    const title = (formData.title || '').trim();
+    if (!title) {
+      setFormError('Vui lòng điền Tên dự án thi công!');
+      return;
+    }
+
+    const location = (formData.location || '').trim();
+    if (!location) {
+      setFormError('Vui lòng điền Địa điểm / Vị trí công trình!');
       return;
     }
 
@@ -164,6 +175,12 @@ export default function ProjectFormModal({
 
           {/* Form Content */}
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+            {formError && (
+              <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-3 animate-in fade-in duration-200 shadow-sm">
+                <AlertCircle size={18} className="text-red-600 shrink-0" />
+                <span className="text-sm font-bold">{formError}</span>
+              </div>
+            )}
             
             {/* 1. Ảnh Đại Diện Dự Án (Visual Drag & Drop / Media Picker) */}
             <div>

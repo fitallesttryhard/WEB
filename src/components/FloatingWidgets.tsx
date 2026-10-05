@@ -11,7 +11,7 @@ export default function FloatingWidgets({ onOpenCatalogModal }: FloatingWidgetsP
   const { settings } = useSettings();
   const [showTooltip, setShowTooltip] = useState(true);
 
-  const hotline = settings.hotline || '0901 234 567';
+  const hotline = settings.hotline || '';
   const cleanPhone = hotline.replace(/\s+/g, '');
   const zaloUrl = `https://zalo.me/${cleanPhone}`;
 
@@ -50,6 +50,7 @@ export default function FloatingWidgets({ onOpenCatalogModal }: FloatingWidgetsP
         </button>
 
         {/* Zalo Chat Button */}
+        {hotline && (
         <a
           href={zaloUrl}
           target="_blank"
@@ -62,8 +63,10 @@ export default function FloatingWidgets({ onOpenCatalogModal }: FloatingWidgetsP
           </div>
           <span className="hidden sm:inline">Zalo Báo Giá</span>
         </a>
+        )}
 
         {/* Call Hotline Button */}
+        {hotline && (
         <a
           href={`tel:${cleanPhone}`}
           className="group flex items-center gap-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white px-4 py-2.5 rounded-full shadow-lg shadow-red-600/30 transition-all duration-300 hover:scale-105 active:scale-95 font-extrabold text-xs uppercase tracking-wider"
@@ -72,6 +75,7 @@ export default function FloatingWidgets({ onOpenCatalogModal }: FloatingWidgetsP
           <Phone size={16} className="animate-pulse" />
           <span className="hidden sm:inline">{hotline}</span>
         </a>
+        )}
 
         {/* Scroll to Top */}
         <button

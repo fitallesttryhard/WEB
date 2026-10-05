@@ -7,65 +7,13 @@ import {
 import { supabase } from '../supabaseClient';
 import { 
   getConstructionCategories, 
-  ConstructionCategory, 
-  DEFAULT_CONSTRUCTION_CATEGORIES,
-  extractConstructionCategories 
+  ConstructionCategory
 } from '../constructionServices';
 
 const SBUILD_TENANT_ID = '00000000-0000-0000-0000-000000000002';
 const STANDARD_MATERIAL_ORDER = ['Nẹp nhựa', 'Nẹp nhôm', 'Nẹp inox', 'Dụng cụ', 'Phụ kiện', 'Hóa chất'];
 
-// Dữ liệu khởi tạo chuẩn xác 100% khớp với Database
-export const INITIAL_MATERIAL_CATEGORIES = [
-  {
-    id: 'b1111111-0000-0000-0000-000000000003',
-    name: 'Nẹp nhựa',
-    slug: 'nep-nhua',
-    description: 'Nẹp nhựa PVC bo góc gạch men, nẹp chỉ ngắt nước và nẹp trát tường chuyên dụng.',
-    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop',
-    count: 2
-  },
-  {
-    id: 'b1111111-0000-0000-0000-000000000001',
-    name: 'Nẹp nhôm',
-    slug: 'nep-nhom',
-    description: 'Nẹp nhôm chữ T, V, U, L mạ Anode cao cấp chống ăn mòn và tạo đường chỉ sắc nét cho công trình.',
-    image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
-    count: 3
-  },
-  {
-    id: 'b1111111-0000-0000-0000-000000000002',
-    name: 'Nẹp inox',
-    slug: 'nep-inox',
-    description: 'Nẹp inox 304 mạ PVD vàng gương, vàng xước, đen bóng đạt chuẩn sang trọng và chịu lực va đập tốt.',
-    image_url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop',
-    count: 2
-  },
-  {
-    id: 'b1111111-0000-0000-0000-000000000004',
-    name: 'Dụng cụ',
-    slug: 'dung-cu',
-    description: 'Dụng cụ thi công ốp lát, bay răng cưa, búa cao su, kìm siết ke cân bằng.',
-    image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200&auto=format&fit=crop',
-    count: 2
-  },
-  {
-    id: 'b1111111-0000-0000-0000-000000000005',
-    name: 'Phụ kiện',
-    slug: 'phu-kien',
-    description: 'Ke cân bằng, nêm chêm gạch, nút bịt đầu nẹp, phụ kiện liên kết và đỡ giàn giáo.',
-    image_url: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop',
-    count: 7
-  },
-  {
-    id: 'b1111111-0000-0000-0000-000000000006',
-    name: 'Hóa chất',
-    slug: 'hoa-chat',
-    description: 'Keo dán gạch, keo chà ron, keo dán nẹp chuyên dụng và phụ gia chống thấm.',
-    image_url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1200&auto=format&fit=crop',
-    count: 2
-  }
-];
+// Danh mục chỉ được lấy từ dữ liệu thật (Supabase). Không có dữ liệu mẫu/ảnh stock.
 
 // Sub-label kiến trúc cho từng danh mục
 function getCategorySubLabel(name: string, slug?: string, isConstruction = false) {
@@ -88,16 +36,6 @@ function getCategorySubLabel(name: string, slug?: string, isConstruction = false
   if (key.includes('hoa-chat') || key.includes('hóa chất')) return 'Keo dán nẹp & Phụ gia chống thấm';
   return 'Vật tư đạt chuẩn kiểm định';
 }
-
-const PLACEHOLDER_IMAGES = [
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1200&auto=format&fit=crop',
-];
 
 // Định dạng xuống dòng thông minh và cân đối kiến trúc, tránh chữ mồ côi (như "THẤT" rớt dòng)
 function formatArchitecturalTitle(name: string) {
@@ -153,12 +91,11 @@ function FullBleedCategoryCard({
   total: number;
 }) {
   const [hovered, setHovered] = useState(false);
-  const defaultBg = PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
-  const [imgSrc, setImgSrc] = useState(imageUrl || defaultBg);
+  const [imgFailed, setImgFailed] = useState(false);
 
   useEffect(() => {
-    setImgSrc(imageUrl || defaultBg);
-  }, [imageUrl, defaultBg]);
+    setImgFailed(false);
+  }, [imageUrl]);
 
   const formattedIndex = String(index + 1).padStart(2, '0');
 
@@ -173,32 +110,32 @@ function FullBleedCategoryCard({
         willChange: 'transform',
       }}
     >
-      {/* Background Image with Slow Architectural Ken Burns Zoom */}
-      <img
-        src={imgSrc}
-        alt={name}
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{
-          transition: 'transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
-          transform: hovered ? 'scale(1.08)' : 'scale(1)',
-          willChange: 'transform',
-        }}
-        loading="eager"
-        decoding="async"
-        onError={() => {
-          if (imgSrc !== defaultBg) setImgSrc(defaultBg);
-        }}
-      />
+      {/* Background Image with Slow Architectural Ken Burns Zoom (chỉ hiển thị ảnh thật của danh mục) */}
+      {imageUrl && !imgFailed && (
+        <img
+          src={imageUrl}
+          alt={name}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            transition: 'transform 0.9s cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: hovered ? 'scale(1.08)' : 'scale(1)',
+            willChange: 'transform',
+          }}
+          loading="eager"
+          decoding="async"
+          onError={() => setImgFailed(true)}
+        />
+      )}
 
       {/* 
         CRITICAL REQUIREMENT: 
-        Lớp phủ đen mờ đến trong dần từ cạnh trái đến cạnh phải của mỗi thẻ 
+        Lớp phủ đen mờ đến trong dần từ cạnh trái đến cạnh phải của mỗi thẻ (đã làm sáng hơn theo yêu cầu)
       */}
       <div 
         className="absolute inset-0 pointer-events-none transition-opacity duration-500"
         style={{
-          background: 'linear-gradient(90deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.65) 45%, rgba(0, 0, 0, 0.25) 80%, rgba(0, 0, 0, 0.05) 100%)',
-          opacity: hovered ? 0.92 : 1,
+          background: 'linear-gradient(90deg, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.08) 75%, transparent 100%)',
+          opacity: hovered ? 0.82 : 0.92,
         }}
       />
 
@@ -206,7 +143,7 @@ function FullBleedCategoryCard({
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.1) 40%, transparent 100%)',
+          background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.05) 30%, transparent 70%)',
         }}
       />
 
@@ -214,14 +151,14 @@ function FullBleedCategoryCard({
       <div className="relative z-10 h-full w-full p-5 sm:p-6 flex flex-col justify-between">
         
         {/* Top Section: Index, Category Title & Secondary Hover-only Content */}
-        <div className="max-w-[95%]">
+        <div className="max-w-[95%] drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]">
           {/* Index & Permanent Tag */}
           <div className="flex items-center gap-2 mb-2">
             <span className="font-mono text-red-500 text-xs font-bold tracking-widest">
               {formattedIndex}
             </span>
             <span className="w-4 h-px bg-white/25"></span>
-            <span className="font-arch text-white/50 text-[10px] font-bold uppercase tracking-[0.2em]">
+            <span className="font-arch text-white/70 text-[10px] font-bold uppercase tracking-[0.2em]">
               S-BUILD
             </span>
           </div>
@@ -229,7 +166,7 @@ function FullBleedCategoryCard({
           {/* Main Title — Balanced architectural typography, no awkward orphan line-breaks */}
           <h3 
             style={{ textWrap: 'balance' }}
-            className="font-arch font-bold text-white text-lg sm:text-xl lg:text-[22px] uppercase tracking-wide leading-tight"
+            className="font-arch font-bold text-white text-lg sm:text-xl lg:text-[22px] uppercase tracking-wide leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
           >
             {formatArchitecturalTitle(name)}
           </h3>
@@ -305,9 +242,13 @@ export default function Categories() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  const [dbCategories, setDbCategories] = useState<any[]>(() => cachedCategoriesMaterial || INITIAL_MATERIAL_CATEGORIES);
+  const [dbCategories, setDbCategories] = useState<any[]>(() => cachedCategoriesMaterial || []);
   const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(
-    () => cachedCategoriesConstruction || DEFAULT_CONSTRUCTION_CATEGORIES
+    () => cachedCategoriesConstruction || []
+  );
+  // Đang nạp dữ liệu thật lần đầu (chưa có cache) -> hiển thị skeleton thay vì dữ liệu ảo
+  const [isLoading, setIsLoading] = useState<boolean>(
+    () => !(cachedCategoriesMaterial && cachedCategoriesConstruction)
   );
 
   // Responsive visible cards count: 4 on desktop, 2 on tablet, 1 on mobile
@@ -362,19 +303,8 @@ export default function Categories() {
             return (a.name || '').localeCompare(b.name || '');
           });
 
-          // Hợp nhất với ảnh & mô tả mẫu nếu dữ liệu DB trống để không bị nhấp nháy mất ảnh
-          const merged = sorted.map((cat: any) => {
-            const fallback = INITIAL_MATERIAL_CATEGORIES.find(
-              (c) => c.name.toLowerCase() === cat.name.toLowerCase() || c.slug === cat.slug
-            );
-            return {
-              ...fallback,
-              ...cat,
-              image_url: cat.image_url || fallback?.image_url,
-              description: cat.description || fallback?.description,
-              count: fallback?.count || cat.count
-            };
-          });
+          // Chỉ dùng dữ liệu thật từ DB, không trộn dữ liệu mẫu
+          const merged = sorted.map((cat: any) => ({ ...cat }));
 
           cachedCategoriesMaterial = merged;
           setDbCategories(merged);
@@ -386,25 +316,9 @@ export default function Categories() {
         }
       } catch (err) {
         console.warn('Lỗi khi nạp dữ liệu danh mục từ Supabase:', err);
+      } finally {
+        setIsLoading(false);
       }
-    }
-
-    // Preload image cache for 60fps instant transitions
-    try {
-      const allUrls = [
-        ...INITIAL_MATERIAL_CATEGORIES.map(c => c.image_url),
-        ...DEFAULT_CONSTRUCTION_CATEGORIES.map(c => c.image_url),
-        ...PLACEHOLDER_IMAGES
-      ].filter(Boolean) as string[];
-
-      allUrls.forEach(src => {
-        if (src && typeof window !== 'undefined') {
-          const img = new Image();
-          img.src = src;
-        }
-      });
-    } catch {
-      // Ignore preloader error
     }
 
     loadDynamicTaxonomy();
@@ -498,7 +412,7 @@ export default function Categories() {
               <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
                 activeTab === 'material' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
               }`}>
-                {dbCategories.length}
+                {isLoading ? '–' : dbCategories.length}
               </span>
             </button>
 
@@ -520,13 +434,13 @@ export default function Categories() {
               <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-black transition-colors ${
                 activeTab === 'construction' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
               }`}>
-                {constructionCategories.length}
+                {isLoading ? '–' : constructionCategories.length}
               </span>
             </button>
           </div>
 
           {/* Quick Counter & Nav on Tablet/Desktop */}
-          {currentItems.length > visibleCards && (
+          {!isLoading && currentItems.length > visibleCards && (
             <div className="hidden sm:inline-flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200">
               <button
                 onClick={handlePrev}
@@ -573,7 +487,15 @@ export default function Categories() {
             willChange: 'transform',
           }}
         >
-          {currentItems.map((item, index) => {
+          {isLoading && Array.from({ length: visibleCards }).map((_, i) => (
+            <div key={`skeleton-${i}`} className="shrink-0 h-full w-full sm:w-1/2 lg:w-1/4 border-r border-white/10 bg-slate-900 animate-pulse relative">
+              <div className="absolute top-6 left-5 flex flex-col gap-3">
+                <div className="h-2.5 w-16 rounded bg-white/10" />
+                <div className="h-5 w-32 rounded bg-white/15" />
+              </div>
+            </div>
+          ))}
+          {!isLoading && currentItems.map((item, index) => {
             const isConstruction = activeTab === 'construction';
             const subLabel = getCategorySubLabel(item.name, item.slug, isConstruction);
             const href = isConstruction
@@ -608,7 +530,7 @@ export default function Categories() {
           OVERLAY NAVIGATION BUTTONS (Matching Reference Photo):
           ← PREV on the left side, NEXT → on the right side!
         */}
-        {currentItems.length > visibleCards && (
+        {!isLoading && currentItems.length > visibleCards && (
           <>
             {/* Left Button (PREV) */}
             <button

@@ -34,81 +34,20 @@ interface SettingsContextType {
   loading: boolean;
 }
 
-const defaultSbuildBanners = [
-  {
-    id: '1789704147477',
-    image_url: '/images/banners/banner-1789704147477.png',
-    heading: 'KIẾN TẠO ĐÔ THỊ TỪ NỀN TẢNG',
-    subheading: 'SBUILD cung cấp vật tư và giải pháp hoàn thiện, góp phần tạo nên những công trình chỉn chu và bền vững.',
-    cta_text: 'KHÁM PHÁ GIẢI PHÁP',
-    cta_link: '/products',
-    layout_type: 'badge_pills',
-    prop_1: 'GIẢI PHÁP CHUYÊN DỤNG',
-    prop_2: 'DANH MỤC ĐA DẠNG',
-    prop_3: 'HỖ TRỢ CÔNG TRÌNH',
-    status: true,
-    order: 1
-  },
-  {
-    id: '1789704310932',
-    image_url: '/images/banners/banner-1789704310932.png',
-    heading: 'CHỈNH CHU TRONG TỪNG CÔNG TRÌNH',
-    subheading: 'Lựa chọn đúng vật liệu hoàn thiện giúp hiện thực hóa thiết kế với độ chính xác và tính đồng bộ cao.',
-    cta_text: 'KHÁM PHÁ CẨM NANG',
-    cta_link: '/blog',
-    layout_type: 'minimal',
-    prop_1: 'Chuẩn CO/CQ Kiểm Định',
-    prop_2: 'Giao Hàng Công Trình 24/7',
-    prop_3: 'Bảo Hành Chính Hãng',
-    status: true,
-    order: 2
-  },
-  {
-    id: '1789704391026',
-    image_url: '/images/banners/banner-1789704391026.png',
-    heading: 'CHÍNH XÁC ĐẾN TỪNG ĐƯỜNG NÉT',
-    subheading: 'Những góc cạnh, khe nối và điểm chuyển tiếp được xử lý tốt tạo nên khác biệt của công trình.',
-    cta_text: 'XEM ỨNG DỤNG',
-    cta_link: '/products',
-    layout_type: 'minimal',
-    prop_1: 'Chuẩn CO/CQ Kiểm Định',
-    prop_2: 'Giao Hàng Công Trình 24/7',
-    prop_3: 'Bảo Hành Chính Hãng',
-    status: true,
-    order: 3
-  }
-];
-
-export const DEFAULT_FOOTER_BLOCKS = [
-  {
-    id: 'block-default-1',
-    type: 'links',
-    title: 'Liên kết nhanh',
-    items: [
-      { id: '1', label: 'Trang chủ', url: '/' },
-      { id: '2', label: 'Giới thiệu công ty', url: '/about' },
-      { id: '3', label: 'Danh mục sản phẩm', url: '/products' },
-      { id: '4', label: 'Cẩm nang & Kinh nghiệm', url: '/blog' },
-      { id: '5', label: 'Liên hệ', url: '/contact' }
-    ]
-  },
-  {
-    id: 'block-default-2',
-    type: 'text',
-    title: 'Chính sách chất lượng',
-    content: 'SBUILD cam kết cung cấp giải pháp vật tư, phụ kiện giàn giáo và dụng cụ thi công chất lượng chuẩn CO/CQ với chi phí tối ưu nhất.'
-  }
-];
-
+/**
+ * Giá trị khởi tạo TRỐNG: không còn thông tin công ty / hotline / địa chỉ / banner / footer mẫu.
+ * Trong lúc dữ liệu thật chưa nạp xong (loading = true) các component phải hiển thị skeleton
+ * hoặc để trống, tuyệt đối không hiển thị dữ liệu giả rồi mới "nhảy" sang dữ liệu thật.
+ */
 const defaultSettings: TenantSettings = {
-  companyName: 'Công ty TNHH Đầu tư Xây dựng Sbuild',
-  companyDescription: 'Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.',
-  hotline: '0901 234 567',
-  address: 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP. Hồ Chí Minh',
-  email: 'contact@sbuild.vn',
+  companyName: '',
+  companyDescription: '',
+  hotline: '',
+  address: '',
+  email: '',
   logoUrl: '',
   brandColor: '#dc2626',
-  mapUrl: 'https://maps.google.com/maps?q=T%E1%BA%A7ng%205%2C%20T%C3%B2a%20nh%C3%A0%20Sbuild%2C%20Qu%E1%BA%ADn%201%2C%20TP.%20H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed',
+  mapUrl: '',
   gaMeasurementId: '',
   gscVerificationCode: '',
   customHeaderScripts: '',
@@ -117,10 +56,13 @@ const defaultSettings: TenantSettings = {
   plan: 'Enterprise',
   paymentStatus: 'Paid',
   socialLinks: [],
-  footerBlocks: DEFAULT_FOOTER_BLOCKS,
-  banners: defaultSbuildBanners,
+  footerBlocks: [],
+  banners: [],
   aboutPageConfig: DEFAULT_ABOUT_PAGE_CONFIG,
 };
+
+// Bản sao dữ liệu THẬT lần tải trước để lần vào sau hiển thị ngay (không phải dữ liệu mẫu)
+const SETTINGS_CACHE_KEY = 'sbuild_settings_real_cache_v1';
 
 const SettingsContext = createContext<SettingsContextType>({
   settings: defaultSettings,
@@ -142,6 +84,31 @@ const isLegacyText = (val: any): boolean => {
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<TenantSettings>(defaultSettings);
   const [loading, setLoading] = useState(true);
+
+  // Nạp ngay bản sao dữ liệu thật đã lưu từ lần trước (nếu có) để tránh khung trống khi vào web
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
+      if (!raw) return;
+      const cached = JSON.parse(raw);
+      if (cached && typeof cached === 'object') {
+        setSettings((prev) => ({ ...prev, ...cached }));
+        setLoading(false);
+      }
+    } catch (e) {}
+  }, []);
+
+  // Lưu lại dữ liệu thật sau khi đã nạp xong
+  useEffect(() => {
+    if (loading) return;
+    try {
+      const { status, subdomain, plan, paymentStatus, banners, ...rest } = settings;
+      const safeBanners = (banners || []).filter(
+        (b: any) => !(typeof b?.image_url === 'string' && b.image_url.startsWith('data:'))
+      );
+      localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify({ ...rest, banners: safeBanners }));
+    } catch (e) {}
+  }, [settings, loading]);
 
   useEffect(() => {
     async function fetchTenantSettings() {
@@ -208,20 +175,20 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           const fc = data.footer_config || {};
           const soc = data.socials || [];
 
-          // Sanitize company name & hotline if legacy Fi.tallest data is present
-          let companyName = data.company_name || fc.companyName || defaultSettings.companyName;
+          // Loại bỏ dữ liệu cũ của Fi.tallest (không thay bằng dữ liệu mẫu)
+          let companyName = data.company_name || fc.companyName || '';
           if (isLegacyText(companyName)) {
-            companyName = 'Công ty TNHH Đầu tư Xây dựng Sbuild';
+            companyName = '';
           }
 
-          let hotline = data.hotline || fc.hotline || defaultSettings.hotline;
+          let hotline = data.hotline || fc.hotline || '';
           if (isLegacyText(hotline)) {
-            hotline = '0901 234 567';
+            hotline = '';
           }
 
-          let email = data.email || fc.email || defaultSettings.email;
+          let email = data.email || fc.email || '';
           if (isLegacyText(email)) {
-            email = 'contact@sbuild.vn';
+            email = '';
           }
 
           // Sanitize banners
@@ -229,10 +196,6 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           let cleanBanners = Array.isArray(rawBanners)
             ? rawBanners.filter((b: any) => !isLegacyText(b))
             : [];
-
-          if (cleanBanners.length === 0) {
-            cleanBanners = defaultSbuildBanners;
-          }
 
           // If legacy data was detected, update Supabase DB in background
           if (isLegacyText(fc.companyName) || isLegacyText(fc.hotline) || isLegacyText(fc.email) || rawBanners.length !== cleanBanners.length) {
@@ -251,7 +214,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
           }
 
           const rawBlocks = Array.isArray(fc) ? fc : (fc.blocks || []);
-          const finalBlocks = Array.isArray(rawBlocks) && rawBlocks.length > 0 ? rawBlocks : DEFAULT_FOOTER_BLOCKS;
+          const finalBlocks = Array.isArray(rawBlocks) ? rawBlocks : [];
 
           setSettings((prev) => {
             let safeLogoUrl = data.logo_url || prev.logoUrl || '';
@@ -263,19 +226,19 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
               brandColor: (data.brand_color && data.brand_color !== '#6366f1') ? data.brand_color : '#dc2626',
               logoUrl: safeLogoUrl,
             companyName,
-            companyDescription: fc.companyDescription || prev.companyDescription,
+            companyDescription: fc.companyDescription || '',
             aboutImageUrl: fc.aboutImageUrl || data.about_image_url || localCustomSettings.aboutImageUrl || prev.aboutImageUrl,
             hotline,
-            address: data.address || fc.address || prev.address,
+            address: data.address || fc.address || '',
             email,
-            mapUrl: fc.mapUrl || prev.mapUrl,
+            mapUrl: fc.mapUrl || '',
             gaMeasurementId: fc.gaMeasurementId || localCustomSettings.gaMeasurementId || prev.gaMeasurementId || '',
             gscVerificationCode: fc.gscVerificationCode || localCustomSettings.gscVerificationCode || prev.gscVerificationCode || '',
             customHeaderScripts: fc.customHeaderScripts || localCustomSettings.customHeaderScripts || prev.customHeaderScripts || '',
             status: tenantStatus,
             subdomain: tenantSubdomain,
             plan: tenantPlan,
-            socialLinks: Array.isArray(soc) && soc.length > 0 ? soc : (soc.links || prev.socialLinks),
+            socialLinks: Array.isArray(soc) && soc.length > 0 ? soc : (soc.links || []),
             footerBlocks: finalBlocks,
             aboutPageConfig: fc.aboutPageConfig || localCustomSettings.aboutPageConfig || DEFAULT_ABOUT_PAGE_CONFIG,
             ...localCustomSettings,
@@ -401,7 +364,7 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
               gaMeasurementId: updated.gaMeasurementId,
               gscVerificationCode: updated.gscVerificationCode,
               customHeaderScripts: updated.customHeaderScripts,
-              blocks: updated.footerBlocks || existingFc.blocks || DEFAULT_FOOTER_BLOCKS,
+              blocks: updated.footerBlocks || existingFc.blocks || [],
               banners: updated.banners || existingFc.banners || [],
               aboutPageConfig: updated.aboutPageConfig || existingFc.aboutPageConfig || DEFAULT_ABOUT_PAGE_CONFIG,
             },

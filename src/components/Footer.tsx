@@ -18,13 +18,10 @@ export default function Footer() {
     }
   };
 
+  // Chỉ hiển thị mạng xã hội thật do admin cấu hình (không có liên kết '#' giả)
   const socialLinks = settings.socialLinks && settings.socialLinks.length > 0
     ? settings.socialLinks
-    : [
-        { platform: 'facebook', url: '#' },
-        { platform: 'youtube', url: '#' },
-        { platform: 'zalo', url: '#' }
-      ];
+    : [];
 
   const footerBlocks = settings.footerBlocks || [];
 
@@ -49,12 +46,12 @@ export default function Footer() {
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-600"></span>
                 <span className="text-sm font-black uppercase tracking-wider text-white">
-                  {settings.companyName || 'Công ty TNHH Đầu tư Xây dựng Sbuild'}
+                  {settings.companyName}
                 </span>
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed mb-6 font-medium max-w-sm">
-              {settings.companyDescription || 'Nhà cung cấp chuyên nghiệp các giải pháp vật tư, nẹp trang trí cao cấp, phụ kiện và dụng cụ thi công xây dựng đạt tiêu chuẩn hàng đầu tại Việt Nam.'}
+              {settings.companyDescription}
             </p>
 
             {/* Social Links */}
@@ -164,7 +161,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Địa chỉ văn phòng</span>
-                  <span className="text-slate-300 font-semibold">{settings.address || 'Tầng 5, Tòa nhà Sbuild, Quận 1, TP. Hồ Chí Minh'}</span>
+                  <span className="text-slate-300 font-semibold">{settings.address}</span>
                 </div>
               </li>
               <li className="flex items-center gap-3">
@@ -174,7 +171,7 @@ export default function Footer() {
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Hotline tư vấn B2B</span>
                   <a href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} className="text-white font-extrabold hover:text-red-400 transition-colors">
-                    {settings.hotline || '0901 234 567'}
+                    {settings.hotline}
                   </a>
                 </div>
               </li>
@@ -185,7 +182,7 @@ export default function Footer() {
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Email tiếp nhận báo giá</span>
                   <a href={`mailto:${settings.email}`} className="text-slate-300 hover:text-white transition-colors">
-                    {settings.email || 'contact@sbuild.vn'}
+                    {settings.email}
                   </a>
                 </div>
               </li>
@@ -195,7 +192,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-slate-800/80 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium text-slate-500">
-          <p>&copy; {new Date().getFullYear()} <span className="text-slate-300 font-bold">{settings.companyName || 'S-BUILD Việt Nam'}</span>. Tất cả quyền được bảo lưu.</p>
+          <p>&copy; {new Date().getFullYear()} <span className="text-slate-300 font-bold">{settings.companyName}</span>. Tất cả quyền được bảo lưu.</p>
           <div className="flex gap-6 text-slate-400">
             <a href="/" className="hover:text-white transition-colors">Điều khoản dịch vụ</a>
             <a href="/contact" className="hover:text-white transition-colors">Hỗ trợ đối tác B2B</a>

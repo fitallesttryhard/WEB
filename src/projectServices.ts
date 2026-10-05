@@ -51,7 +51,7 @@ export async function getProjects(tenantId: string = SBUILD_TENANT_ID): Promise<
         category: parsed.category || 'Chung cư cao cấp',
         location: parsed.location || '',
         scale: parsed.scale || '',
-        image: parsed.image || parsed.cover_image || item.image_url || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1200&auto=format&fit=crop',
+        image: parsed.image || parsed.cover_image || item.image_url || '',
         materials: materialsArr,
         description: parsed.description || '',
         created_at: item.created_at

@@ -10,62 +10,17 @@ export interface ConstructionCategory {
   count?: number;
 }
 
-export const DEFAULT_CONSTRUCTION_CATEGORIES: ConstructionCategory[] = [
-  {
-    id: 'cc-1',
-    name: 'Ốp lát gạch',
-    slug: 'op-lat-gach',
-    description: 'Nẹp góc gạch men, nẹp chỉ ron, nẹp tạo phẳng bề mặt ốp lát gạch đá cao cấp.',
-    image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'cc-2',
-    name: 'Trát tường',
-    slug: 'trat-tuong',
-    description: 'Nẹp góc trát tường, nẹp chỉ ngắt nước mốc trát và định hình cạnh vữa sắc nét.',
-    image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'cc-3',
-    name: 'Thạch cao',
-    slug: 'thach-cao',
-    description: 'Nẹp góc thạch cao, nẹp chỉ âm trần, khe co giãn vách ngăn tấm thạch cao.',
-    image_url: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'cc-4',
-    name: 'Hoàn thiện nội thất',
-    slug: 'hoan-thien-noi-that',
-    description: 'Nẹp sàn gỗ, nẹp kết thúc sàn, nẹp len chân tường và nẹp thảm trải sàn nội thất.',
-    image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'cc-5',
-    name: 'Hoàn thiện ngoại thất',
-    slug: 'hoan-thien-ngoai-that',
-    description: 'Nẹp ban công, nẹp viền cửa sổ ngoài trời chịu nắng mưa và chống nứt cạnh tường.',
-    image_url: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'cc-6',
-    name: 'Thi công đèn LED',
-    slug: 'thi-cong-den-led',
-    description: 'Nẹp nhôm định hình dải LED âm trần, tủ kệ, khe sáng trang trí kiến trúc hiện đại.',
-    image_url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop'
-  },
-  {
-    id: 'cc-7',
-    name: 'Chống thấm',
-    slug: 'chong-tham',
-    description: 'Nẹp và phụ kiện xử lý mối nối chống thấm cổ ống, mạch ngừng và khe co giãn công trình.',
-    image_url: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop'
-  }
-];
+/**
+ * Không còn dữ liệu mẫu: danh sách hạng mục thi công chỉ lấy từ dữ liệu thật
+ * (Supabase / bộ nhớ đệm của dữ liệu thật). Giữ export này (mảng rỗng) để các
+ * component cũ vẫn dùng làm giá trị khởi tạo mà không hiển thị dữ liệu ảo.
+ */
+export const DEFAULT_CONSTRUCTION_CATEGORIES: ConstructionCategory[] = [];
 
 const LOCAL_STORAGE_KEY = 'sbuild_construction_categories';
 
 /**
- * Lấy danh sách các Hạng mục thi công từ tenant_settings (hoặc localStorage / mặc định)
+ * Lấy danh sách các Hạng mục thi công từ tenant_settings (hoặc localStorage - bản sao của dữ liệu thật)
  */
 export async function getConstructionCategories(): Promise<ConstructionCategory[]> {
   try {
@@ -87,7 +42,7 @@ export async function getConstructionCategories(): Promise<ConstructionCategory[
     console.warn('Lỗi khi tải construction_categories từ Supabase, sử dụng bộ nhớ đệm:', err);
   }
 
-  // 2. Fallback sang localStorage nếu có
+  // 2. Fallback sang localStorage nếu có (bản sao dữ liệu thật đã lưu trước đó)
   if (typeof window !== 'undefined') {
     const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (cached) {
@@ -102,8 +57,8 @@ export async function getConstructionCategories(): Promise<ConstructionCategory[
     }
   }
 
-  // 3. Fallback sang danh sách mặc định
-  return DEFAULT_CONSTRUCTION_CATEGORIES;
+  // 3. Không có dữ liệu thật: trả về rỗng (không dùng dữ liệu mẫu)
+  return [];
 }
 
 /**

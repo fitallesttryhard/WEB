@@ -4,26 +4,17 @@ import { Menu, X, Phone, ChevronDown, HardHat, ShoppingBag, ArrowRight, Layers, 
 import { useSettings } from '../contexts/SettingsContext';
 import { useCart } from '../contexts/CartContext';
 import { supabase } from '../supabaseClient';
-import { getConstructionCategories, ConstructionCategory, DEFAULT_CONSTRUCTION_CATEGORIES } from '../constructionServices';
+import { getConstructionCategories, ConstructionCategory } from '../constructionServices';
 
-// Danh sách chủng loại vật tư mặc định cho S-BUILD để đảm bảo menu không bao giờ bị trắng trơn
-export const DEFAULT_MATERIAL_CATEGORIES = [
-  { id: 'b1111111-0000-0000-0000-000000000003', name: 'Nẹp nhựa', slug: 'nep-nhua' },
-  { id: 'b1111111-0000-0000-0000-000000000001', name: 'Nẹp nhôm', slug: 'nep-nhom' },
-  { id: 'b1111111-0000-0000-0000-000000000002', name: 'Nẹp inox', slug: 'nep-inox' },
-  { id: 'b1111111-0000-0000-0000-000000000004', name: 'Dụng cụ', slug: 'dung-cu' },
-  { id: 'b1111111-0000-0000-0000-000000000005', name: 'Phụ kiện', slug: 'phu-kien' },
-  { id: 'b1111111-0000-0000-0000-000000000006', name: 'Hóa chất', slug: 'hoa-chat' },
-];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  const [categories, setCategories] = useState<any[]>(DEFAULT_MATERIAL_CATEGORIES);
-  const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>(DEFAULT_CONSTRUCTION_CATEGORIES);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [constructionCategories, setConstructionCategories] = useState<ConstructionCategory[]>([]);
 
-  const { settings } = useSettings();
+  const { settings, loading: settingsLoading } = useSettings();
   const { cartCount, openDrawer } = useCart();
 
   useEffect(() => {
@@ -56,14 +47,8 @@ export default function Navbar() {
             !c.name.toLowerCase().includes('saas')
           );
           if (filtered.length > 0) {
-            // Hợp nhất với danh mục chuẩn để luôn đầy đủ và đa dạng
-            const existing = new Set(filtered.map((c: any) => c.name.toLowerCase()));
+            // Chỉ dùng danh mục thật từ DB (không chèn thêm danh mục mặc định)
             const merged = [...filtered];
-            DEFAULT_MATERIAL_CATEGORIES.forEach((def) => {
-              if (!existing.has(def.name.toLowerCase()) && merged.length < 6) {
-                merged.push(def);
-              }
-            });
             const STANDARD_ORDER = ['Nẹp nhựa', 'Nẹp nhôm', 'Nẹp inox', 'Dụng cụ', 'Phụ kiện', 'Hóa chất'];
             merged.sort((a, b) => {
               const idxA = STANDARD_ORDER.indexOf(a.name);
@@ -123,6 +108,8 @@ export default function Navbar() {
               onError={() => setLogoError(true)}
               className="h-10 w-auto object-contain transition-transform group-hover:scale-105" 
             />
+          ) : settingsLoading ? (
+            <div className="h-10 w-32 rounded-lg bg-slate-100 animate-pulse" aria-hidden="true" />
           ) : (
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-tr from-red-600 to-rose-500 text-white flex items-center justify-center rounded-xl shadow-md shadow-red-500/20 transition-transform group-hover:rotate-3">
@@ -198,7 +185,7 @@ export default function Navbar() {
                     </span>
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    {(categories.length > 0 ? categories : DEFAULT_MATERIAL_CATEGORIES).map((cat) => (
+                    {categories.map((cat) => (
                       <a 
                         key={cat.id || cat.slug || cat.name}
                         href={`/products?cat=${encodeURIComponent(cat.name)}`} 
@@ -222,7 +209,7 @@ export default function Navbar() {
                     </span>
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    {(constructionCategories.length > 0 ? constructionCategories : DEFAULT_CONSTRUCTION_CATEGORIES).map((cc) => (
+                    {constructionCategories.map((cc) => (
                       <a 
                         key={cc.id || cc.slug || cc.name}
                         href={`/products?construction=${encodeURIComponent(cc.name)}`} 
@@ -277,15 +264,17 @@ export default function Navbar() {
           </button>
 
           {/* Hotline CTA Button */}
+          {settings.hotline && (
           <div className="hidden md:flex">
             <a 
               href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} 
               className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white px-5 py-2.5 rounded-xl font-extrabold text-xs tracking-wider uppercase transition-all duration-300 shadow-md shadow-red-500/20 active:scale-95 overflow-hidden"
             >
               <Phone size={15} className="text-white group-hover:scale-110 transition-transform" />
-              <span>{settings.hotline || '0901 234 567'}</span>
+              <span>{settings.hotline}</span>
             </a>
           </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button 
@@ -311,7 +300,7 @@ export default function Navbar() {
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1 mb-0.5">
                 Chủng loại vật tư
               </span>
-              {(categories.length > 0 ? categories : DEFAULT_MATERIAL_CATEGORIES).map((cat) => (
+              {categories.map((cat) => (
                 <a 
                   key={cat.id || cat.slug || cat.name} 
                   href={`/products?cat=${encodeURIComponent(cat.name)}`} 
@@ -328,7 +317,7 @@ export default function Navbar() {
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-1 mb-0.5 flex items-center gap-1">
                 <Layers size={11} /> Hạng mục thi công
               </span>
-              {(constructionCategories.length > 0 ? constructionCategories : DEFAULT_CONSTRUCTION_CATEGORIES).map((cc) => (
+              {constructionCategories.map((cc) => (
                 <a 
                   key={cc.id || cc.slug || cc.name} 
                   href={`/products?construction=${encodeURIComponent(cc.name)}`} 
@@ -344,6 +333,7 @@ export default function Navbar() {
           <a href="/blog" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Cẩm nang & Kinh nghiệm</a>
           <a href="/contact" className="font-bold text-xs uppercase tracking-wider text-slate-900 py-2 border-b border-slate-100" onClick={() => setIsMobileMenuOpen(false)}>Liên hệ</a>
           
+          {settings.hotline && (
           <a 
             href={`tel:${(settings.hotline || '').replace(/\s+/g, '')}`} 
             className="bg-red-600 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2.5 mt-2 uppercase tracking-wider text-xs shadow-lg shadow-red-600/20"
@@ -351,6 +341,7 @@ export default function Navbar() {
             <Phone size={16} />
             Hotline: {settings.hotline}
           </a>
+          )}
         </div>
       )}
     </header>

@@ -18,145 +18,7 @@ export interface Article {
   read_time?: string;
 }
 
-export const DEFAULT_SBUILD_ARTICLES: Article[] = [
-  {
-    id: 'd1111111-0000-0000-0000-000000000001',
-    title: 'Kinh Nghiệm Chọn Nẹp Nhôm Trang Trí Chuẩn Chống Phai Màu Cho Công Trình 2026',
-    slug: 'kinh-nghiem-chon-nep-nhom-trang-tri-2026',
-    category: 'Kỹ Thuật Thi Công',
-    cover_image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
-    excerpt: 'Điểm qua các tiêu chuẩn hợp kim nhôm 6063-T5 mạ Anode giúp nẹp nhôm chống ăn mòn, chịu lực tốt và giữ sắc nét cho vách tường, sàn gỗ.',
-    tags: ['Hợp kim 6063-T5', 'Mạ Anode', 'Độ bền 15 năm'],
-    read_time: '4 phút đọc',
-    html_content: `
-      <p>Nẹp nhôm trang trí ngày càng đóng vai trò quan trọng trong việc hoàn thiện các chi tiết vách tường, chỉ sàn và góc cột cho công trình kiến trúc hiện đại. Để công trình giữ được vẻ đẹp sắc nét và không bị ố vàng, phai màu theo thời gian, chủ đầu tư và kỹ sư cần lưu ý các tiêu chuẩn chọn phôi nhôm 6063-T5 và lớp mạ Anodizing cao cấp.</p>
-      <h3>1. Nhận diện phôi hợp kim nhôm chuẩn</h3>
-      <p>Nhôm chuẩn 6063-T5 có độ cứng cao từ 8-12 Webster, không bị cong võng khi thi công nẹp dài 2.5m. Khi cắt bằng máy cắt chuyên dụng, cạnh nẹp phẳng mịn, không bị ba-via hay tưa xơ.</p>
-      <h3>2. Lớp mạ Anode chống oxy hóa</h3>
-      <p>Lớp mạ Anodizing tạo màng oxit nhân tạo dày trên bề mặt thanh nhôm, giúp chống xước, chống bám vân tay và kháng kiềm tuyệt đối kể cả khi tiếp xúc với xi măng tươi trong quá trình thi công.</p>
-      <p>Các dòng sản phẩm nẹp nhôm chữ T, nẹp V, nẹp U và nẹp L do S-BUILD phân phối đều được kiểm định nghiêm ngặt về độ dày, độ cứng và công nghệ phủ màu đạt tiêu chuẩn quốc tế.</p>
-    `,
-    is_published: true,
-    views: 245,
-    author: 'Ban Kỹ Thuật S-BUILD',
-    created_at: '2026-09-08T08:00:00.000Z'
-  },
-  {
-    id: 'd1111111-0000-0000-0000-000000000002',
-    title: 'Hướng Dẫn Thi Công Nẹp Nhựa PVC Bo Góc Gạch Men Không Lo Sứt Mẻ',
-    slug: 'huong-dan-thi-cong-nep-nhua-pvc-bo-goc-gach-men',
-    category: 'Cẩm Nang Vật Tư',
-    cover_image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=1200&auto=format&fit=crop',
-    excerpt: 'Giải pháp thay thế công đoạn mài mòi 45 độ góc gạch giúp tiết kiệm 50% thời gian thi công và bảo vệ tuyệt đối góc tường ốp gạch.',
-    tags: ['Thay mài mòi 45°', 'Bo góc gạch men', 'Tiết kiệm 50% công'],
-    read_time: '5 phút đọc',
-    html_content: `
-      <p>Kỹ thuật ốp góc gạch men bằng nẹp nhựa bo tròn giúp bảo vệ mép gạch, tránh va đập và tạo độ thẩm mỹ liền mạch cho phòng tắm, nhà bếp. Không cần phải tốn công sức mài mòi gạch 45 độ dễ vỡ mẻ cạnh, người thợ chỉ cần gài chân nẹp vào lớp keo dán gạch và vuốt phẳng.</p>
-      <h3>Các bước thi công chuẩn:</h3>
-      <ol>
-        <li>Đo và cắt thanh nẹp PVC theo chiều cao của góc tường ốp gạch.</li>
-        <li>Trét keo dán gạch hoặc vữa xi măng lên góc tường, đặt thanh nẹp PVC vào vị trí và căn chỉnh bằng thước nivo.</li>
-        <li>Lắp đặt từng viên gạch men ăn khớp vào khe đỡ của thanh nẹp.</li>
-        <li>Dùng giẻ mềm lau sạch keo thừa trước khi keo khô cứng hoàn toàn.</li>
-      </ol>
-      <p>Sản phẩm nẹp PVC nguyên sinh của S-BUILD có độ dẻo dai cao, không bị giòn gãy và chống nấm mốc trong môi trường ẩm ướt.</p>
-    `,
-    is_published: true,
-    views: 180,
-    author: 'Ban Kỹ Thuật S-BUILD',
-    created_at: '2026-09-07T09:30:00.000Z'
-  },
-  {
-    id: 'd1111111-0000-0000-0000-000000000003',
-    title: 'Báo Giá Nẹp Inox 304 Mạ PVD Vàng Gương Cao Cấp Cho Biệt Thự & Khách Sạn',
-    slug: 'bao-gia-nep-inox-304-ma-pvd-vang-guong',
-    category: 'Tiêu Chuẩn & Báo Giá',
-    cover_image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1200&auto=format&fit=crop',
-    excerpt: 'Tổng hợp các mẫu nẹp inox 304 chữ T, V, U mạ PVD vàng gương sang trọng, chống gỉ sét tuyệt đối cho các công trình cao cấp.',
-    tags: ['Inox 304 chuẩn', 'Mạ PVD titan', 'Chống oxy hóa'],
-    read_time: '3 phút đọc',
-    html_content: `
-      <p>Lựa chọn nẹp inox 304 mạ PVD không chỉ tăng độ lộng lẫy cho vách đá tivi, vách gỗ phòng khách mà còn đảm bảo độ bền không phai màu theo thời gian. Khác với inox 201 dễ bị hoen ố, inox 304 tiêu chuẩn công nghiệp đem lại bề mặt bóng gương hoàn hảo, phản chiếu ánh sáng sang trọng và chống chịu tốt trong điều kiện khí hậu nóng ẩm.</p>
-      <h3>Tại sao biệt thự cao cấp ưa chuộng Inox 304 PVD?</h3>
-      <ul>
-        <li><strong>Độ cứng và chịu lực va đập tuyệt hảo:</strong> Không móp méo khi va chạm hành lý, xe đẩy hay đồ nội thất nặng.</li>
-        <li><strong>Công nghệ mạ bốc hơi vật lý PVD:</strong> Lớp mạ titan vàng gương không bị bong tróc như xi mạ truyền thống.</li>
-        <li><strong>Đa dạng ứng dụng:</strong> Chỉ âm tường, chỉ nối sàn đá hoa cương, ốp cạnh kính và viền tủ trang trí.</li>
-      </ul>
-      <p>Quý khách hàng và đơn vị thi công cần báo giá sỉ cho dự án vui lòng liên hệ hotline S-BUILD để nhận chiết khấu hấp dẫn nhất theo khối lượng đặt hàng.</p>
-    `,
-    is_published: true,
-    views: 320,
-    author: 'Phòng Kỹ Thuật S-BUILD',
-    created_at: '2026-09-06T14:15:00.000Z'
-  },
-  {
-    id: 'd1111111-0000-0000-0000-000000000004',
-    title: 'Giải Pháp Xử Lý Khe Co Giãn & Khe Lún Công Trình Bằng Nẹp Nhôm Chuyên Dụng',
-    slug: 'giai-phap-xu-ly-khe-co-gian-khe-lun-cong-trinh',
-    category: 'Kinh Nghiệm Thực Tế',
-    cover_image: 'https://images.unsplash.com/photo-1541888946425-d0fbb1861593?q=80&w=1200&auto=format&fit=crop',
-    excerpt: 'Hướng dẫn lựa chọn nẹp khe lún co giãn chịu tải trọng xe cơ giới, chống thấm và ngăn nứt gãy sàn bê tông diện tích lớn.',
-    tags: ['Khe co giãn sàn', 'Cao su EPDM', 'Chống nứt bề mặt'],
-    read_time: '6 phút đọc',
-    html_content: `
-      <p>Tại các trung tâm thương mại, nhà xưởng và tòa nhà cao tầng, hệ thống khe co giãn và khe lún đóng vai trò sống còn trong việc bù trừ chuyển vị nhiệt học và lún kết cấu. Sử dụng nẹp nhôm khe co giãn chuyên dụng giúp bề mặt sàn liền mạch mà vẫn đảm bảo an toàn kết cấu tuyệt đối.</p>
-      <h3>1. Cấu tạo nẹp khe co giãn S-BUILD</h3>
-      <p>Gồm hai thanh nhôm định hình hợp kim 6063-T5 dày dặn liên kết với lõi cao su tổng hợp EPDM hoặc Santoprene đàn hồi cao, chịu được tải trọng xe nâng và xe đẩy hàng liên tục.</p>
-      <h3>2. Quy trình lắp đặt chuẩn</h3>
-      <p>Vệ sinh sạch khe co giãn, cố định bas nhôm bằng vít nở inox chuyên dụng, sau đó chèn gioăng cao su chống nước và hoàn thiện bề mặt.</p>
-    `,
-    is_published: true,
-    views: 290,
-    author: 'Ban Kỹ Thuật S-BUILD',
-    created_at: '2026-09-05T10:00:00.000Z'
-  },
-  {
-    id: 'd1111111-0000-0000-0000-000000000005',
-    title: 'Tiêu Chuẩn Lắp Đặt Nẹp Chống Trơn Cầu Thang Cho Trường Học & Trung Tâm Thương Mại',
-    slug: 'tieu-chuan-lap-dat-nep-chong-tron-cau-thang',
-    category: 'Kỹ Thuật Thi Công',
-    cover_image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop',
-    excerpt: 'Quy chuẩn an toàn lối thoát hiểm: Cách bố trí nẹp nhôm chỉ cao su chống trượt giúp bảo vệ mũi bậc đá và chống trượt ngã hiệu quả.',
-    tags: ['Nẹp mũi bậc nhôm', 'Cao su chống trượt', 'Tiêu chuẩn an toàn'],
-    read_time: '4 phút đọc',
-    html_content: `
-      <p>Cầu thang bộ là khu vực có nguy cơ trơn trượt cao nhất trong các công trình công cộng. Việc trang bị nẹp chống trơn mũi bậc không chỉ tạo điểm nhấn trang trí mà còn là yêu cầu an toàn bắt buộc theo tiêu chuẩn thiết kế cầu thang công cộng.</p>
-      <h3>Đặc điểm nổi bật của nẹp nhôm chống trơn S-BUILD:</h3>
-      <ul>
-        <li>Thân nẹp bằng nhôm mạ anode sắc sảo, chống mài mòn cao.</li>
-        <li>Rãnh gài gioăng cao su có gân ma sát chống trượt kể cả khi bậc thang ẩm ướt.</li>
-        <li>Bảo vệ mép đá hoa cương, gỗ không bị sứt mẻ góc cạnh khi va quẹt.</li>
-      </ul>
-    `,
-    is_published: true,
-    views: 215,
-    author: 'Ban Kỹ Thuật S-BUILD',
-    created_at: '2026-09-04T16:20:00.000Z'
-  },
-  {
-    id: 'd1111111-0000-0000-0000-000000000006',
-    title: 'Cách Phân Biệt Nẹp Inox 304 Thật Và Inox 201 Bằng Thuốc Thử Chuyên Dụng',
-    slug: 'cach-phan-biet-nep-inox-304-that-va-inox-201',
-    category: 'Kinh Nghiệm Thực Tế',
-    cover_image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
-    excerpt: 'Tránh mua phải hàng kém chất lượng: Hướng dẫn kỹ sư và thợ thi công 3 phương pháp thử nhanh nẹp inox chuẩn công trình.',
-    tags: ['Thử thuốc axit', 'Thử nam châm', 'Kiểm tra độ dày'],
-    read_time: '5 phút đọc',
-    html_content: `
-      <p>Trên thị trường hiện nay có không ít đơn vị pha trộn inox 201 giá rẻ mạo danh inox 304. Sau vài tháng sử dụng trong môi trường ẩm ướt hoặc gần biển, inox 201 sẽ xuất hiện các đốm gỉ sét li ti làm giảm giá trị công trình. Dưới đây là 3 cách phân biệt chuẩn xác nhất do S-BUILD chia sẻ:</p>
-      <h3>1. Sử dụng thuốc thử axit chuyên dụng</h3>
-      <p>Nhỏ 1 giọt dung dịch thử lên bề mặt nẹp: Inox 201 sẽ chuyển sang màu đỏ gạch sau 15-30 giây, trong khi Inox 304 giữ nguyên màu xám sáng hoặc chuyển xanh lục rất chậm sau 3 phút.</p>
-      <h3>2. Thử độ hít nam châm</h3>
-      <p>Inox 304 sau khi gia công uốn dập có thể nhiễm từ nhẹ ở mép gấp, nhưng thân nẹp hoàn toàn không hít nam châm. Inox 201 có độ hút nam châm rõ rệt hơn.</p>
-      <p>S-BUILD luôn cam kết 100% nẹp Inox xuất xưởng đều đạt chuẩn 304 với chứng nhận CO/CQ kiểm định độc lập.</p>
-    `,
-    is_published: true,
-    views: 380,
-    author: 'Phòng Kiểm Định S-BUILD',
-    created_at: '2026-09-03T08:45:00.000Z'
-  }
-];
+export const DEFAULT_SBUILD_ARTICLES: Article[] = [];
 
 function parsePageToArticle(row: any): Article {
   let meta: any = {};
@@ -173,7 +35,7 @@ function parsePageToArticle(row: any): Article {
     title: row.title,
     slug: row.slug,
     category: meta.category || 'Kỹ Thuật Thi Công',
-    cover_image: meta.cover_image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
+    cover_image: meta.cover_image || '',
     excerpt: meta.excerpt || 'Bài viết chia sẻ cẩm nang kỹ thuật và kinh nghiệm thi công nẹp xây dựng.',
     html_content: meta.content || meta.html_content || row.html_content || '',
     is_published: meta.is_published !== undefined ? meta.is_published : true,
@@ -195,13 +57,13 @@ export async function getArticles(): Promise<Article[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data || data.length === 0) {
-      return DEFAULT_SBUILD_ARTICLES;
+      return [];
     }
 
     return data.map(parsePageToArticle);
   } catch (err) {
     console.warn('Lỗi lấy bài viết S-BUILD từ pages:', err);
-    return DEFAULT_SBUILD_ARTICLES;
+    return [];
   }
 }
 
@@ -223,15 +85,31 @@ export async function getArticleByIdOrSlug(idOrSlug: string): Promise<Article | 
       return parsePageToArticle(data);
     }
 
-    return DEFAULT_SBUILD_ARTICLES.find(a => a.id === idOrSlug || a.slug === idOrSlug) || null;
+    return null;
   } catch {
-    return DEFAULT_SBUILD_ARTICLES.find(a => a.id === idOrSlug || a.slug === idOrSlug) || null;
+    return null;
   }
+}
+
+function isValidUUID(str?: string): boolean {
+  if (!str) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str.trim());
+}
+
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 
 export async function saveArticle(article: Partial<Article>): Promise<{ success: boolean; data?: Article; error?: string }> {
   try {
-    const id = article.id || (crypto.randomUUID ? crypto.randomUUID() : `art_${Date.now()}`);
+    const id = (article.id && isValidUUID(article.id)) ? article.id : generateUUID();
     const slug = article.slug || (article.title ? article.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : `bai-viet-${Date.now()}`);
 
     const payloadMeta = {

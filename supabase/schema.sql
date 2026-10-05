@@ -83,6 +83,7 @@ CREATE TABLE categories (
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
     image_url TEXT,
+    banner_image_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     -- Đảm bảo slug là duy nhất TRONG CÙNG CỬA HÀNG (tenant_id)

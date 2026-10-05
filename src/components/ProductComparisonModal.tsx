@@ -66,7 +66,7 @@ export default function ProductComparisonModal({
 
                       <div className="w-24 h-24 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden mb-3">
                         <img 
-                          src={prod.thumbnail_url || prod.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop'} 
+                          src={prod.thumbnail_url || prod.image_url || ''} 
                           alt={prod.name} 
                           className="w-full h-full object-cover"
                         />

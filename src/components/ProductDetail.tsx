@@ -105,7 +105,7 @@ export default function ProductDetail({ slug }: { slug?: string }) {
   }
 
   const galleryImages = [
-    product.thumbnail_url || product.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop',
+    product.thumbnail_url || product.image_url || '',
     ...(Array.isArray(product.gallery_urls) ? product.gallery_urls : [])
   ].filter(Boolean);
 
@@ -439,7 +439,7 @@ export default function ProductDetail({ slug }: { slug?: string }) {
                   >
                     <div className="aspect-[4/3] w-full overflow-hidden bg-gray-50 flex items-center justify-center relative">
                       <img 
-                        src={relProd.thumbnail_url || relProd.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop'} 
+                        src={relProd.thumbnail_url || relProd.image_url || ''} 
                         alt={relProd.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
