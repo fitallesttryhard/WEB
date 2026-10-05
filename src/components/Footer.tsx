@@ -35,14 +35,21 @@ export default function Footer() {
           
           {/* Col 1: About / Company Name */}
           <div className="lg:col-span-4">
-            <div className="flex flex-col gap-3 mb-6">
-              {settings.logoUrl ? (
-                <img 
-                  src={settings.logoUrl} 
-                  alt={settings.companyName} 
-                  className="h-10 w-auto object-contain self-start bg-slate-900 border border-slate-800 p-1.5 rounded-xl shadow-xs" 
-                />
-              ) : null}
+            <div className="flex flex-col gap-4 mb-6">
+              {/* Logo Footer: Loại bỏ hoàn toàn khung viền, căn giữa, chống chìm với phiên bản chữ trắng + S đỏ */}
+              <div className="w-full flex justify-center py-1">
+                <a href="/" className="inline-block group focus:outline-none">
+                  <img 
+                    src="/logo-white.webp" 
+                    alt={settings.companyName || 'SBUILD'} 
+                    className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_2px_14px_rgba(255,255,255,0.08)]" 
+                    onError={(e) => {
+                      // Fallback nếu cần
+                      if (settings.logoUrl) (e.target as HTMLImageElement).src = settings.logoUrl;
+                    }}
+                  />
+                </a>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-600"></span>
                 <span className="text-sm font-black uppercase tracking-wider text-white">
